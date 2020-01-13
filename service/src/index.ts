@@ -1,17 +1,35 @@
 import dotenv from 'dotenv';
 import 'reflect-metadata';
 import { Container } from 'typedi';
-import { createConnection, useContainer } from 'typeorm';
+import {
+  createConnection,
+  useContainer,
+  getConnectionOptions,
+  ConnectionOptions,
+} from 'typeorm';
 import server, { app } from './server';
 
-dotenv.config();
+(async function Main() {
+  dotenv.config();
 
-useContainer(Container);
-createConnection().catch(e => console.error(e));
+  useContainer(Container);
 
-server();
+  const ormConfig = await getConnectionOptions();
 
-const port = process.env.PORT || 4444;
-app.listen(port, () => {
-  console.log(`App is listening on port: ${port}`);
-});
+  const config: ConnectionOptions =
+    process.env.NODE_ENV === 'production'
+      ? {
+          ...ormConfig,
+          entities: ['dist/**/*entity.js'],
+        }
+      : ormConfig;
+
+  await createConnection(config).catch(e => console.error(e));
+
+  await server();
+
+  const port = process.env.PORT || 4444;
+  app.listen(port, () => {
+    console.log(`App is listening on port: ${port}`);
+  });
+})();
