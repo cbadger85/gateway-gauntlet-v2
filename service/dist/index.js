@@ -30,8 +30,8 @@ const server_1 = __importStar(require("./server"));
         const ormConfig = yield typeorm_1.getConnectionOptions();
         const config = process.env.NODE_ENV === 'production'
             ? Object.assign({}, ormConfig, { entities: ['dist/**/*entity.js'] }) : ormConfig;
-        yield typeorm_1.createConnection(config).catch(e => console.error(e));
-        server_1.default();
+        yield typeorm_1.createConnection().catch(e => console.error(e));
+        yield server_1.default();
         const port = process.env.PORT || 4444;
         server_1.app.listen(port, () => {
             console.log(`App is listening on port: ${port}`);

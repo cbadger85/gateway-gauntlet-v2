@@ -3,12 +3,13 @@ import { Container } from 'typedi';
 import User from './users.entity';
 import UserService from './users.service';
 
-export const saveUser: RequestHandler<never, User, User> = async (
+export const addUser: RequestHandler<never, User, User> = async (
   req,
   res,
 ): Promise<void> => {
+  const { username, password } = req.body;
   const userService = Container.get(UserService);
-  const user = await userService.addUser(req.body);
+  const user = await userService.addUser({ username, password });
 
   res.send(user);
 };
@@ -24,4 +25,4 @@ export const getUser: RequestHandler<{ id: string }, User, never> = async (
   res.send(user);
 };
 
-export default { saveUser, getUser };
+export default { addUser, getUser };
