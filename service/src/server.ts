@@ -4,7 +4,7 @@ import users from './users/users.routes';
 
 export const app = express();
 
-const server = async (): Promise<void> => {
+export const server = async (): Promise<void> => {
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 

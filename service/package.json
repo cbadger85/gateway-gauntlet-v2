@@ -7,7 +7,16 @@
     "serve": "NODE_ENV=production node dist/index.js",
     "build": "tsc -b",
     "start": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.test.ts' --exec 'ts-node' src/index.ts",
-    "test": "jest --watch"
+    "test": "jest --watch --collect-coverage",
+    "test:ci": "CI=true jest --env=jsdom --verbose --coverage --collectCoverageFrom=src/**/*.{ts,tsx}",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "ci": "yarn lint && yarn test:ci"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "**/*.{js,jsx,ts,tsx}",
+      "!**/node_modules/**"
+    ]
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",

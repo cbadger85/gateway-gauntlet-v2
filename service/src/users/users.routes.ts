@@ -1,10 +1,10 @@
 import express from 'express';
-import { getUser, saveUser } from './users.controller';
+import { getUser, addUser } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 
 const userRoutes = express.Router();
 
-userRoutes.post('/', asyncHandler(saveUser));
+userRoutes.post('/', asyncHandler(addUser));
 
 userRoutes.get('/:id', asyncHandler(getUser));
 
