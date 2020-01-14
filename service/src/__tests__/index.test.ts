@@ -1,6 +1,6 @@
 import dbSetup from '../dbSetup';
 import index from '../index';
-import server, { app } from '../server';
+import server from '../server';
 import dotenv from 'dotenv';
 
 jest.mock('dotenv', () => ({
@@ -11,10 +11,7 @@ jest.mock('../dbSetup', () => jest.fn());
 
 jest.mock('../server', () => ({
   __esModule: true,
-  default: jest.fn(),
-  app: {
-    listen: jest.fn(),
-  },
+  default: jest.fn().mockResolvedValue({ listen: jest.fn() }),
 }));
 
 describe('index', () => {
@@ -39,6 +36,6 @@ describe('index', () => {
   it('listen to a port', async () => {
     expect.assertions(1);
     await index;
-    expect(app.listen).toBeCalledWith(4444, expect.any(Function));
+    expect((await server()).listen).toBeCalledWith(4444, expect.any(Function));
   });
 });

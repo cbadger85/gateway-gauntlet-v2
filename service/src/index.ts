@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import 'reflect-metadata';
 import dbSetup from './dbSetup';
-import server, { app } from './server';
+import server from './server';
 
 export default (async function Main() {
   console.log('🔗'.padEnd(4), 'Initializing app...');
@@ -9,7 +9,7 @@ export default (async function Main() {
 
   await dbSetup();
 
-  await server();
+  const app = await server();
 
   const port = process.env.PORT || 4444;
   app.listen(port, () => {
