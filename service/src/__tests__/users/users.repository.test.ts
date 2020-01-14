@@ -32,7 +32,7 @@ describe('UserRepository', () => {
 
     const savedUser = await userRepository.saveUser(user as User);
 
-    const retrievedUser = await userRepository.findUser(savedUser.id);
+    const retrievedUser = await userRepository.findUser(savedUser.id as number);
 
     expect(user).toEqual(retrievedUser);
   });
