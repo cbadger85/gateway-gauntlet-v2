@@ -9,9 +9,9 @@ export const addUser: RequestHandler<
   SantizedUserDto,
   AddUserDto
 > = async (req, res): Promise<void> => {
-  const { username, password } = req.body;
+  const { username, password, roles } = req.body;
   const userService = Container.get(UserService);
-  const user = await userService.addUser({ username, password });
+  const user = await userService.addUser({ username, password, roles });
 
   res.send(user);
 };

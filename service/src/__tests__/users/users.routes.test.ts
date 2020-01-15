@@ -3,6 +3,7 @@ import { Container } from 'typedi';
 import server from '../../server';
 import UserService from '../../users/users.service';
 import NotFound from '../../errors/NotFound';
+import { Role } from '../../auth/models/Role';
 
 class MockService {
   addUser = jest.fn();
@@ -18,26 +19,23 @@ describe('user.routes', () => {
   });
   describe('POST /users', () => {
     it('should call addUser', async () => {
-      userService.addUser.mockResolvedValue({
+      const savedUser = {
         id: 1,
         username: 'foo',
-        password: 'bar',
-      });
+        roles: [Role.USER],
+      };
+
+      const sentUser = { username: 'foo', password: 'bar', roles: [Role.USER] };
+
+      userService.addUser.mockResolvedValue(savedUser);
       const response = await request(await server())
         .post('/users')
-        .send({ username: 'foo', password: 'bar' })
+        .send(sentUser)
         .expect(200);
 
-      expect(userService.addUser).toBeCalledWith({
-        username: 'foo',
-        password: 'bar',
-      });
+      expect(userService.addUser).toBeCalledWith(sentUser);
 
-      expect(response.body).toEqual({
-        id: 1,
-        username: 'foo',
-        password: 'bar',
-      });
+      expect(response.body).toEqual(savedUser);
     });
 
     it('should return an error if it failed to save', async () => {
@@ -50,23 +48,20 @@ describe('user.routes', () => {
   });
 
   describe('GET /user', () => {
-    it('should call addUser', async () => {
-      userService.getUser.mockResolvedValue({
+    it('should call getUser', async () => {
+      const retrievedUser = {
         id: 1,
         username: 'foo',
-        password: 'baz',
-      });
+        roles: [Role.USER],
+      };
+      userService.getUser.mockResolvedValue(retrievedUser);
       const response = await request(await server())
         .get('/users/1')
         .expect(200);
 
       expect(userService.getUser).toBeCalledWith(1);
 
-      expect(response.body).toEqual({
-        id: 1,
-        username: 'foo',
-        password: 'baz',
-      });
+      expect(response.body).toEqual(retrievedUser);
     });
 
     it('should return an error if it failed to save', async () => {

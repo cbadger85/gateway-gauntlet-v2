@@ -2,10 +2,12 @@ import Container from 'typedi';
 import UserService from '../../users/users.service';
 import { addUser, getUser } from '../../users/users.handlers';
 import NotFound from '../../errors/NotFound';
+import { Role } from '../../auth/models/Role';
 
 const mockUser = {
   username: 'foo',
   password: 'bar',
+  roles: [Role.USER],
 };
 
 const mockReq = {
@@ -26,7 +28,7 @@ beforeEach(() => {
   jest.clearAllMocks();
 });
 
-describe('UserService', () => {
+describe('users.handlers', () => {
   let userService: MockService;
 
   beforeAll(() => {
