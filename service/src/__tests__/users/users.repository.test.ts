@@ -1,9 +1,14 @@
-import { getConnection, createConnection, getRepository } from 'typeorm';
+import {
+  getConnection,
+  createConnection,
+  getRepository,
+  getConnectionManager,
+} from 'typeorm';
 import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import { Container } from 'typedi';
 
-beforeAll(() => {
+beforeEach(() => {
   return createConnection({
     type: 'sqlite',
     database: ':memory:',
@@ -11,28 +16,42 @@ beforeAll(() => {
     entities: [User],
     synchronize: true,
     logging: false,
+    name: 'user-repository-test',
   });
 });
 
-afterAll(() => {
-  const conn = getConnection();
+afterEach(() => {
+  const conn = getConnection('user-repository-test');
   return conn.close();
 });
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;
 
-  beforeAll(() => {
-    Container.set(UserRepository, new UserRepository(getRepository(User)));
+  beforeEach(() => {
+    Container.set(
+      UserRepository,
+      new UserRepository(getRepository(User, 'user-repository-test')),
+    );
     userRepository = Container.get(UserRepository);
   });
 
-  it('should save and retreive a user', async () => {
+  it('should save a user', async () => {
     const user = { username: 'foo', password: 'bar', roles: 'USER' };
 
     const savedUser = await userRepository.saveUser(user as User);
 
-    const retrievedUser = await userRepository.findUser(savedUser.id as number);
+    expect(user).toEqual(savedUser);
+  });
+
+  it('should retreive a user', async () => {
+    const user = { username: 'foo', password: 'bar', roles: 'USER' };
+
+    const repo = getRepository(User, 'user-repository-test');
+
+    const savedUser = await repo.save(user);
+
+    const retrievedUser = await userRepository.findUser(savedUser.id);
 
     expect(user).toEqual(retrievedUser);
   });
