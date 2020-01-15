@@ -1,5 +1,5 @@
 import { getConnection, createConnection, getRepository } from 'typeorm';
-import User from '../../users/users.entity';
+import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import { Container } from 'typedi';
 
@@ -28,7 +28,7 @@ describe('UserRepository', () => {
   });
 
   it('should save and retreive a user', async () => {
-    const user = { username: 'foo', password: 'bar' };
+    const user = { username: 'foo', password: 'bar', roles: 'USER' };
 
     const savedUser = await userRepository.saveUser(user as User);
 
