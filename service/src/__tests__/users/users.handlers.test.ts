@@ -1,6 +1,7 @@
 import Container from 'typedi';
 import UserService from '../../users/users.service';
 import { addUser, getUser } from '../../users/users.handlers';
+import NotFound from '../../errors/NotFound';
 
 const mockUser = {
   username: 'foo',
@@ -30,7 +31,7 @@ describe('UserService', () => {
 
   beforeAll(() => {
     Container.set(UserService, new MockService());
-    userService = (Container.get(UserService) as unknown) as any;
+    userService = (Container.get(UserService) as unknown) as MockService;
   });
 
   describe('saveUser', () => {
@@ -48,14 +49,6 @@ describe('UserService', () => {
       await addUser(mockReq as any, mockRes as any, jest.fn());
 
       expect(mockRes.send).toBeCalledWith({ id: 1, ...mockUser });
-    });
-
-    it('should reject the promise if the userService.addUser fails', async () => {
-      userService.addUser.mockRejectedValue(new Error('oops'));
-
-      expect(
-        async () => await addUser(mockReq as any, mockRes as any, jest.fn()),
-      ).rejects;
     });
   });
 
@@ -77,11 +70,15 @@ describe('UserService', () => {
     });
 
     it('should reject the promise if the userService.getUser fails', async () => {
-      userService.getUser.mockRejectedValue(new Error('oops'));
+      userService.getUser.mockRejectedValue(new NotFound('not found'));
 
-      expect(
-        async () => await getUser(mockReq as any, mockRes as any, jest.fn()),
-      ).rejects;
+      const error = await getUser(
+        mockReq as any,
+        mockRes as any,
+        jest.fn(),
+      ).catch((e: Error) => e);
+
+      expect(error).toBeInstanceOf(NotFound);
     });
   });
 });

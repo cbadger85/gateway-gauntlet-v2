@@ -2,6 +2,7 @@ import request from 'supertest';
 import { Container } from 'typedi';
 import server from '../../server';
 import UserService from '../../users/users.service';
+import NotFound from '../../errors/NotFound';
 
 class MockService {
   addUser = jest.fn();
@@ -69,10 +70,20 @@ describe('user.routes', () => {
     });
 
     it('should return an error if it failed to save', async () => {
-      userService.getUser.mockRejectedValue(new Error('oops'));
-      await request(await server())
+      const notFound = new NotFound('user not found');
+
+      const responseBody = {
+        name: notFound.name,
+        message: notFound.message,
+        statusCode: notFound.statusCode,
+      };
+
+      userService.getUser.mockRejectedValue(notFound);
+      const response = await request(await server())
         .get('/users/1')
-        .expect(500);
+        .expect(404);
+
+      expect(response.body).toEqual(responseBody);
     });
   });
 });

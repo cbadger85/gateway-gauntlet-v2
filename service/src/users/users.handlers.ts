@@ -1,12 +1,14 @@
 import { RequestHandler } from 'express-serve-static-core';
 import { Container } from 'typedi';
-import User from './users.entity';
+import { AddUserDto } from './models/AddUser.dto';
+import { SantizedUserDto } from './models/SanitizedUser.dto';
 import UserService from './users.service';
 
-export const addUser: RequestHandler<never, User, User> = async (
-  req,
-  res,
-): Promise<void> => {
+export const addUser: RequestHandler<
+  never,
+  SantizedUserDto,
+  AddUserDto
+> = async (req, res): Promise<void> => {
   const { username, password } = req.body;
   const userService = Container.get(UserService);
   const user = await userService.addUser({ username, password });
@@ -14,10 +16,11 @@ export const addUser: RequestHandler<never, User, User> = async (
   res.send(user);
 };
 
-export const getUser: RequestHandler<{ id: string }, User, never> = async (
-  req,
-  res,
-) => {
+export const getUser: RequestHandler<
+  { id: string },
+  SantizedUserDto,
+  never
+> = async (req, res) => {
   const userService = Container.get(UserService);
 
   const user = await userService.getUser(parseFloat(req.params.id));

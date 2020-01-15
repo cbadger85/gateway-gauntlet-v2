@@ -1,21 +1,36 @@
+import bcrypt from 'bcryptjs';
 import { Service } from 'typedi';
-import User from './users.entity';
+import NotFound from '../errors/NotFound';
+import { AddUserDto } from './models/AddUser.dto';
+import { SantizedUserDto } from './models/SanitizedUser.dto';
 import UserRepository from './users.repository';
 
 @Service()
 class UserService {
   constructor(private repository: UserRepository) {}
 
-  addUser = (user: User): Promise<User> => this.repository.saveUser(user);
+  addUser = async (user: AddUserDto): Promise<SantizedUserDto> => {
+    const password = await bcrypt.hash(user.password, 10);
 
-  getUser = async (id: number): Promise<User | undefined> => {
+    const { id, username } = await this.repository.saveUser({
+      username: user.username,
+      password,
+    });
+
+    return {
+      username,
+      id,
+    };
+  };
+
+  getUser = async (id: number): Promise<SantizedUserDto | undefined> => {
     const user = await this.repository.findUser(id);
 
     if (!user) {
-      throw new Error('no user found');
+      throw new NotFound('user not found');
     }
 
-    return user;
+    return { username: user.username, id: user.id };
   };
 }
 
