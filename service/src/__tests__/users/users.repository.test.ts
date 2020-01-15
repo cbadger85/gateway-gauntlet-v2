@@ -1,12 +1,7 @@
-import {
-  getConnection,
-  createConnection,
-  getRepository,
-  getConnectionManager,
-} from 'typeorm';
+import { Container } from 'typedi';
+import { createConnection, getConnection, getRepository } from 'typeorm';
 import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
-import { Container } from 'typedi';
 
 beforeEach(() => {
   return createConnection({
