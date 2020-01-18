@@ -4,7 +4,10 @@ import server from '../../server';
 import UserService from '../../users/users.service';
 import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
+<<<<<<< HEAD
 import { ValidationError } from 'class-validator';
+=======
+>>>>>>> 7933dce725e745ce59aa56c53b797d2b11a06f2c
 
 class MockService {
   addUser = jest.fn();
@@ -26,11 +29,15 @@ describe('user.routes', () => {
         roles: [Role.USER],
       };
 
+<<<<<<< HEAD
       const sentUser = {
         username: 'foo',
         password: 'barium12',
         roles: [Role.USER],
       };
+=======
+      const sentUser = { username: 'foo', password: 'bar', roles: [Role.USER] };
+>>>>>>> 7933dce725e745ce59aa56c53b797d2b11a06f2c
 
       userService.addUser.mockResolvedValue(savedUser);
       const response = await request(await server())
@@ -43,6 +50,7 @@ describe('user.routes', () => {
       expect(response.body).toEqual(savedUser);
     });
 
+<<<<<<< HEAD
     it('should return an error if the request body is invalid', async () => {
       userService.addUser.mockRejectedValue(new Error('oops'));
       const response = await request(await server())
@@ -51,6 +59,14 @@ describe('user.routes', () => {
         .expect(400);
 
       expect(response.body).toEqual({ errors: [expect.any(String)] });
+=======
+    it('should return an error if it failed to save', async () => {
+      userService.addUser.mockRejectedValue(new Error('oops'));
+      await request(await server())
+        .post('/users')
+        .send({ username: 'foo', password: 'bar ' })
+        .expect(500);
+>>>>>>> 7933dce725e745ce59aa56c53b797d2b11a06f2c
     });
   });
 
