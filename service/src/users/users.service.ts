@@ -1,19 +1,17 @@
 import bcrypt from 'bcryptjs';
 import { Service } from 'typedi';
 import NotFound from '../errors/NotFound';
+import {
+  transformRolesToString,
+  transformStringToRoles,
+} from '../utils/roleTransformers';
+import AddUserRequest from './models/AddUserRequest.dto';
 import { UserResponse } from './models/UserResponse.dto';
 import UserRepository from './users.repository';
-import { Role } from '../auth/models/Role';
-import AddUserRequest from './models/AddUserRequest.dto';
 
 @Service()
 class UserService {
   constructor(private repository: UserRepository) {}
-
-  private transformRolesToString = (roles: Role[]): string => roles.join(',');
-
-  private transformStringToRoles = (roles: string): Role[] =>
-    roles.split(',') as Role[];
 
   addUser = async (user: AddUserRequest): Promise<UserResponse> => {
     const password = await bcrypt.hash(user.password, 10);
@@ -21,7 +19,7 @@ class UserService {
     const newUser = {
       ...user,
       password,
-      roles: this.transformRolesToString(user.roles),
+      roles: transformRolesToString(user.roles),
     };
 
     const { id, username, roles } = await this.repository.saveUser(newUser);
@@ -29,7 +27,7 @@ class UserService {
     return {
       username,
       id,
-      roles: this.transformStringToRoles(roles),
+      roles: transformStringToRoles(roles),
     };
   };
 
@@ -43,7 +41,7 @@ class UserService {
     return {
       username: user.username,
       id: user.id,
-      roles: this.transformStringToRoles(user.roles),
+      roles: transformStringToRoles(user.roles),
     };
   };
 }

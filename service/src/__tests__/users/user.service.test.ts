@@ -21,7 +21,6 @@ class MockRepository {
 
 jest.mock('bcryptjs', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
-  compare: jest.fn().mockResolvedValue('bar'),
 }));
 
 describe('UserService', () => {
@@ -112,11 +111,10 @@ describe('UserService', () => {
       expect(retrievedUser).toEqual(expectedUser);
     });
 
-    it('should reject the promise and throw an error if no user is found', async () => {
+    it('should throw an error if no user is found', async () => {
       mockRepository.findUser.mockResolvedValue(undefined);
       const error = await userService.getUser(2).catch(e => e);
 
-      expect(async () => await userService.getUser(2)).rejects;
       expect(error).toBeInstanceOf(NotFound);
     });
   });
