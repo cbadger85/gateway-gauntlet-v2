@@ -1,5 +1,10 @@
-import { asyncHandler, errorHandler } from '../../handlers/errorHandlers';
+import {
+  asyncHandler,
+  errorHandler,
+  validationErrorHandler,
+} from '../../handlers/errorHandlers';
 import NotFound from '../../errors/NotFound';
+import { ValidationError } from 'class-validator';
 
 class MockRes {
   status = jest.fn().mockReturnThis();
@@ -16,6 +21,38 @@ describe('errorHandlers', () => {
       await asyncHandler(handler)(null as any, null as any, next);
 
       expect(next).toBeCalledWith(error);
+    });
+  });
+
+  describe('validationErrorHandler', () => {
+    it('should call res.status with 400 if the error is a validation error', () => {
+      const error = new ValidationError();
+      error.constraints = { error: 'this is an error' };
+      const mockRes = new MockRes();
+      validationErrorHandler(
+        [error],
+        null as any,
+        mockRes as any,
+        jest.fn() as any,
+      );
+
+      expect(mockRes.status).toBeCalledWith(400);
+    });
+
+    it('should call res.json with an error message', () => {
+      const error = new ValidationError();
+      error.constraints = { error: 'this is an error' };
+      const mockRes = new MockRes();
+      validationErrorHandler(
+        [error],
+        null as any,
+        mockRes as any,
+        jest.fn() as any,
+      );
+
+      const expectedMessage = { errors: ['this is an error'] };
+
+      expect(mockRes.json).toBeCalledWith(expectedMessage);
     });
   });
 

@@ -5,6 +5,8 @@ import { AddUserDto } from './models/AddUser.dto';
 import { SantizedUserDto } from './models/SanitizedUser.dto';
 import UserRepository from './users.repository';
 import { Role } from '../auth/models/Role';
+// import { validate, validateOrReject } from 'class-validator';
+import User from './entities/users.entity';
 
 @Service()
 class UserService {
@@ -18,11 +20,13 @@ class UserService {
   addUser = async (user: AddUserDto): Promise<SantizedUserDto> => {
     const password = await bcrypt.hash(user.password, 10);
 
-    const { id, username, roles } = await this.repository.saveUser({
+    const newUser = User.of({
       username: user.username,
-      roles: this.transformRolesToString(user.roles),
       password,
+      roles: this.transformRolesToString(user.roles),
     });
+
+    const { id, username, roles } = await this.repository.saveUser(newUser);
 
     return {
       username,
