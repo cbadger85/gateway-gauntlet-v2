@@ -16,7 +16,7 @@ const mockReq = {
 };
 
 const mockRes = {
-  send: jest.fn(),
+  json: jest.fn(),
 };
 
 class MockService {
@@ -50,7 +50,7 @@ describe('users.handlers', () => {
 
       await addUser(mockReq as any, mockRes as any, jest.fn());
 
-      expect(mockRes.send).toBeCalledWith({ id: '1', ...mockUser });
+      expect(mockRes.json).toBeCalledWith({ id: '1', ...mockUser });
     });
   });
 
@@ -68,7 +68,7 @@ describe('users.handlers', () => {
 
       await getUser(mockReq as any, mockRes as any, jest.fn());
 
-      expect(mockRes.send).toBeCalledWith({ id: '1', ...mockUser });
+      expect(mockRes.json).toBeCalledWith({ id: '1', ...mockUser });
     });
 
     it('should reject the promise if the userService.getUser fails', async () => {

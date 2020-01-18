@@ -65,4 +65,8 @@ describe('UserRepository', () => {
 
     expect(user).toEqual(retrievedUser);
   });
+
+  // it('should find a list of users that match both email and username', () => {
+
+  // })
 });

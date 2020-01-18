@@ -16,15 +16,25 @@ export const validationErrorHandler: ErrorRequestHandler<
   ParamsDictionary,
   unknown,
   {}
-> = (errors: ValidationError[], req, res, next) => {
+> = (errors, req, res, next) => {
   if (
     !Array.isArray(errors) ||
     !errors.every(e => e instanceof ValidationError)
   ) {
-    next(errors);
+    return next(errors);
   }
 
-  res.status(400).json({ errors });
+  return res.status(400).json({ errors });
+};
+
+const errorLogger: ErrorRequestHandler<ParamsDictionary, unknown, {}> = (
+  error,
+  req,
+  res,
+  next,
+) => {
+  console.error(error);
+  return next(error);
 };
 
 export const errorHandler: ErrorRequestHandler<
@@ -32,7 +42,7 @@ export const errorHandler: ErrorRequestHandler<
   ErrorDto,
   {}
 > = ({ name, message, statusCode }: HttpError, req, res, next) => {
-  res.status(statusCode || 500).json({ name, message, statusCode });
+  return res.status(statusCode || 500).json({ name, message, statusCode });
 };
 
 interface ErrorDto {
@@ -41,4 +51,4 @@ interface ErrorDto {
   message: string;
 }
 
-export default [validationErrorHandler, errorHandler];
+export default [validationErrorHandler, errorLogger, errorHandler];

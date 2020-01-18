@@ -3,6 +3,7 @@ import { getUser, addUser } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
 import AddUserRequest from './models/AddUserRequest.dto';
+import HttpError from '../errors/HttpError';
 
 const userRoutes = express.Router();
 

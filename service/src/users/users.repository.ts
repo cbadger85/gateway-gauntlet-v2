@@ -13,7 +13,7 @@ class UserRepository {
     this.repository.findOne(id);
 
   findUserByUsername = (username: string): Promise<User | undefined> =>
-    this.repository.findOne({ where: { username } });
+    this.repository.findOne({ username });
 }
 
 export default UserRepository;

@@ -11,7 +11,7 @@ export const addUser: RequestHandler<never, User, AddUserRequest> = async (
   const userService = Container.get(UserService);
   const user = await userService.addUser(req.body);
 
-  return res.send(user);
+  return res.json(user);
 };
 
 export const getUser: RequestHandler<{ id: string }, User, never> = async (
@@ -21,7 +21,7 @@ export const getUser: RequestHandler<{ id: string }, User, never> = async (
   const userService = Container.get(UserService);
   const user = await userService.getUser(req.params.id);
 
-  return res.send(user);
+  return res.json(user);
 };
 
 export default { addUser, getUser };
