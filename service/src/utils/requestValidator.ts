@@ -1,5 +1,5 @@
+import { validate, ValidationError } from 'class-validator';
 import { Params, RequestHandler } from 'express-serve-static-core';
-import { validateOrReject } from 'class-validator';
 import HttpError from '../errors/HttpError';
 
 type Entity = {
@@ -11,13 +11,32 @@ const hasOf = (obj: unknown): obj is Entity =>
   typeof obj === 'function' && Object.getOwnPropertyNames(obj).includes('of');
 
 export const requestValidator = <P extends Params, ResBody, ReqBody>(
-  entity: unknown,
+  validator: unknown,
 ): RequestHandler<P, ResBody, ReqBody> => async (req, res, next) => {
-  if (!hasOf(entity)) {
+  if (!hasOf(validator)) {
     return next(new HttpError('Invalid validator'));
   }
 
-  return validateOrReject(entity.of(req.body))
-    .then(next)
-    .catch(next);
+  const validatorInstance = validator.of(req.body);
+
+  const requestFields = Object.keys(req.body);
+  const validatorFields = Object.keys(validatorInstance);
+
+  const invalidFieldErrors = requestFields
+    .filter(field => !validatorFields.includes(field))
+    .map(invalidField => {
+      const error = new ValidationError();
+      error.constraints = {
+        invalidField: `${invalidField} is not a valid field`,
+      };
+      return error;
+    });
+
+  const validationErrors = await validate(validatorInstance);
+
+  if (invalidFieldErrors.length || validationErrors.length) {
+    return next([...invalidFieldErrors, ...validationErrors]);
+  }
+
+  next();
 };

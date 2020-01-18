@@ -31,10 +31,10 @@ describe('requestValidator', () => {
 
     await requestValidator(ValidatorClass)(mockReq as any, null as any, next);
 
-    expect(next).toBeCalledWith(undefined);
+    expect(next).toBeCalledWith();
   });
 
-  it('should call next with ValidationError[] if the validator failes', async () => {
+  it('should call next with ValidationError[] if the validator fails', async () => {
     const next = jest.fn();
 
     const mockReq = {
@@ -113,5 +113,36 @@ describe('requestValidator', () => {
     await requestValidator(badValue)(mockReq as any, null as any, next);
 
     expect(next).toBeCalledWith(new HttpError('Invalid validator'));
+  });
+
+  it('should call next with an HttpError if the request body has fields not in the validator class', async () => {
+    const next = jest.fn();
+
+    const mockReq = {
+      body: { foo: 'foo', bar: 'bar', baz: 'baz' },
+    };
+
+    class ValidatorClass {
+      private constructor(foo: string, bar: string) {
+        this.foo = foo;
+        this.bar = bar;
+      }
+
+      @IsNotEmpty()
+      foo: string;
+
+      @IsNotEmpty()
+      bar: string;
+
+      static of({ foo, bar }: ValidatorClass) {
+        return new ValidatorClass(foo, bar);
+      }
+    }
+
+    await requestValidator(ValidatorClass)(mockReq as any, null as any, next);
+
+    expect(next).toBeCalledWith(
+      expect.arrayContaining([expect.any(ValidationError)]),
+    );
   });
 });
