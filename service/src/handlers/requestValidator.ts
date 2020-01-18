@@ -4,13 +4,15 @@ import { validateOrReject } from 'class-validator';
 import { Params, RequestHandler } from 'express-serve-static-core';
 
 export const requestValidator = <P extends Params, ResBody, ReqBody>(
-  validator: ClassType<object>,
+  validator: ClassType<ReqBody>,
 ): RequestHandler<P, ResBody, ReqBody> => async (req, res, next) => {
   const validatorInstance = plainToClass(validator, req.body);
 
+  req.body = validatorInstance;
+
   return validateOrReject(validatorInstance, {
     whitelist: true,
-    forbidNonWhitelisted: true,
+    forbidUnknownValues: true,
   })
     .then(next)
     .catch(next);

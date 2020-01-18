@@ -1,6 +1,4 @@
-import HttpError from '../../errors/HttpError';
 import { IsNotEmpty, ValidationError } from 'class-validator';
-import User from '../../users/entities/users.entity';
 import 'reflect-metadata';
 import { requestValidator } from '../../handlers/requestValidator';
 
@@ -41,41 +39,6 @@ describe('requestValidator', () => {
     }
 
     await requestValidator(ValidatorClass)(mockReq as any, null as any, next);
-
-    expect(next).toBeCalledWith(
-      expect.arrayContaining([expect.any(ValidationError)]),
-    );
-  });
-
-  it('should call next with an HttpError if the request body has fields not in the validator class', async () => {
-    const next = jest.fn();
-
-    const mockReq = {
-      body: { foo: 'foo', bar: 'bar', baz: 'baz' },
-    };
-
-    class ValidatorClass {
-      private constructor(foo: string, bar: string) {
-        this.foo = foo;
-        this.bar = bar;
-      }
-
-      @IsNotEmpty()
-      foo: string;
-
-      @IsNotEmpty()
-      bar: string;
-
-      static of({ foo, bar }: ValidatorClass) {
-        return new ValidatorClass(foo, bar);
-      }
-    }
-
-    await requestValidator(ValidatorClass as any)(
-      mockReq as any,
-      null as any,
-      next,
-    );
 
     expect(next).toBeCalledWith(
       expect.arrayContaining([expect.any(ValidationError)]),

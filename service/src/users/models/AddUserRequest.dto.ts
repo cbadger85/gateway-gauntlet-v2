@@ -9,7 +9,7 @@ import {
 } from 'class-validator';
 import { Role } from '../../auth/models/Role';
 
-class User {
+class AddUserRequest {
   @MaxLength(16)
   @IsNotEmpty()
   username: string;
@@ -27,4 +27,4 @@ class User {
   roles: Role[];
 }
 
-export default User;
+export default AddUserRequest;

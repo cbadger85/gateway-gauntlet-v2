@@ -1,7 +1,7 @@
 import { Role } from '../../auth/models/Role';
 
-export interface AddUserDto {
+export interface UserResponse {
+  id?: number;
   username: string;
-  password: string;
   roles: Role[];
 }

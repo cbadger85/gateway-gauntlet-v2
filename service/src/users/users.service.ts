@@ -1,10 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { Service } from 'typedi';
 import NotFound from '../errors/NotFound';
-import { AddUserDto } from './models/AddUser.dto';
-import { SantizedUserDto } from './models/SanitizedUser.dto';
+import { UserResponse } from './models/UserResponse.dto';
 import UserRepository from './users.repository';
 import { Role } from '../auth/models/Role';
+import AddUserRequest from './models/AddUserRequest.dto';
 
 @Service()
 class UserService {
@@ -15,11 +15,11 @@ class UserService {
   private transformStringToRoles = (roles: string): Role[] =>
     roles.split(',') as Role[];
 
-  addUser = async (user: AddUserDto): Promise<SantizedUserDto> => {
+  addUser = async (user: AddUserRequest): Promise<UserResponse> => {
     const password = await bcrypt.hash(user.password, 10);
 
     const newUser = {
-      username: user.username,
+      ...user,
       password,
       roles: this.transformRolesToString(user.roles),
     };
@@ -33,7 +33,7 @@ class UserService {
     };
   };
 
-  getUser = async (id: number): Promise<SantizedUserDto | undefined> => {
+  getUser = async (id: number): Promise<UserResponse | undefined> => {
     const user = await this.repository.findUser(id);
 
     if (!user) {
