@@ -29,7 +29,7 @@ describe('user.routes', () => {
       const sentUser = {
         username: 'foo',
         password: 'barium12',
-        roles: [Role.USER],
+        roles: ['USER'],
       };
 
       userService.addUser.mockResolvedValue(savedUser);
@@ -47,10 +47,12 @@ describe('user.routes', () => {
       userService.addUser.mockRejectedValue(new Error('oops'));
       const response = await request(await server())
         .post('/users')
-        .send({ username: 'foo', password: 'bar ' })
+        .send({ username: 'foo', password: 'bar' })
         .expect(400);
 
-      expect(response.body).toEqual({ errors: [expect.any(String)] });
+      expect(response.body).toEqual({
+        errors: expect.arrayContaining([expect.any(String)]),
+      });
     });
   });
 
