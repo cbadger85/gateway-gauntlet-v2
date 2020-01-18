@@ -24,11 +24,7 @@ export const validationErrorHandler: ErrorRequestHandler<
     next(errors);
   }
 
-  const errorMessage = errors.reduce<string[]>(
-    (acc, error) => [...acc, ...Object.values(error.constraints)],
-    [],
-  );
-  res.status(400).json({ errors: errorMessage });
+  res.status(400).json({ errors });
 };
 
 export const errorHandler: ErrorRequestHandler<

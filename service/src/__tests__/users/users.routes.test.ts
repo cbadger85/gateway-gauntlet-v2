@@ -4,6 +4,7 @@ import server from '../../server';
 import UserService from '../../users/users.service';
 import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
+import { ValidationError } from 'class-validator';
 
 class MockService {
   addUser = jest.fn();
@@ -49,8 +50,8 @@ describe('user.routes', () => {
         .send({ username: 'foo', password: 'bar' })
         .expect(400);
 
-      expect(response.body).toEqual({
-        errors: expect.arrayContaining([expect.any(String)]),
+      expect(response.body).toMatchObject({
+        errors: expect.arrayContaining([expect.anything()]),
       });
     });
   });

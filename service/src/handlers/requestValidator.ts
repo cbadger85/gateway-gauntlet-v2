@@ -13,6 +13,10 @@ export const requestValidator = <P extends Params, ResBody, ReqBody>(
   return validateOrReject(validatorInstance, {
     whitelist: true,
     forbidUnknownValues: true,
+    validationError: {
+      value: false,
+      target: false,
+    },
   })
     .then(next)
     .catch(next);

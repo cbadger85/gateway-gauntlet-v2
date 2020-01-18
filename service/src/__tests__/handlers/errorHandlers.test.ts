@@ -50,9 +50,9 @@ describe('errorHandlers', () => {
         jest.fn() as any,
       );
 
-      const expectedMessage = { errors: ['this is an error'] };
-
-      expect(mockRes.json).toBeCalledWith(expectedMessage);
+      expect(mockRes.json).toBeCalledWith({
+        errors: expect.arrayContaining([expect.any(ValidationError)]),
+      });
     });
   });
 
