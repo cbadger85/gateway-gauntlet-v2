@@ -3,7 +3,7 @@ import { Service } from 'typedi';
 import NotFound from '../errors/NotFound';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
-import { classToPlain } from 'class-transformer';
+import { classToPlain, plainToClass } from 'class-transformer';
 import User from './entities/users.entity';
 
 @Service()
@@ -13,14 +13,14 @@ class UserService {
   addUser = async (user: AddUserRequest): Promise<User> => {
     const password = await bcrypt.hash(user.password, 10);
 
-    const newUser = { ...user, password };
-
-    const savedUser = await this.repository.saveUser(newUser);
+    const savedUser = await this.repository.saveUser(
+      plainToClass(User, { ...user, password }),
+    );
 
     return classToPlain(savedUser) as User;
   };
 
-  getUser = async (id: number): Promise<User> => {
+  getUser = async (id: string): Promise<User> => {
     const user = await this.repository.findUser(id);
 
     if (!user) {

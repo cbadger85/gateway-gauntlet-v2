@@ -9,7 +9,7 @@ class UserRepository {
 
   saveUser = (user: User): Promise<User> => this.repository.save(user);
 
-  findUser = (id: number): Promise<User | undefined> =>
+  findUser = (id: string): Promise<User | undefined> =>
     this.repository.findOne(id);
 
   findUserByUsername = (username: string): Promise<User | undefined> =>

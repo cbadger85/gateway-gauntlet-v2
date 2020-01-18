@@ -38,7 +38,7 @@ describe('users.handlers', () => {
 
   describe('saveUser', () => {
     it('should call userService.addUser with the user', async () => {
-      userService.addUser.mockResolvedValue({ id: 1, ...mockUser });
+      userService.addUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await addUser(mockReq as any, mockRes as any, jest.fn());
 
@@ -46,17 +46,17 @@ describe('users.handlers', () => {
     });
 
     it('should call res.send with the returned user', async () => {
-      userService.addUser.mockResolvedValue({ id: 1, ...mockUser });
+      userService.addUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await addUser(mockReq as any, mockRes as any, jest.fn());
 
-      expect(mockRes.send).toBeCalledWith({ id: 1, ...mockUser });
+      expect(mockRes.send).toBeCalledWith({ id: '1', ...mockUser });
     });
   });
 
   describe('getUser', () => {
     it('should call userService.getUser with the user id', async () => {
-      userService.getUser.mockResolvedValue({ id: 1, ...mockUser });
+      userService.getUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await getUser(mockReq as any, mockRes as any, jest.fn());
 
@@ -64,11 +64,11 @@ describe('users.handlers', () => {
     });
 
     it('should call res.send with the returned user', async () => {
-      userService.getUser.mockResolvedValue({ id: 1, ...mockUser });
+      userService.getUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await getUser(mockReq as any, mockRes as any, jest.fn());
 
-      expect(mockRes.send).toBeCalledWith({ id: 1, ...mockUser });
+      expect(mockRes.send).toBeCalledWith({ id: '1', ...mockUser });
     });
 
     it('should reject the promise if the userService.getUser fails', async () => {

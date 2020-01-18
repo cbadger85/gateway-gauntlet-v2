@@ -47,7 +47,7 @@ describe('UserRepository', () => {
 
     const savedUser = await repo.save(user);
 
-    const retrievedUser = await userRepository.findUser(savedUser.id as number);
+    const retrievedUser = await userRepository.findUser(savedUser.id as string);
 
     expect(user).toEqual(retrievedUser);
   });
@@ -57,7 +57,7 @@ describe('UserRepository', () => {
 
     const repo = getRepository(User, 'user-repository-test');
 
-    const savedUser = await repo.save(user);
+    await repo.save(user);
 
     const retrievedUser = await userRepository.findUserByUsername(
       user.username,

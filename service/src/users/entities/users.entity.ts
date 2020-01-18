@@ -4,10 +4,10 @@ import { Exclude } from 'class-transformer';
 
 @Entity()
 class User {
-  @PrimaryGeneratedColumn()
-  id?: number;
+  @PrimaryGeneratedColumn('uuid')
+  id?: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   username!: string;
 
   @Exclude({ toPlainOnly: true })

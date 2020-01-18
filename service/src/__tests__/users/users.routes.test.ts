@@ -21,7 +21,7 @@ describe('user.routes', () => {
   describe('POST /users', () => {
     it('should call addUser', async () => {
       const savedUser = {
-        id: 1,
+        id: '1',
         username: 'foo',
         roles: [Role.USER],
       };
@@ -59,7 +59,7 @@ describe('user.routes', () => {
   describe('GET /user', () => {
     it('should call getUser', async () => {
       const retrievedUser = {
-        id: 1,
+        id: '1',
         username: 'foo',
         roles: [Role.USER],
       };
@@ -68,7 +68,7 @@ describe('user.routes', () => {
         .get('/users/1')
         .expect(200);
 
-      expect(userService.getUser).toBeCalledWith(1);
+      expect(userService.getUser).toBeCalledWith('1');
 
       expect(response.body).toEqual(retrievedUser);
     });
