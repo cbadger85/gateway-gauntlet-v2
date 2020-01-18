@@ -4,16 +4,12 @@ import {
   MinLength,
   IsArray,
   IsEnum,
+  Equals,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { Role } from '../../auth/models/Role';
 
 class User {
-  private constructor(username: string, password: string, roles: string) {
-    this.username = username;
-    this.password = password;
-    this.roles = roles;
-  }
-
   @MaxLength(16)
   @IsNotEmpty()
   username: string;
@@ -22,13 +18,13 @@ class User {
   @MinLength(8)
   password: string;
 
+  // @IsNotEmpty()
+  // confirmPassword: string;
+
+  @ArrayNotEmpty()
   @IsArray()
   @IsEnum(Role, { each: true })
-  roles: string;
-
-  static of({ username, password, roles }: User): User {
-    return new User(username, password, roles);
-  }
+  roles: Role[];
 }
 
 export default User;

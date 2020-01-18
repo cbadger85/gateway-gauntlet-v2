@@ -1,7 +1,7 @@
 import express from 'express';
 import { getUser, addUser } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
-import { requestValidator } from '../utils/requestValidator';
+import { requestValidator } from '../handlers/requestValidator';
 import AddUserValidator from './validators/AddUserValidator';
 
 const userRoutes = express.Router();
