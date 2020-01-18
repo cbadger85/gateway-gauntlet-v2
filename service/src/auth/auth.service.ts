@@ -1,19 +1,16 @@
 import bcrypt from 'bcryptjs';
+import { classToPlain } from 'class-transformer';
 import { Service } from 'typedi';
 import NotAuthorized from '../errors/NotAuthorized';
-import { UserResponse } from '../users/models/UserResponse.dto';
+import User from '../users/entities/users.entity';
 import UserRepository from '../users/users.repository';
-import { transformStringToRoles } from '../utils/roleTransformers';
 import LoginRequest from './models/LoginRequest.dto';
 
 @Service()
 class AuthService {
   constructor(private repository: UserRepository) {}
 
-  login = async (
-    userId: number,
-    loginRequest: LoginRequest,
-  ): Promise<UserResponse> => {
+  login = async (userId: number, loginRequest: LoginRequest): Promise<User> => {
     const user = await this.repository.findUser(userId);
 
     if (!user) {
@@ -22,18 +19,14 @@ class AuthService {
 
     const isValidPassword = await bcrypt.compare(
       loginRequest.password,
-      user.password,
+      user.password ?? '',
     );
 
     if (!isValidPassword) {
       throw new NotAuthorized();
     }
 
-    return {
-      id: user.id,
-      username: user.username,
-      roles: transformStringToRoles(user.roles),
-    };
+    return classToPlain(user) as User;
   };
 }
 

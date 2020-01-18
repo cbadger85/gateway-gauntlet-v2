@@ -7,11 +7,12 @@ import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import { Role } from '../../auth/models/Role';
 
-const mockUser = {
-  username: 'foo',
-  password: 'bar',
-  roles: [Role.USER],
-};
+const mockUser = new User();
+
+mockUser.id = 1;
+mockUser.username = 'foo';
+mockUser.password = 'bar';
+mockUser.roles = [Role.USER];
 
 class MockRepository {
   private repository: Repository<User>;
@@ -37,48 +38,49 @@ describe('UserService', () => {
 
   describe('addUser', () => {
     it('should bcrypt.hash and hash the password', async () => {
-      mockRepository.saveUser.mockResolvedValue({
-        id: 1,
-        ...mockUser,
-        roles: 'USER',
+      mockRepository.saveUser.mockResolvedValue(mockUser);
+      await userService.addUser({
+        username: 'foo',
+        password: 'bar',
+        roles: [Role.USER],
       });
-      await userService.addUser(mockUser);
 
       expect(bcrypt.hash).toBeCalledWith('bar', 10);
     });
 
-    it('should convert an array of Roles to a string', async () => {
-      mockRepository.saveUser.mockResolvedValue({
-        id: 1,
-        ...mockUser,
-        roles: 'USER',
-      });
-      const savedUser = await userService.addUser(mockUser);
-
-      const expectedUser = {
-        id: 1,
-        username: mockUser.username,
-        roles: mockUser.roles,
-      };
-
-      expect(savedUser).toEqual(expectedUser);
-    });
-
     it('should call repository.saveUser with the user', async () => {
-      mockRepository.saveUser.mockResolvedValue({
-        id: 1,
-        ...mockUser,
-        roles: 'USER',
+      mockRepository.saveUser.mockResolvedValue(mockUser);
+      await userService.addUser({
+        username: 'foo',
+        password: 'bar',
+        roles: [Role.USER],
       });
-      await userService.addUser(mockUser);
 
       const savedUser = {
         username: 'foo',
         password: 'hashedPassword',
-        roles: 'USER',
+        roles: [Role.USER],
       };
 
       expect(mockRepository.saveUser).toBeCalledWith(savedUser);
+    });
+
+    it('should return a user after save', async () => {
+      mockRepository.saveUser.mockResolvedValue(mockUser);
+
+      const savedUser = await userService.addUser({
+        username: 'foo',
+        password: 'bar',
+        roles: [Role.USER],
+      });
+
+      const expectedUser = {
+        id: 1,
+        username: 'foo',
+        roles: [Role.USER],
+      };
+
+      expect(savedUser).toEqual(expectedUser);
     });
   });
 
@@ -87,28 +89,10 @@ describe('UserService', () => {
       mockRepository.findUser.mockResolvedValue({
         id: 1,
         ...mockUser,
-        roles: 'USER',
       });
       await userService.getUser(1);
 
       expect(mockRepository.findUser).toBeCalledWith(1);
-    });
-
-    it('should convert a string of Roles to an array', async () => {
-      mockRepository.findUser.mockResolvedValue({
-        id: 1,
-        ...mockUser,
-        roles: 'USER',
-      });
-      const retrievedUser = await userService.getUser(1);
-
-      const expectedUser = {
-        id: 1,
-        username: mockUser.username,
-        roles: mockUser.roles,
-      };
-
-      expect(retrievedUser).toEqual(expectedUser);
     });
 
     it('should throw an error if no user is found', async () => {

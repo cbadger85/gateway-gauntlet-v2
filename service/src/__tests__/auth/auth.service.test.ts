@@ -12,6 +12,13 @@ const mockLoginRequest = {
   password: 'bar',
 };
 
+const mockUser = new User();
+
+mockUser.id = 1;
+mockUser.username = 'foo';
+mockUser.password = 'bar';
+mockUser.roles = [Role.USER];
+
 class MockRepository {
   private repository: Repository<User>;
   saveUser = jest.fn();
@@ -38,12 +45,7 @@ describe('UserService', () => {
 
   describe('login', () => {
     it('should return the user if login is valid', async () => {
-      mockRepository.findUser.mockResolvedValue({
-        id: 1,
-        username: 'foo',
-        password: 'bar',
-        roles: 'USER',
-      });
+      mockRepository.findUser.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
       const user = await authService.login(1, mockLoginRequest);
@@ -70,18 +72,18 @@ describe('UserService', () => {
     });
 
     it('should throw NotAuthorized if the password is incorrect', async () => {
-      mockRepository.findUser.mockResolvedValueOnce({
-        id: 1,
+      mockRepository.findUser.mockResolvedValueOnce(mockUser);
+      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+      const mockLoginRequest = {
         username: 'foo',
         password: 'baz',
-        roles: 'USER',
-      });
-      (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+      };
 
       const error = await authService.login(1, mockLoginRequest).catch(e => e);
 
       expect(mockRepository.findUser).toBeCalledWith(1);
-      expect(bcrypt.compare).toBeCalledWith('bar', 'baz');
+      expect(bcrypt.compare).toBeCalledWith('baz', 'bar');
       expect(error).toBeInstanceOf(NotAuthorized);
     });
   });
