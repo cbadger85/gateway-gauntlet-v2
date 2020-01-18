@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { PrimaryGeneratedColumn, Column, Entity } from 'typeorm';
 import { MaxLength, IsNotEmpty, MinLength } from 'class-validator';
 
@@ -10,12 +9,6 @@ class User {
     this.roles = roles;
   }
 
-=======
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-
-@Entity()
-class User {
->>>>>>> 7933dce725e745ce59aa56c53b797d2b11a06f2c
   @PrimaryGeneratedColumn()
   id: number;
 
