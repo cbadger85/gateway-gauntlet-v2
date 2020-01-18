@@ -51,4 +51,18 @@ describe('UserRepository', () => {
 
     expect(user).toEqual(retrievedUser);
   });
+
+  it('should retreive a user by username', async () => {
+    const user = { username: 'foo', password: 'bar', roles: [Role.USER] };
+
+    const repo = getRepository(User, 'user-repository-test');
+
+    const savedUser = await repo.save(user);
+
+    const retrievedUser = await userRepository.findUserByUsername(
+      user.username,
+    );
+
+    expect(user).toEqual(retrievedUser);
+  });
 });

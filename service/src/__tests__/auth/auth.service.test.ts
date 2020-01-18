@@ -23,6 +23,7 @@ class MockRepository {
   private repository: Repository<User>;
   saveUser = jest.fn();
   findUser = jest.fn();
+  findUserByUsername = jest.fn();
 }
 
 jest.mock('bcryptjs', () => ({
@@ -31,7 +32,7 @@ jest.mock('bcryptjs', () => ({
 
 beforeEach(jest.clearAllMocks);
 
-describe('UserService', () => {
+describe('AuthService', () => {
   let authService: AuthService;
   const mockRepository = new MockRepository();
 
@@ -45,10 +46,10 @@ describe('UserService', () => {
 
   describe('login', () => {
     it('should return the user if login is valid', async () => {
-      mockRepository.findUser.mockResolvedValue(mockUser);
+      mockRepository.findUserByUsername.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 
-      const user = await authService.login(1, mockLoginRequest);
+      const user = await authService.login(mockLoginRequest);
 
       const expectedUser = {
         id: 1,
@@ -56,23 +57,23 @@ describe('UserService', () => {
         roles: [Role.USER],
       };
 
-      expect(mockRepository.findUser).toBeCalledWith(1);
+      expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(bcrypt.compare).toBeCalledWith('bar', 'bar');
       expect(user).toEqual(expectedUser);
     });
 
     it('should throw NotAuthorized if the user cannot be found', async () => {
-      mockRepository.findUser.mockResolvedValue(undefined);
+      mockRepository.findUserByUsername.mockResolvedValue(undefined);
 
-      const error = await authService.login(1, mockLoginRequest).catch(e => e);
+      const error = await authService.login(mockLoginRequest).catch(e => e);
 
-      expect(mockRepository.findUser).toBeCalledWith(1);
+      expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(error).toBeInstanceOf(NotAuthorized);
       expect(bcrypt.compare).not.toBeCalled();
     });
 
     it('should throw NotAuthorized if the password is incorrect', async () => {
-      mockRepository.findUser.mockResolvedValueOnce(mockUser);
+      mockRepository.findUserByUsername.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 
       const mockLoginRequest = {
@@ -80,9 +81,9 @@ describe('UserService', () => {
         password: 'baz',
       };
 
-      const error = await authService.login(1, mockLoginRequest).catch(e => e);
+      const error = await authService.login(mockLoginRequest).catch(e => e);
 
-      expect(mockRepository.findUser).toBeCalledWith(1);
+      expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(bcrypt.compare).toBeCalledWith('baz', 'bar');
       expect(error).toBeInstanceOf(NotAuthorized);
     });

@@ -8,9 +8,8 @@ export const addUser: RequestHandler<never, User, AddUserRequest> = async (
   req,
   res,
 ): Promise<void> => {
-  const { username, password, roles } = req.body;
   const userService = Container.get(UserService);
-  const user = await userService.addUser({ username, password, roles });
+  const user = await userService.addUser(req.body);
 
   res.send(user);
 };
@@ -20,7 +19,6 @@ export const getUser: RequestHandler<{ id: string }, User, never> = async (
   res,
 ) => {
   const userService = Container.get(UserService);
-
   const user = await userService.getUser(parseFloat(req.params.id));
 
   res.send(user);

@@ -10,8 +10,10 @@ import LoginRequest from './models/LoginRequest.dto';
 class AuthService {
   constructor(private repository: UserRepository) {}
 
-  login = async (userId: number, loginRequest: LoginRequest): Promise<User> => {
-    const user = await this.repository.findUser(userId);
+  login = async (loginRequest: LoginRequest): Promise<User> => {
+    const user = await this.repository.findUserByUsername(
+      loginRequest.username,
+    );
 
     if (!user) {
       throw new NotAuthorized();

@@ -11,6 +11,9 @@ class UserRepository {
 
   findUser = (id: number): Promise<User | undefined> =>
     this.repository.findOne(id);
+
+  findUserByUsername = (username: string): Promise<User | undefined> =>
+    this.repository.findOne({ where: { username } });
 }
 
 export default UserRepository;
