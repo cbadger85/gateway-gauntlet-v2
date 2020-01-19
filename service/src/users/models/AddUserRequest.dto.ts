@@ -5,6 +5,7 @@ import {
   IsArray,
   IsEnum,
   ArrayNotEmpty,
+  IsEmail,
 } from 'class-validator';
 import { Role } from '../../auth/models/Role';
 
@@ -16,6 +17,10 @@ class AddUserRequest {
   @IsNotEmpty()
   @MinLength(8)
   password: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
 
   @ArrayNotEmpty()
   @IsArray()

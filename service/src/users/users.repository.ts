@@ -14,6 +14,17 @@ class UserRepository {
 
   findUserByUsername = (username: string): Promise<User | undefined> =>
     this.repository.findOne({ username });
+
+  countUsersByUsernameOrEmail = async (
+    username: string,
+    email: string,
+  ): Promise<number> => {
+    const usersAndCount = await this.repository.findAndCount({
+      where: [{ username }, { email }],
+    });
+
+    return usersAndCount[1];
+  };
 }
 
 export default UserRepository;

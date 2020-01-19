@@ -5,6 +5,7 @@ import UserService from '../../users/users.service';
 import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
 import { ValidationError } from 'class-validator';
+import BadRequest from '../../errors/BadRequest';
 
 class MockService {
   addUser = jest.fn();
@@ -23,12 +24,14 @@ describe('user.routes', () => {
       const savedUser = {
         id: '1',
         username: 'foo',
+        email: 'email@example.com',
         roles: [Role.USER],
       };
 
       const sentUser = {
         username: 'foo',
         password: 'barium12',
+        email: 'email@example.com',
         roles: ['USER'],
       };
 
@@ -43,8 +46,7 @@ describe('user.routes', () => {
       expect(response.body).toEqual(savedUser);
     });
 
-    it('should return an error if the request body is invalid', async () => {
-      userService.addUser.mockRejectedValue(new Error('oops'));
+    it('should send a BadRequest if the request body is invalid', async () => {
       const response = await request(await server())
         .post('/users')
         .send({ username: 'foo', password: 'bar' })
@@ -54,6 +56,32 @@ describe('user.routes', () => {
         errors: expect.arrayContaining([expect.anything()]),
       });
     });
+
+    it('should send a BadRequest if the user already exists', async () => {
+      const badRequest = new BadRequest('user already exists');
+
+      const responseBody = {
+        name: badRequest.name,
+        message: badRequest.message,
+        statusCode: badRequest.statusCode,
+      };
+
+      userService.addUser.mockRejectedValue(badRequest);
+
+      const sentUser = {
+        username: 'foo',
+        password: 'barium12',
+        email: 'email@example.com',
+        roles: ['USER'],
+      };
+
+      const response = await request(await server())
+        .post('/users')
+        .send(sentUser)
+        .expect(400);
+
+      expect(response.body).toEqual(responseBody);
+    });
   });
 
   describe('GET /user', () => {
@@ -61,6 +89,7 @@ describe('user.routes', () => {
       const retrievedUser = {
         id: '1',
         username: 'foo',
+        email: 'email@example.com',
         roles: [Role.USER],
       };
       userService.getUser.mockResolvedValue(retrievedUser);
@@ -73,7 +102,7 @@ describe('user.routes', () => {
       expect(response.body).toEqual(retrievedUser);
     });
 
-    it('should return an error if it failed to save', async () => {
+    it('should return an error if it failed to find the user', async () => {
       const notFound = new NotFound('user not found');
 
       const responseBody = {

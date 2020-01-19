@@ -14,6 +14,9 @@ class User {
   @Column()
   password?: string;
 
+  @Column({ nullable: false, unique: true })
+  email!: string;
+
   @Column('simple-array', { nullable: false })
   roles!: Role[];
 }

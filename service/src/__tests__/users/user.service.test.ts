@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import { Role } from '../../auth/models/Role';
+import BadRequest from '../../errors/BadRequest';
 
 const mockUser = new User();
 
@@ -13,16 +14,20 @@ mockUser.id = '1';
 mockUser.username = 'foo';
 mockUser.password = 'bar';
 mockUser.roles = [Role.USER];
+mockUser.email = 'email@example.com';
 
 class MockRepository {
   private repository: Repository<User>;
   saveUser = jest.fn();
   findUser = jest.fn();
+  countUsersByUsernameOrEmail = jest.fn();
 }
 
 jest.mock('bcryptjs', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
 }));
+
+beforeEach(jest.clearAllMocks);
 
 describe('UserService', () => {
   let userService: UserService;
@@ -42,6 +47,7 @@ describe('UserService', () => {
       await userService.addUser({
         username: 'foo',
         password: 'bar',
+        email: 'email@example.com',
         roles: [Role.USER],
       });
 
@@ -53,12 +59,14 @@ describe('UserService', () => {
       await userService.addUser({
         username: 'foo',
         password: 'bar',
+        email: 'email@example.com',
         roles: [Role.USER],
       });
 
       const savedUser = {
         username: 'foo',
         password: 'hashedPassword',
+        email: 'email@example.com',
         roles: [Role.USER],
       };
 
@@ -66,21 +74,38 @@ describe('UserService', () => {
     });
 
     it('should return a user after save', async () => {
-      const value = mockRepository.saveUser.mockResolvedValue(mockUser);
+      mockRepository.saveUser.mockResolvedValue(mockUser);
 
       const savedUser = await userService.addUser({
         username: 'foo',
         password: 'bar',
+        email: 'email@example.com',
         roles: [Role.USER],
       });
 
       const expectedUser = {
         id: '1',
         username: 'foo',
+        email: 'email@example.com',
         roles: [Role.USER],
       };
 
       expect(savedUser).toEqual(expectedUser);
+    });
+
+    it('should throw a BadRequest if the user already exists', async () => {
+      mockRepository.countUsersByUsernameOrEmail.mockResolvedValue(1);
+
+      const error = await userService
+        .addUser({
+          username: 'foo',
+          password: 'bar',
+          email: 'email@example.com',
+          roles: [Role.USER],
+        })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(BadRequest);
     });
   });
 

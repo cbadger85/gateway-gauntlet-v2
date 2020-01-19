@@ -33,7 +33,12 @@ describe('UserRepository', () => {
   });
 
   it('should save a user', async () => {
-    const user = { username: 'foo', password: 'bar', roles: [Role.USER] };
+    const user = {
+      username: 'foo',
+      password: 'bar',
+      roles: [Role.USER],
+      email: 'foo@example.com',
+    };
 
     const savedUser = await userRepository.saveUser(user);
 
@@ -41,7 +46,12 @@ describe('UserRepository', () => {
   });
 
   it('should retreive a user', async () => {
-    const user = { username: 'foo', password: 'bar', roles: [Role.USER] };
+    const user = {
+      username: 'foo',
+      password: 'bar',
+      roles: [Role.USER],
+      email: 'foo@example.com',
+    };
 
     const repo = getRepository(User, 'user-repository-test');
 
@@ -53,7 +63,12 @@ describe('UserRepository', () => {
   });
 
   it('should retreive a user by username', async () => {
-    const user = { username: 'foo', password: 'bar', roles: [Role.USER] };
+    const user = {
+      username: 'foo',
+      password: 'bar',
+      roles: [Role.USER],
+      email: 'foo@example.com',
+    };
 
     const repo = getRepository(User, 'user-repository-test');
 
@@ -66,7 +81,39 @@ describe('UserRepository', () => {
     expect(user).toEqual(retrievedUser);
   });
 
-  // it('should find a list of users that match both email and username', () => {
+  it('should find a list of users that match both email and username', async () => {
+    const user1 = {
+      username: 'foo1',
+      password: 'bar',
+      roles: [Role.USER],
+      email: 'foo1@example.com',
+    };
 
-  // })
+    const user2 = {
+      username: 'foo2',
+      password: 'bar',
+      roles: [Role.USER],
+      email: 'foo2@example.com',
+    };
+
+    const user3 = {
+      username: 'foo3',
+      password: 'bar',
+      roles: [Role.USER],
+      email: 'foo3@example.com',
+    };
+
+    const repo = getRepository(User, 'user-repository-test');
+
+    await repo.save(user1);
+    await repo.save(user2);
+    await repo.save(user3);
+
+    const number = await userRepository.countUsersByUsernameOrEmail(
+      'foo1',
+      'foo2@example.com',
+    );
+
+    expect(number).toEqual(2);
+  });
 });
