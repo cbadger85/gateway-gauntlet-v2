@@ -7,6 +7,7 @@ import UserRepository from '../users/users.repository';
 import LoginRequest from './models/LoginRequest.dto';
 import jwt from 'jsonwebtoken';
 import { Role } from './models/Role';
+import { UserAuth } from './models/UserAuth';
 
 @Service()
 class AuthService {
@@ -34,22 +35,65 @@ class AuthService {
     return classToPlain(user) as User;
   };
 
-  refresh = async (id: string, sessionId: string): Promise<User> => {
-    const user = await this.repository.findUser(id);
+  refresh = async (
+    oldAccessToken: string,
+    oldRefreshToken: string,
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    userAuth: UserAuth;
+  }> => {
+    try {
+      const accessPayload = this.parseAccessToken(oldAccessToken);
+      const refreshPayload = this.parseRefreshToken(oldRefreshToken);
 
-    if (!user || !user.sessionId || sessionId !== user.sessionId) {
-      throw new NotAuthorized();
+      const accessToken = this.getAccessToken({
+        id: accessPayload.id,
+        roles: accessPayload.roles,
+      });
+
+      const refreshToken = this.getRefreshToken({
+        id: accessPayload.id,
+        sessionId: refreshPayload.sessionId,
+      });
+
+      const userAuth = { id: accessPayload.id, roles: accessPayload.roles };
+
+      return {
+        accessToken,
+        refreshToken,
+        userAuth,
+      };
+    } catch {
+      const { id, sessionId } = this.parseRefreshToken(oldRefreshToken);
+      const user = await this.repository.findUser(id || '');
+
+      if (!user || !user.sessionId || sessionId !== user.sessionId) {
+        throw new NotAuthorized();
+      }
+
+      const accessToken = this.getAccessToken({
+        id: user.id,
+        roles: user.roles,
+      });
+
+      const refreshToken = this.getRefreshToken({
+        id: user.id,
+        sessionId: user.sessionId,
+      });
+
+      const userAuth = { id: user.id, roles: user.roles };
+
+      return { accessToken, refreshToken, userAuth };
     }
-
-    return user;
   };
 
-  getAccessToken = ({ id, roles }: User): string =>
+  getAccessToken = ({ id, roles }: AccessTokenPayload): string =>
     jwt.sign({ id, roles }, process.env.JWT_ACCESS_SECRET as string, {
       expiresIn: '10m',
     });
 
-  getRefreshToken = ({ id, sessionId }: User): string =>
+  getRefreshToken = ({ id, sessionId }: RefreshTokenPayload): string =>
     jwt.sign({ id, sessionId }, process.env.JWT_REFRESH_SECRET as string, {
       expiresIn: '24h',
     });
@@ -84,11 +128,11 @@ class AuthService {
 export default AuthService;
 
 interface AccessTokenPayload {
-  id: string;
+  id?: string;
   roles: Role[];
 }
 
 interface RefreshTokenPayload {
-  id: string;
-  sessionId: string;
+  id?: string;
+  sessionId?: string;
 }

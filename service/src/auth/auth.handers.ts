@@ -1,8 +1,8 @@
 import { RequestHandler, Response } from 'express-serve-static-core';
-import User from '../users/entities/users.entity';
-import LoginRequest from './models/LoginRequest.dto';
 import Container from 'typedi';
+import User from '../users/entities/users.entity';
 import AuthService from './auth.service';
+import LoginRequest from './models/LoginRequest.dto';
 
 export const login: RequestHandler<never, User, LoginRequest> = async (
   req,
@@ -11,8 +11,10 @@ export const login: RequestHandler<never, User, LoginRequest> = async (
   const authService = Container.get(AuthService);
   const user = await authService.login(req.body);
 
-  const token = authService.getAccessToken(user);
-  const refreshToken = authService.getRefreshToken(user);
+  const { id, roles, sessionId } = user;
+
+  const token = authService.getAccessToken({ id, roles });
+  const refreshToken = authService.getRefreshToken({ id, sessionId });
 
   res.cookie(token, 'access-token', {
     expires: new Date(Date.now() + 600000),
@@ -37,23 +39,24 @@ export const logout: RequestHandler<never, void, never> = (
   return res.sendStatus(204);
 };
 
-export const refresh: RequestHandler<never, User, never> = async (
+export const authorizationHandler: RequestHandler<never, never, never> = async (
   req,
   res,
   next,
-): Promise<Response<User>> => {
+): Promise<void> => {
   const authService = Container.get(AuthService);
 
-  const refreshCookie = req.cookies['refresh-token'];
+  const oldAccessToken = req.cookies['access-token'];
+  const oldRefreshToken = req.cookies['refresh-token'];
 
-  const { id, sessionId } = authService.parseRefreshToken(refreshCookie);
+  const { accessToken, refreshToken, userAuth } = await authService.refresh(
+    oldAccessToken,
+    oldRefreshToken,
+  );
 
-  const user = await authService.refresh(id, sessionId);
+  req.user = userAuth;
 
-  const token = authService.getAccessToken(user);
-  const refreshToken = authService.getRefreshToken(user);
-
-  res.cookie(token, 'access-token', {
+  res.cookie(accessToken, 'access-token', {
     expires: new Date(Date.now() + 600000),
     httpOnly: true,
   });
@@ -63,5 +66,5 @@ export const refresh: RequestHandler<never, User, never> = async (
     httpOnly: true,
   });
 
-  return res.json(user);
+  return next();
 };
