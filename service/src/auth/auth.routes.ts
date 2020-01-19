@@ -7,3 +7,5 @@ import LoginRequest from './models/LoginRequest.dto';
 const authRoutes = express.Router();
 
 authRoutes.post('/login', requestValidator(LoginRequest), asyncHandler(login));
+
+export default authRoutes;
