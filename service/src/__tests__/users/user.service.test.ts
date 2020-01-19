@@ -42,6 +42,20 @@ describe('UserService', () => {
   });
 
   describe('addUser', () => {
+    it('should check to see if the user already exists', async () => {
+      await userService.addUser({
+        username: 'foo',
+        password: 'bar',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      });
+
+      expect(mockRepository.countUsersByUsernameOrEmail).toBeCalledWith(
+        'foo',
+        'email@example.com',
+      );
+    });
+
     it('should bcrypt.hash and hash the password', async () => {
       mockRepository.saveUser.mockResolvedValue(mockUser);
       await userService.addUser({
