@@ -5,10 +5,13 @@ import users from './users/users.routes';
 import auth from './auth/auth.routes';
 import { Express } from 'express-serve-static-core';
 import errorHandlers from './handlers/errorHandlers';
+import { serverTimout } from './handlers/serverTimeout';
 
 const app = express();
 
 export const server = async (): Promise<Express> => {
+  app.use(serverTimout());
+
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
 

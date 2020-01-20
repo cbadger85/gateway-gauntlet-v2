@@ -7,6 +7,6 @@ import LoginRequest from './models/LoginRequest.dto';
 const authRoutes = express.Router();
 
 authRoutes.post('/login', requestValidator(LoginRequest), asyncHandler(login));
-authRoutes.post('/lougout', authorizationHandler, logout);
+authRoutes.post('/logout', authorizationHandler, logout);
 
 export default authRoutes;
