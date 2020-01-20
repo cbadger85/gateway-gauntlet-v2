@@ -66,7 +66,7 @@ class AuthService {
       };
     } catch {
       const { id, sessionId } = this.parseRefreshToken(oldRefreshToken);
-      const user = await this.repository.findUser(id || '');
+      const user = await this.repository.findUser(id);
 
       if (!user || !user.sessionId || sessionId !== user.sessionId) {
         throw new NotAuthorized();
@@ -128,11 +128,11 @@ class AuthService {
 export default AuthService;
 
 interface AccessTokenPayload {
-  id?: string;
+  id: string;
   roles: Role[];
 }
 
 interface RefreshTokenPayload {
-  id?: string;
+  id: string;
   sessionId?: string;
 }

@@ -1,6 +1,6 @@
 import { Role } from './Role';
 
 export interface UserAuth {
-  id?: string;
+  id: string;
   roles: Role[];
 }

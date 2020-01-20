@@ -5,7 +5,7 @@ import { Exclude } from 'class-transformer';
 @Entity()
 class User {
   @PrimaryGeneratedColumn('uuid')
-  id?: string;
+  id: string;
 
   @Column({ nullable: false, unique: true })
   username!: string;
