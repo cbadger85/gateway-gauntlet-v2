@@ -6,6 +6,7 @@ import UserRepository from './users.repository';
 import { classToPlain, plainToClass } from 'class-transformer';
 import User from './entities/users.entity';
 import BadRequest from '../errors/BadRequest';
+import uuid from 'uuid/v4';
 
 @Service()
 class UserService {
@@ -22,9 +23,10 @@ class UserService {
     }
 
     const password = await bcrypt.hash(user.password, 10);
+    const sessionId = uuid();
 
     const savedUser = await this.repository.saveUser(
-      plainToClass(User, { ...user, password }),
+      plainToClass(User, { ...user, password, sessionId }),
     );
 
     return classToPlain(savedUser) as User;

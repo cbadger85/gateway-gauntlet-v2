@@ -7,6 +7,7 @@ import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import { Role } from '../../auth/models/Role';
 import BadRequest from '../../errors/BadRequest';
+import uuid from 'uuid/v4';
 
 const mockUser = new User();
 
@@ -25,6 +26,11 @@ class MockRepository {
 
 jest.mock('bcryptjs', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
+}));
+
+jest.mock('uuid/v4', () => ({
+  __esModule: true,
+  default: jest.fn().mockReturnValue('5678'),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -57,7 +63,6 @@ describe('UserService', () => {
     });
 
     it('should bcrypt.hash and hash the password', async () => {
-      mockRepository.saveUser.mockResolvedValue(mockUser);
       await userService.addUser({
         username: 'foo',
         password: 'bar',
@@ -66,6 +71,17 @@ describe('UserService', () => {
       });
 
       expect(bcrypt.hash).toBeCalledWith('bar', 10);
+    });
+
+    it('should call uuid to generate a sessionId', async () => {
+      await userService.addUser({
+        username: 'foo',
+        password: 'bar',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      });
+
+      expect(uuid).toBeCalled();
     });
 
     it('should call repository.saveUser with the user', async () => {
@@ -81,6 +97,7 @@ describe('UserService', () => {
         username: 'foo',
         password: 'hashedPassword',
         email: 'email@example.com',
+        sessionId: '5678',
         roles: [Role.USER],
       };
 

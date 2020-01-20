@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, Generated } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity } from 'typeorm';
 import { Role } from '../../auth/models/Role';
 import { Exclude } from 'class-transformer';
 
@@ -21,7 +21,6 @@ class User {
   roles!: Role[];
 
   @Exclude({ toPlainOnly: true })
-  @Generated('uuid')
   @Column({ nullable: false })
   sessionId?: string;
 }

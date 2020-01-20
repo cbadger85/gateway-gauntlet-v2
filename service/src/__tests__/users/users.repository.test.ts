@@ -37,6 +37,7 @@ describe('UserRepository', () => {
       username: 'foo',
       password: 'bar',
       roles: [Role.USER],
+      sessionId: '1234',
       email: 'foo@example.com',
     };
 
@@ -50,6 +51,7 @@ describe('UserRepository', () => {
       username: 'foo',
       password: 'bar',
       roles: [Role.USER],
+      sessionId: '1234',
       email: 'foo@example.com',
     };
 
@@ -67,6 +69,7 @@ describe('UserRepository', () => {
       username: 'foo',
       password: 'bar',
       roles: [Role.USER],
+      sessionId: '1234',
       email: 'foo@example.com',
     };
 
@@ -86,6 +89,7 @@ describe('UserRepository', () => {
       username: 'foo1',
       password: 'bar',
       roles: [Role.USER],
+      sessionId: '1234',
       email: 'foo1@example.com',
     };
 
@@ -93,6 +97,7 @@ describe('UserRepository', () => {
       username: 'foo2',
       password: 'bar',
       roles: [Role.USER],
+      sessionId: '5678',
       email: 'foo2@example.com',
     };
 
@@ -100,6 +105,7 @@ describe('UserRepository', () => {
       username: 'foo3',
       password: 'bar',
       roles: [Role.USER],
+      sessionId: '9012',
       email: 'foo3@example.com',
     };
 
