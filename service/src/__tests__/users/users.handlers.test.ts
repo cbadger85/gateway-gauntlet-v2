@@ -7,6 +7,8 @@ import { Role } from '../../auth/models/Role';
 const mockUser = {
   username: 'foo',
   password: 'bar',
+  sessionId: '5678',
+  email: 'foo@example.com',
   roles: [Role.USER],
 };
 

@@ -52,9 +52,7 @@ describe('user.routes', () => {
         .send({ username: 'foo', password: 'bar' })
         .expect(400);
 
-      expect(response.body).toMatchObject({
-        errors: expect.arrayContaining([expect.anything()]),
-      });
+      expect(response.body.errors).toHaveLength(3);
     });
 
     it('should send a BadRequest if the user already exists', async () => {

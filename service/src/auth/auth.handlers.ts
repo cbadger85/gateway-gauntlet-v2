@@ -9,14 +9,9 @@ export const login: RequestHandler<never, User, LoginRequest> = async (
   res,
 ): Promise<Response<User>> => {
   const authService = Container.get(AuthService);
-  const user = await authService.login(req.body);
+  const { user, accessToken, refreshToken } = await authService.login(req.body);
 
-  const { id, roles, sessionId } = user;
-
-  const token = authService.getAccessToken({ id, roles });
-  const refreshToken = authService.getRefreshToken({ id, sessionId });
-
-  res.cookie(token, 'access-token', {
+  res.cookie(accessToken, 'access-token', {
     expires: new Date(Date.now() + 600000),
     httpOnly: true,
   });

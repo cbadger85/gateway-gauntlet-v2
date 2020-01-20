@@ -52,11 +52,18 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return the user if login is valid', async () => {
+    it('should return the user, accessToken, and refreshToken if login is valid', async () => {
       mockRepository.findUserByUsername.mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (jwt.sign as jest.Mock)
+        .mockReturnValueOnce('access token')
+        .mockReturnValueOnce('refresh token');
+      jest.spyOn(authService, 'getAccessToken');
+      jest.spyOn(authService, 'getRefreshToken');
 
-      const user = await authService.login(mockLoginRequest);
+      const { user, refreshToken, accessToken } = await authService.login(
+        mockLoginRequest,
+      );
 
       const expectedUser = {
         id: '1',
@@ -66,7 +73,17 @@ describe('AuthService', () => {
 
       expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(bcrypt.compare).toBeCalledWith('bar', 'bar');
+      expect(authService.getAccessToken).toBeCalledWith({
+        id: user.id,
+        roles: user.roles,
+      });
+      expect(authService.getRefreshToken).toBeCalledWith({
+        id: user.id,
+        sessionId: user.sessionId,
+      });
       expect(user).toEqual(expectedUser);
+      expect(accessToken).toBe('access token');
+      expect(refreshToken).toBe('refresh token');
     });
 
     it('should throw NotAuthorized if the user cannot be found', async () => {

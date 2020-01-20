@@ -13,7 +13,9 @@ import { UserAuth } from './models/UserAuth';
 class AuthService {
   constructor(private repository: UserRepository) {}
 
-  login = async (loginRequest: LoginRequest): Promise<User> => {
+  login = async (
+    loginRequest: LoginRequest,
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> => {
     const user = await this.repository.findUserByUsername(
       loginRequest.username,
     );
@@ -31,7 +33,12 @@ class AuthService {
       throw new NotAuthorized();
     }
 
-    return classToPlain(user) as User;
+    const sanitizedUser = classToPlain(user) as User;
+    const { id, sessionId, roles } = sanitizedUser;
+    const accessToken = this.getAccessToken({ id, roles });
+    const refreshToken = this.getRefreshToken({ id, sessionId });
+
+    return { user: sanitizedUser, accessToken, refreshToken };
   };
 
   refresh = async (
