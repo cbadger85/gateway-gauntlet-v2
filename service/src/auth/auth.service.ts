@@ -18,7 +18,6 @@ class AuthService {
       loginRequest.username,
     );
 
-    // TODO add test for sessionId
     if (!user || !user.sessionId) {
       throw new NotAuthorized();
     }

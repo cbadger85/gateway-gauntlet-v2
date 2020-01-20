@@ -14,9 +14,10 @@ const mockLoginRequest = {
 
 const mockUser = new User();
 
-mockUser.id = 1;
+mockUser.id = '1';
 mockUser.username = 'foo';
 mockUser.password = 'bar';
+mockUser.sessionId = '1234';
 mockUser.roles = [Role.USER];
 
 class MockRepository {
@@ -52,7 +53,7 @@ describe('AuthService', () => {
       const user = await authService.login(mockLoginRequest);
 
       const expectedUser = {
-        id: 1,
+        id: '1',
         username: 'foo',
         roles: [Role.USER],
       };
@@ -64,6 +65,22 @@ describe('AuthService', () => {
 
     it('should throw NotAuthorized if the user cannot be found', async () => {
       mockRepository.findUserByUsername.mockResolvedValue(undefined);
+
+      const error = await authService.login(mockLoginRequest).catch(e => e);
+
+      expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
+      expect(error).toBeInstanceOf(NotAuthorized);
+      expect(bcrypt.compare).not.toBeCalled();
+    });
+
+    it('should throw NotAuthorized if there is no sessionId', async () => {
+      const mockUser = new User();
+
+      mockUser.id = '1';
+      mockUser.username = 'foo';
+      mockUser.password = 'bar';
+      mockUser.roles = [Role.USER];
+      mockRepository.findUserByUsername.mockResolvedValue(mockUser);
 
       const error = await authService.login(mockLoginRequest).catch(e => e);
 
