@@ -46,15 +46,8 @@ class AuthService {
       const accessPayload = this.parseAccessToken(oldAccessToken);
       const refreshPayload = this.parseRefreshToken(oldRefreshToken);
 
-      const accessToken = this.getAccessToken({
-        id: accessPayload.id,
-        roles: accessPayload.roles,
-      });
-
-      const refreshToken = this.getRefreshToken({
-        id: accessPayload.id,
-        sessionId: refreshPayload.sessionId,
-      });
+      const accessToken = this.getAccessToken(accessPayload);
+      const refreshToken = this.getRefreshToken(refreshPayload);
 
       const userAuth = { id: accessPayload.id, roles: accessPayload.roles };
 
@@ -64,22 +57,17 @@ class AuthService {
         userAuth,
       };
     } catch {
-      const { id, sessionId } = this.parseRefreshToken(oldRefreshToken);
-      const user = await this.repository.findUser(id);
+      const token = this.parseRefreshToken(oldRefreshToken);
+      const user = await this.repository.findUser(token.id);
 
-      if (!user || !user.sessionId || sessionId !== user.sessionId) {
+      if (!user || !user.sessionId || token.sessionId !== user.sessionId) {
         throw new NotAuthorized();
       }
 
-      const accessToken = this.getAccessToken({
-        id: user.id,
-        roles: user.roles,
-      });
+      const { id, sessionId, roles } = user;
 
-      const refreshToken = this.getRefreshToken({
-        id: user.id,
-        sessionId: user.sessionId,
-      });
+      const accessToken = this.getAccessToken({ id, roles });
+      const refreshToken = this.getRefreshToken({ id, sessionId });
 
       const userAuth = { id: user.id, roles: user.roles };
 
@@ -105,7 +93,7 @@ class AuthService {
       );
 
       return payload as AccessTokenPayload;
-    } catch (e) {
+    } catch {
       throw new NotAuthorized();
     }
   };
@@ -118,7 +106,7 @@ class AuthService {
       );
 
       return payload as RefreshTokenPayload;
-    } catch (e) {
+    } catch {
       throw new NotAuthorized();
     }
   };

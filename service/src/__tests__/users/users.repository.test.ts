@@ -40,7 +40,7 @@ describe('UserRepository', () => {
       email: 'foo@example.com',
     };
 
-    const savedUser = await userRepository.saveUser(user);
+    const savedUser = await userRepository.saveUser(user as any);
 
     expect(user).toEqual(savedUser);
   });
