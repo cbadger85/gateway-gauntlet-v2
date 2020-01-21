@@ -20,13 +20,13 @@ class AuthService {
       loginRequest.username,
     );
 
-    if (!user || !user.sessionId) {
+    if (!user || !user.sessionId || !user.password) {
       throw new NotAuthorized();
     }
 
     const isValidPassword = await bcrypt.compare(
       loginRequest.password,
-      user.password ?? '',
+      user.password,
     );
 
     if (!isValidPassword) {

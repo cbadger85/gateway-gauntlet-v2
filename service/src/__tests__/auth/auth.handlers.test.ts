@@ -1,7 +1,7 @@
 import { Role } from '../../auth/models/Role';
 import Container from 'typedi';
 import AuthService from '../../auth/auth.service';
-import { login, logout, authorizationHandler } from '../../auth/auth.handlers';
+import { login, logout, verifyAuthorization } from '../../auth/auth.handlers';
 
 const mockUser = {
   id: '1234',
@@ -51,14 +51,14 @@ describe('auth.handlers', () => {
 
       expect(mockRes.cookie).toHaveBeenNthCalledWith(
         1,
-        'access token',
         'access-token',
+        'access token',
         cookieOptions,
       );
       expect(mockRes.cookie).toHaveBeenNthCalledWith(
         2,
-        'refresh token',
         'refresh-token',
+        'refresh token',
         cookieOptions,
       );
     });
@@ -91,7 +91,7 @@ describe('auth.handlers', () => {
     });
   });
 
-  describe('authorization handler', () => {
+  describe('verify authorization', () => {
     it('should call authService.refresh with the old access token and old refresh token', async () => {
       const userAuth = {
         id: '1234',
@@ -112,7 +112,7 @@ describe('auth.handlers', () => {
         },
       };
 
-      await authorizationHandler(mockReq as any, mockRes as any, jest.fn());
+      await verifyAuthorization(mockReq as any, mockRes as any, jest.fn());
 
       expect(authService.refresh).toBeCalledWith(
         mockReq.cookies['access-token'],
@@ -140,7 +140,7 @@ describe('auth.handlers', () => {
         },
       };
 
-      await authorizationHandler(mockReq as any, mockRes as any, jest.fn());
+      await verifyAuthorization(mockReq as any, mockRes as any, jest.fn());
 
       const cookieOptions = {
         expires: expect.any(Date),
@@ -149,14 +149,14 @@ describe('auth.handlers', () => {
 
       expect(mockRes.cookie).toHaveBeenNthCalledWith(
         1,
-        'access token',
         'access-token',
+        'access token',
         cookieOptions,
       );
       expect(mockRes.cookie).toHaveBeenNthCalledWith(
         2,
-        'refresh token',
         'refresh-token',
+        'refresh token',
         cookieOptions,
       );
     });
@@ -183,7 +183,7 @@ describe('auth.handlers', () => {
       };
 
       const next = jest.fn();
-      await authorizationHandler(mockReq as any, mockRes as any, next);
+      await verifyAuthorization(mockReq as any, mockRes as any, next);
 
       expect(mockReq.user).toEqual(userAuth);
     });
@@ -209,7 +209,7 @@ describe('auth.handlers', () => {
       };
 
       const next = jest.fn();
-      await authorizationHandler(mockReq as any, mockRes as any, next);
+      await verifyAuthorization(mockReq as any, mockRes as any, next);
 
       expect(next).toBeCalledWith();
     });

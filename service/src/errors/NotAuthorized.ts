@@ -1,10 +1,8 @@
 import HttpError from './HttpError';
 
 class NotAuthorized extends HttpError {
-  constructor(
-    message = 'not authorized to access this resource',
-    name = '401 - Not Authorized',
-  ) {
+  name = '401 - Not Authorized';
+  constructor(message = 'not authorized to access this resource') {
     super(message, 401);
   }
 }

@@ -11,12 +11,12 @@ export const login: RequestHandler<never, User, LoginRequest> = async (
   const authService = Container.get(AuthService);
   const { user, accessToken, refreshToken } = await authService.login(req.body);
 
-  res.cookie(accessToken, 'access-token', {
+  res.cookie('access-token', accessToken, {
     expires: new Date(Date.now() + 600000),
     httpOnly: true,
   });
 
-  res.cookie(refreshToken, 'refresh-token', {
+  res.cookie('refresh-token', refreshToken, {
     expires: new Date(Date.now() + 86400000),
     httpOnly: true,
   });
@@ -34,7 +34,7 @@ export const logout: RequestHandler<never, void, never> = (
   return res.sendStatus(204);
 };
 
-export const authorizationHandler: RequestHandler<never, never, never> = async (
+export const verifyAuthorization: RequestHandler<never, never, never> = async (
   req,
   res,
   next,
@@ -51,12 +51,12 @@ export const authorizationHandler: RequestHandler<never, never, never> = async (
 
   req.user = userAuth;
 
-  res.cookie(accessToken, 'access-token', {
+  res.cookie('access-token', accessToken, {
     expires: new Date(Date.now() + 600000),
     httpOnly: true,
   });
 
-  res.cookie(refreshToken, 'refresh-token', {
+  res.cookie('refresh-token', refreshToken, {
     expires: new Date(Date.now() + 86400000),
     httpOnly: true,
   });
