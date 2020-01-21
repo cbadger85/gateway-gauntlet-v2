@@ -7,21 +7,21 @@ class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ unique: true })
   username!: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column()
+  @Column({ nullable: true })
   password?: string;
 
-  @Column({ nullable: false, unique: true })
+  @Column({ unique: true })
   email!: string;
 
-  @Column('simple-array', { nullable: false })
+  @Column('simple-array')
   roles!: Role[];
 
   @Exclude({ toPlainOnly: true })
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   sessionId?: string;
 }
 
