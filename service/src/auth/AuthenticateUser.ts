@@ -66,9 +66,9 @@ class AuthenticateUser<P extends Params, R> {
       return true;
     }
 
-    return !!this.config[role].inherits?.some(role =>
-      this.hasOperation(role, operation),
-    );
+    const inherits = this.config[role].inherits || [];
+
+    return inherits.some(role => this.hasOperation(role, operation));
   };
 
   private isAllowed = async (
@@ -96,9 +96,9 @@ class AuthenticateUser<P extends Params, R> {
       return true;
     }
 
-    const isAllowed = await this.config[role].inherits?.reduce<
-      Promise<boolean>
-    >(
+    const inherits = this.config[role].inherits || [];
+
+    return await inherits.reduce<Promise<boolean>>(
       async (acc, role) =>
         (await acc)
           ? true
@@ -111,8 +111,6 @@ class AuthenticateUser<P extends Params, R> {
             ),
       Promise.resolve(false),
     );
-
-    return !!isAllowed;
   };
 
   private isCanObj = (op: unknown): op is Where => {

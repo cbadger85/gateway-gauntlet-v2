@@ -24,7 +24,7 @@ export const rbacConfig: RbacConfig = {
             return false;
           }
 
-          return !roles.includes(Role.ADMIN);
+          return roles.includes(Role.USER);
         },
       },
     ],

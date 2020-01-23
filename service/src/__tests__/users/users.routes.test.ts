@@ -6,6 +6,7 @@ import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
 import BadRequest from '../../errors/BadRequest';
 import AuthService from '../../auth/auth.service';
+import Forbidden from '../../errors/Forbidden';
 
 class MockService {
   addUser = jest.fn();
@@ -113,6 +114,37 @@ describe('user.routes', () => {
       expect(userService.getUser).toBeCalledWith('1');
 
       expect(response.body).toEqual(retrievedUser);
+    });
+
+    it('should return a forbidden error if the user is not the same as the requested user', async () => {
+      const forbidden = new Forbidden();
+
+      const responseBody = {
+        name: forbidden.name,
+        message: forbidden.message,
+        statusCode: forbidden.statusCode,
+      };
+
+      const retrievedUser = {
+        id: '2',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '1', roles: [Role.USER] },
+      });
+      userService.getUser.mockResolvedValue(retrievedUser);
+      const response = await request(await server())
+        .get('/users/2')
+        .expect(403);
+
+      expect(userService.getUser).toBeCalledWith('2');
+
+      expect(response.body).toEqual(responseBody);
     });
 
     it('should return an error if it failed to find the user', async () => {

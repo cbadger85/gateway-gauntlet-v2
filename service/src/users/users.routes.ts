@@ -1,5 +1,5 @@
 import express from 'express';
-import { getUser, addUser, authorizedToUdateUser } from './users.handlers';
+import { getUser, addUser, authorizedToUpdateUser } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
 import AddUserRequest from './models/AddUserRequest.dto';
@@ -12,7 +12,7 @@ userRoutes.post('/', requestValidator(AddUserRequest), asyncHandler(addUser));
 userRoutes.get(
   '/:id',
   asyncHandler(verifyAuthorization),
-  asyncHandler(authorizedToUdateUser),
+  asyncHandler(authorizedToUpdateUser),
   asyncHandler(getUser),
 );
 
