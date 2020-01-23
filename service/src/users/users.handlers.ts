@@ -3,6 +3,8 @@ import { Container } from 'typedi';
 import UserService from './users.service';
 import AddUserRequest from './models/AddUserRequest.dto';
 import User from './entities/users.entity';
+import AuthenticatedUser from '../auth/AuthenticateUser';
+import { rbacConfig } from '../auth/rbacConfig';
 
 export const addUser: RequestHandler<never, User, AddUserRequest> = async (
   req,
@@ -25,3 +27,15 @@ export const getUser: RequestHandler<{ id: string }, User, never> = async (
 };
 
 export default { addUser, getUser };
+
+export const authorizedToUdateUser = AuthenticatedUser.of<{ id: string }, User>(
+  rbacConfig,
+)
+  .can('users::update')
+  .when(async params => {
+    const userService = Container.get(UserService);
+    const user = await userService.getUser(params.id);
+
+    return user;
+  })
+  .done();

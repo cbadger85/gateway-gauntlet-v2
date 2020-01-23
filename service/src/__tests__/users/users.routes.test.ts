@@ -5,18 +5,29 @@ import UserService from '../../users/users.service';
 import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
 import BadRequest from '../../errors/BadRequest';
+import AuthService from '../../auth/auth.service';
 
 class MockService {
   addUser = jest.fn();
   getUser = jest.fn();
 }
 
+class MockAuthService {
+  login = jest.fn();
+  refresh = jest.fn();
+}
+
+beforeEach(jest.clearAllMocks);
+
 describe('user.routes', () => {
   let userService: MockService;
+  let authService: MockAuthService;
 
-  beforeAll(() => {
+  beforeEach(() => {
     Container.set(UserService, new MockService());
+    Container.set(AuthService, new MockAuthService());
     userService = (Container.get(UserService) as unknown) as MockService;
+    authService = (Container.get(AuthService) as unknown) as MockAuthService;
   });
   describe('POST /users', () => {
     it('should call addUser', async () => {
@@ -89,6 +100,11 @@ describe('user.routes', () => {
         email: 'email@example.com',
         roles: [Role.USER],
       };
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '1', roles: [Role.USER] },
+      });
       userService.getUser.mockResolvedValue(retrievedUser);
       const response = await request(await server())
         .get('/users/1')
@@ -109,6 +125,12 @@ describe('user.routes', () => {
       };
 
       userService.getUser.mockRejectedValue(notFound);
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '1', roles: [Role.USER] },
+      });
+
       const response = await request(await server())
         .get('/users/1')
         .expect(404);

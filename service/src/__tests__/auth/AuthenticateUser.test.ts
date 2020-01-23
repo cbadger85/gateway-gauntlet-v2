@@ -22,7 +22,7 @@ beforeEach(jest.clearAllMocks);
 describe('AuthenticateUser', () => {
   it('should call next if the user has access to the operation', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::create')
+      .can('users::create')
       .done();
     const next = jest.fn();
     await testFn(mockReqAdmin as any, {} as any, next);
@@ -32,7 +32,7 @@ describe('AuthenticateUser', () => {
 
   it('should call next with a 403 if the user does not have the required authorization', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::update')
+      .can('users::update')
       .done();
     const next = jest.fn();
     await testFn(mockReqUser as any, {} as any, next);
@@ -45,13 +45,13 @@ describe('AuthenticateUser', () => {
       [Role.USER]: {
         can: [
           {
-            name: 'user::update',
+            name: 'users::update',
             where: ({ userId, id }) => id === userId,
           },
         ],
       },
       [Role.ADMIN]: {
-        can: ['user::create', 'user::read', 'user::delete'],
+        can: ['users::create', 'user::read', 'user::delete'],
         inherits: [Role.USER],
       },
     };
@@ -64,7 +64,7 @@ describe('AuthenticateUser', () => {
     };
 
     const testFn = AuthenticationUser.of(config)
-      .can('user::update')
+      .can('users::update')
       .when(() => ({
         id: '1234',
       }))
@@ -79,16 +79,16 @@ describe('AuthenticateUser', () => {
   it('should inherit operations from a parent role', async () => {
     const config: RbacConfig = {
       [Role.USER]: {
-        can: ['user::read', 'user::update'],
+        can: ['users::read', 'users::update'],
       },
       [Role.ADMIN]: {
-        can: ['user::create', 'user::delete'],
+        can: ['users::create', 'users::delete'],
         inherits: [Role.USER],
       },
     };
 
     const testFn = AuthenticationUser.of(config)
-      .can('user::read')
+      .can('users::read')
       .done();
     const next = jest.fn();
     await testFn(mockReqAdmin as any, {} as any, next);
@@ -98,7 +98,7 @@ describe('AuthenticateUser', () => {
 
   it('should call next if the user has access to the operation and meets the condition', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::update')
+      .can('users::update')
       .when(() => ({
         id: '1234',
       }))
@@ -111,7 +111,7 @@ describe('AuthenticateUser', () => {
 
   it('should call next with a 403... *delete after integration test is setup*', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::update')
+      .can('users::update')
       .when(() => ({
         id: '5678',
         roles: [Role.ADMIN],
@@ -121,7 +121,7 @@ describe('AuthenticateUser', () => {
     await testFn(mockReqAdmin as any, {} as any, next);
 
     const testFn2 = AuthenticationUser.of(rbacConfig)
-      .can('user::update')
+      .can('users::update')
       .when(() => ({
         id: '5678',
       }))
@@ -137,24 +137,25 @@ describe('AuthenticateUser', () => {
       [Role.USER]: {
         can: [
           {
-            name: 'user::update',
+            name: 'users::update',
             where: ({ userId, id }) => id === userId,
           },
         ],
       },
       [Role.ADMIN]: {
-        can: ['user::create', 'user::read', 'user::delete'],
+        can: ['users::create', 'users::read', 'users::delete'],
         inherits: [Role.USER],
       },
     };
 
     const testFn = AuthenticationUser.of(config)
-      .can('user::update')
+      .can('users::update')
       .when(() => ({
-        id: '5678',
+        id: '1234',
         roles: [Role.ADMIN],
       }))
       .done();
+
     const next = jest.fn();
     await testFn(mockReqAdmin as any, {} as any, next);
 
@@ -163,7 +164,7 @@ describe('AuthenticateUser', () => {
 
   it('should call next if the user has access to the operation and the promise is resolved', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::update')
+      .can('users::update')
       .when(() => {
         return Promise.resolve({
           id: '1234',
@@ -178,7 +179,7 @@ describe('AuthenticateUser', () => {
 
   it('should reject the promise if the user does not meet the where condition', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::update')
+      .can('users::update')
       .when(() => {
         return Promise.reject(new Error());
       })
@@ -193,7 +194,7 @@ describe('AuthenticateUser', () => {
 
   it('should call next with a 403 if the user does not meet the where condition', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::create')
+      .can('users::create')
       .when(() => ({
         id: '1234',
       }))
@@ -206,7 +207,7 @@ describe('AuthenticateUser', () => {
 
   it('should call next with a 403 if there is no user', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('user::create')
+      .can('users::create')
       .when(() => ({
         id: '1234',
       }))
