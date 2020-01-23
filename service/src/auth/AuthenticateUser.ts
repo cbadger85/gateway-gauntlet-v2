@@ -2,28 +2,32 @@ import { Params, RequestHandler } from 'express-serve-static-core';
 import Forbidden from '../errors/Forbidden';
 import { Role } from './models/Role';
 
-class AuthenticateUser<P extends Params, R> {
+class AuthenticateUser<P extends Params, ReqBody, R> {
   private constructor(
     private config: RbacConfig,
     private operation = '*',
     private has?: (params: P) => R | Promise<R>,
   ) {}
 
-  static of = <P extends Params, R>(
+  static of = <P extends Params, ReqBody, R>(
     config: RbacConfig,
-  ): AuthenticateUser<P, R> => new AuthenticateUser(config);
+  ): AuthenticateUser<P, ReqBody, R> => new AuthenticateUser(config);
 
-  can = (operation: string): { done: DoneFn<P>; when: WhenFn<P, R> } => {
+  can = (
+    operation: string,
+  ): { done: DoneFn<P, ReqBody>; when: WhenFn<P, ReqBody, R> } => {
     this.operation = operation;
     return { done: this.done, when: this.when };
   };
 
-  private when = (has: (params: P) => R | Promise<R>): { done: DoneFn<P> } => {
+  private when = (
+    has: (params: P) => R | Promise<R>,
+  ): { done: DoneFn<P, ReqBody> } => {
     this.has = has;
     return { done: this.done };
   };
 
-  done = (): RequestHandler<P, never, unknown> => async (
+  done = (): RequestHandler<P, never, ReqBody> => async (
     req,
     res,
     next,
@@ -33,7 +37,7 @@ class AuthenticateUser<P extends Params, R> {
     }
 
     const { roles, id } = req.user;
-    const { params } = req;
+    const { params, body } = req;
 
     const hasOperation = roles.some(role =>
       this.hasOperation(role, this.operation),
@@ -47,7 +51,14 @@ class AuthenticateUser<P extends Params, R> {
       async (acc, role) =>
         (await acc)
           ? true
-          : await this.isAllowed(role, id, params, this.operation, this.has),
+          : await this.isAllowed(
+              role,
+              id,
+              params,
+              body,
+              this.operation,
+              this.has,
+            ),
       Promise.resolve(false),
     );
 
@@ -75,6 +86,7 @@ class AuthenticateUser<P extends Params, R> {
     role: Role,
     userId: string,
     params: P,
+    body: ReqBody,
     operation: string,
     has?: (params: P) => R | Promise<R>,
   ): Promise<boolean> => {
@@ -91,7 +103,7 @@ class AuthenticateUser<P extends Params, R> {
     if (
       requiredOp &&
       this.isCanObj(requiredOp) &&
-      requiredOp.where(providedParams)
+      requiredOp.where(userId, providedParams, body)
     ) {
       return true;
     }
@@ -106,6 +118,7 @@ class AuthenticateUser<P extends Params, R> {
               role,
               userId,
               params,
+              body,
               this.operation,
               this.has,
             ),
@@ -128,12 +141,18 @@ export default AuthenticateUser;
 
 export type HasFn<P extends Params, R> = (params: P) => R | Promise<R>;
 
-type DoneFn<P extends Params> = () => RequestHandler<P, never, unknown>;
+type DoneFn<P extends Params, ReqBody> = () => RequestHandler<
+  P,
+  never,
+  ReqBody
+>;
 
-type WhenFn<P extends Params, R> = (has: HasFn<P, R>) => { done: DoneFn<P> };
+type WhenFn<P extends Params, ReqBody, R> = (
+  has: HasFn<P, R>,
+) => { done: DoneFn<P, ReqBody> };
 
 export type Where = {
-  where: <T>(params: Record<string, unknown> & T) => boolean;
+  where: <P, ReqBody>(userId: string, params: P, body: ReqBody) => boolean;
   name: string;
 };
 
@@ -149,8 +168,8 @@ type CanPermission =
   | {
       name: string;
       where: (
-        params: Record<string, unknown> & {
-          userId: string;
-        },
+        userId: string,
+        params: Record<string, unknown>,
+        body: any,
       ) => boolean;
     };

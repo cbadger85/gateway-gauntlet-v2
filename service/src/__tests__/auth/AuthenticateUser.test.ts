@@ -46,7 +46,7 @@ describe('AuthenticateUser', () => {
         can: [
           {
             name: 'users::update',
-            where: ({ userId, id }) => id === userId,
+            where: (userId, { id }) => id === userId,
           },
         ],
       },
@@ -138,7 +138,7 @@ describe('AuthenticateUser', () => {
         can: [
           {
             name: 'users::update',
-            where: ({ userId, id }) => id === userId,
+            where: (userId, { id }) => id === userId,
           },
         ],
       },

@@ -6,9 +6,7 @@ export const rbacConfig: RbacConfig = {
     can: [
       {
         name: 'users::update',
-        where: ({ userId, id }) => {
-          return id === userId;
-        },
+        where: (userId, { id }) => id === userId,
       },
     ],
   },
@@ -19,13 +17,8 @@ export const rbacConfig: RbacConfig = {
       'users::delete',
       {
         name: 'users::update',
-        where: ({ roles }) => {
-          if (!Array.isArray(roles)) {
-            return false;
-          }
-
-          return roles.includes(Role.USER);
-        },
+        where: (_, { roles }) =>
+          Array.isArray(roles) && roles.includes(Role.USER),
       },
     ],
     inherits: [Role.USER],
