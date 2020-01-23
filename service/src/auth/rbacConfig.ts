@@ -1,29 +1,34 @@
 import { Role } from './models/Role';
+import { RbacConfig } from './AuthenticateUser';
 
 export const rbacConfig: RbacConfig = {
   [Role.USER]: {
     can: [
       {
         name: 'user::update',
-        where: ({ userId, requestedUserId }) => requestedUserId === userId,
+        where: ({ userId, id }) => id === userId,
       },
     ],
   },
   [Role.ADMIN]: {
-    can: ['user::create', 'user::read', 'user::update', 'user::delete'],
+    can: [
+      'user::create',
+      'user::read',
+      'user::delete',
+      {
+        name: 'user::update',
+        where: ({ roles }) => {
+          if (!Array.isArray(roles)) {
+            return false;
+          }
+
+          return !roles.includes(Role.ADMIN);
+        },
+      },
+    ],
+  },
+  [Role.SUPER_ADMIN]: {
+    can: ['user::update'],
+    inherits: [Role.ADMIN],
   },
 };
-
-export interface RbacConfig {
-  [key: string]: {
-    can: CanPermission[];
-    inherits?: Role[];
-  };
-}
-
-export type CanPermission =
-  | string
-  | {
-      name: string;
-      where: (params: Record<string, unknown>) => boolean;
-    };

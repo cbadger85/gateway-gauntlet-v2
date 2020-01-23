@@ -1,7 +1,6 @@
 import { Params, RequestHandler } from 'express-serve-static-core';
 import Forbidden from '../errors/Forbidden';
 import { Role } from './models/Role';
-import { RbacConfig } from './rbacConfig';
 
 class AuthenticatedUser<P extends Params, ReqBody> {
   private constructor(
@@ -87,13 +86,13 @@ class AuthenticatedUser<P extends Params, ReqBody> {
       return false;
     }
 
-    const requiredOp = this.config[role].can
-      .filter(this.isCanObj)
-      .find(op => this.isCanObj(op) && op.name === operation);
+    const requiredOp = this.config[role].can.find(
+      op => this.isCanObj(op) && op.name === operation,
+    );
 
     const params = { ...(await has()), userId };
 
-    if (requiredOp && requiredOp.where(params)) {
+    if (requiredOp && this.isCanObj(requiredOp) && requiredOp.where(params)) {
       return true;
     }
 
@@ -127,7 +126,21 @@ type WhenFn<P extends Params, ReqBody> = (
   has: HasFn<Record<string, unknown>>,
 ) => { done: DoneFn<P, ReqBody> };
 
-type Where = {
-  where: (params: Record<string, unknown>) => boolean;
+export type Where = {
+  where: <T>(params: Record<string, unknown> & T) => boolean;
   name: string;
 };
+
+export interface RbacConfig {
+  [key: string]: {
+    can: CanPermission[];
+    inherits?: Role[];
+  };
+}
+
+type CanPermission =
+  | string
+  | {
+      name: string;
+      where: (params: Record<string, unknown> & { userId: string }) => boolean;
+    };
