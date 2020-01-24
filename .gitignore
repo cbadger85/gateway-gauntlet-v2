@@ -5,3 +5,8 @@ dist
 coverage/
 .DS_Store
 .vscode/
+dependency-check-junit.xml
+dependency-check-report.csv
+dependency-check-report.html
+dependency-check-report.json
+dependency-check-report.xml
