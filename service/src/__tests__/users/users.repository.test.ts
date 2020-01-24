@@ -84,6 +84,24 @@ describe('UserRepository', () => {
     expect(user).toEqual(retrievedUser);
   });
 
+  it('should retreive a user by username', async () => {
+    const user = {
+      username: 'foo',
+      password: 'bar',
+      roles: [Role.USER],
+      sessionId: '1234',
+      email: 'foo@example.com',
+    };
+
+    const repo = getRepository(User, 'user-repository-test');
+
+    await repo.save(user);
+
+    const retrievedUser = await userRepository.findUserByEmail(user.email);
+
+    expect(user).toEqual(retrievedUser);
+  });
+
   it('should find a list of users that match both email and username', async () => {
     const user1 = {
       username: 'foo1',

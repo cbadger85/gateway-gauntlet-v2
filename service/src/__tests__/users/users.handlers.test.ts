@@ -1,6 +1,12 @@
 import Container from 'typedi';
 import UserService from '../../users/users.service';
-import { addUser, getUser } from '../../users/users.handlers';
+import {
+  addUser,
+  getUser,
+  requestResetPassword,
+  disableAccount,
+  resetPassword,
+} from '../../users/users.handlers';
 import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
 
@@ -12,18 +18,17 @@ const mockUser = {
   roles: [Role.USER],
 };
 
-const mockReq = {
-  body: mockUser,
-  params: { id: 1 },
-};
-
 const mockRes = {
-  json: jest.fn(),
+  json: jest.fn().mockReturnThis(),
+  sendStatus: jest.fn().mockReturnThis(),
 };
 
 class MockService {
   addUser = jest.fn();
   getUser = jest.fn();
+  requestResetPassword = jest.fn();
+  disableAccount = jest.fn();
+  resetPassword = jest.fn();
 }
 
 beforeEach(() => {
@@ -40,6 +45,10 @@ describe('users.handlers', () => {
 
   describe('saveUser', () => {
     it('should call userService.addUser with the user', async () => {
+      const mockReq = {
+        body: mockUser,
+      };
+
       userService.addUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await addUser(mockReq as any, mockRes as any, jest.fn());
@@ -48,6 +57,10 @@ describe('users.handlers', () => {
     });
 
     it('should call res.send with the returned user', async () => {
+      const mockReq = {
+        body: mockUser,
+      };
+
       userService.addUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await addUser(mockReq as any, mockRes as any, jest.fn());
@@ -56,8 +69,85 @@ describe('users.handlers', () => {
     });
   });
 
+  describe('requestResetPassword', () => {
+    it('should call userService.requestResetPassword with the email', async () => {
+      const mockReq = {
+        body: { email: 'foo@example.com' },
+      };
+
+      await requestResetPassword(mockReq as any, mockRes as any, jest.fn());
+
+      expect(userService.requestResetPassword).toBeCalledWith(
+        mockReq.body.email,
+      );
+    });
+
+    it('should call res.sendStatus with 204', async () => {
+      const mockReq = {
+        body: { email: 'foo@example.com' },
+      };
+
+      await requestResetPassword(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.sendStatus).toBeCalledWith(204);
+    });
+  });
+
+  describe('disableAccount', () => {
+    it('should call userService.disableAccount with the user id', async () => {
+      const mockReq = {
+        params: { id: '1' },
+      };
+
+      await disableAccount(mockReq as any, mockRes as any, jest.fn());
+
+      expect(userService.disableAccount).toBeCalledWith(mockReq.params.id);
+    });
+
+    it('should call res.sendStatus with 204', async () => {
+      const mockReq = {
+        params: { id: '1' },
+      };
+
+      await disableAccount(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.sendStatus).toBeCalledWith(204);
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should call userService.resetPassword with the user id and new password', async () => {
+      const mockReq = {
+        params: { id: '1' },
+        body: { password: 'foobarbaz' },
+      };
+
+      await resetPassword(mockReq as any, mockRes as any, jest.fn());
+
+      expect(userService.resetPassword).toBeCalledWith(
+        mockReq.params.id,
+        mockReq.body.password,
+      );
+    });
+
+    it('should call res.sendStatus with 204', async () => {
+      const mockReq = {
+        params: { id: '1' },
+        body: { password: 'foobarbaz' },
+      };
+
+      await resetPassword(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.sendStatus).toBeCalledWith(204);
+    });
+  });
+
   describe('getUser', () => {
     it('should call userService.getUser with the user id', async () => {
+      const mockReq = {
+        params: { id: 1 },
+      };
+
       userService.getUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await getUser(mockReq as any, mockRes as any, jest.fn());
@@ -66,6 +156,10 @@ describe('users.handlers', () => {
     });
 
     it('should call res.send with the returned user', async () => {
+      const mockReq = {
+        params: { id: 1 },
+      };
+
       userService.getUser.mockResolvedValue({ id: '1', ...mockUser });
 
       await getUser(mockReq as any, mockRes as any, jest.fn());
@@ -74,6 +168,10 @@ describe('users.handlers', () => {
     });
 
     it('should reject the promise if the userService.getUser fails', async () => {
+      const mockReq = {
+        params: { id: 1 },
+      };
+
       userService.getUser.mockRejectedValue(new NotFound('not found'));
 
       const error = await getUser(

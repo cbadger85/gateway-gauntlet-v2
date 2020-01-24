@@ -1,13 +1,15 @@
-import UserService from '../../users/users.service';
-import Container from 'typedi';
 import bcrypt from 'bcryptjs';
-import NotFound from '../../errors/NotFound';
+import Container from 'typedi';
 import { Repository } from 'typeorm';
-import User from '../../users/entities/users.entity';
-import UserRepository from '../../users/users.repository';
+import uuid from 'uuid/v4';
 import { Role } from '../../auth/models/Role';
 import BadRequest from '../../errors/BadRequest';
-import uuid from 'uuid/v4';
+import Forbidden from '../../errors/Forbidden';
+import NotAuthorized from '../../errors/NotAuthorized';
+import NotFound from '../../errors/NotFound';
+import User from '../../users/entities/users.entity';
+import UserRepository from '../../users/users.repository';
+import UserService from '../../users/users.service';
 
 const mockUser = new User();
 
@@ -21,16 +23,17 @@ class MockRepository {
   private repository: Repository<User>;
   saveUser = jest.fn();
   findUser = jest.fn();
+  findUserByEmail = jest.fn();
   countUsersByUsernameOrEmail = jest.fn();
 }
-
-jest.mock('bcryptjs', () => ({
-  hash: jest.fn().mockResolvedValue('hashedPassword'),
-}));
 
 jest.mock('uuid/v4', () => ({
   __esModule: true,
   default: jest.fn().mockReturnValue('5678'),
+}));
+
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn().mockResolvedValue('hashedPassword'),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -51,7 +54,6 @@ describe('UserService', () => {
     it('should check to see if the user already exists', async () => {
       await userService.addUser({
         username: 'foo',
-        password: 'bar',
         email: 'email@example.com',
         roles: [Role.USER],
       });
@@ -62,21 +64,9 @@ describe('UserService', () => {
       );
     });
 
-    it('should bcrypt.hash and hash the password', async () => {
-      await userService.addUser({
-        username: 'foo',
-        password: 'bar',
-        email: 'email@example.com',
-        roles: [Role.USER],
-      });
-
-      expect(bcrypt.hash).toBeCalledWith('bar', 10);
-    });
-
     it('should call uuid to generate a sessionId', async () => {
       await userService.addUser({
         username: 'foo',
-        password: 'bar',
         email: 'email@example.com',
         roles: [Role.USER],
       });
@@ -88,16 +78,15 @@ describe('UserService', () => {
       mockRepository.saveUser.mockResolvedValue(mockUser);
       await userService.addUser({
         username: 'foo',
-        password: 'bar',
         email: 'email@example.com',
         roles: [Role.USER],
       });
 
       const savedUser = {
         username: 'foo',
-        password: 'hashedPassword',
         email: 'email@example.com',
         sessionId: '5678',
+        passwordExpiration: expect.any(Date),
         roles: [Role.USER],
       };
 
@@ -109,7 +98,6 @@ describe('UserService', () => {
 
       const savedUser = await userService.addUser({
         username: 'foo',
-        password: 'bar',
         email: 'email@example.com',
         roles: [Role.USER],
       });
@@ -130,7 +118,6 @@ describe('UserService', () => {
       const error = await userService
         .addUser({
           username: 'foo',
-          password: 'bar',
           email: 'email@example.com',
           roles: [Role.USER],
         })
@@ -140,8 +127,173 @@ describe('UserService', () => {
     });
   });
 
+  describe('requestResetPassword', () => {
+    it('should call repository.findUser with the email', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+      await userService.requestResetPassword('email@example.com');
+
+      expect(mockRepository.findUserByEmail).toBeCalledWith(
+        'email@example.com',
+      );
+    });
+
+    it('should call repository.save with the updated user', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+      await userService.requestResetPassword('email@example.com');
+
+      const expectedUser = {
+        ...mockUser,
+        id: '1',
+        passwordExpiration: expect.any(Date),
+      };
+
+      expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
+    });
+
+    it('should not call userRepository.save if the user cannot be found', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue(undefined);
+      await userService.requestResetPassword('foo@example.com');
+
+      expect(mockRepository.saveUser).not.toBeCalled();
+    });
+  });
+
+  describe('disableAccount', () => {
+    it('should call repository.findUser with the user id', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+
+      await userService.disableAccount('1');
+
+      expect(mockRepository.findUser).toBeCalledWith('1');
+    });
+
+    it('should call repository.save with the updated user', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+      await userService.disableAccount('1');
+
+      const expectedUser = {
+        ...mockUser,
+        id: '1',
+        sessionId: undefined,
+      };
+
+      expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
+    });
+
+    it('should throw a NotFound if the user cannot be found', async () => {
+      mockRepository.findUser.mockResolvedValue(undefined);
+      const error = await userService.disableAccount('1').catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('should call repository.findUser with the user id', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        passwordExpiration: new Date(Date.now() + 3600000),
+        ...mockUser,
+      });
+
+      const password = 'foobarbaz';
+
+      await userService.resetPassword('1', password);
+
+      expect(mockRepository.findUser).toBeCalledWith('1');
+    });
+
+    it('should call bcrypt.hash with the password', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        passwordExpiration: new Date(Date.now() + 3600000),
+        ...mockUser,
+      });
+
+      const password = 'foobarbaz';
+
+      await userService.resetPassword('1', password);
+
+      expect(bcrypt.hash).toBeCalledWith(password, 10);
+    });
+
+    it('should call repository.saveUser with the updated user', async () => {
+      const user = {
+        id: '1',
+        passwordExpiration: new Date(Date.now() + 3600000),
+        ...mockUser,
+      };
+      mockRepository.findUser.mockResolvedValue(user);
+
+      const password = 'foobarbaz';
+
+      await userService.resetPassword('1', password);
+
+      const expectedUser = { ...user, password: 'hashedPassword' };
+
+      expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
+    });
+
+    it('should throw a Forbidden if there is no password expiration', async () => {
+      const user = {
+        id: '1',
+        ...mockUser,
+      };
+      mockRepository.findUser.mockResolvedValue(user);
+
+      const password = 'foobarbaz';
+
+      const error = await userService
+        .resetPassword('1', password)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(Forbidden);
+    });
+
+    it('should throw a Forbidden if there is no password expiration has elapsed', async () => {
+      const user = {
+        id: '1',
+        passwordExpiration: new Date(Date.now() - 3600000),
+        ...mockUser,
+      };
+      mockRepository.findUser.mockResolvedValue(user);
+
+      const password = 'foobarbaz';
+
+      const error = await userService
+        .resetPassword('1', password)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(Forbidden);
+    });
+
+    it('should throw a Forbidden if no user can be found', async () => {
+      mockRepository.findUser.mockResolvedValue(undefined);
+
+      const password = 'foobarbaz';
+
+      const error = await userService
+        .resetPassword('1', password)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(Forbidden);
+    });
+  });
+
   describe('getUser', () => {
-    it('should call repository.findUser with the user', async () => {
+    it('should call repository.findUser with the user id', async () => {
       mockRepository.findUser.mockResolvedValue({
         id: '1',
         ...mockUser,

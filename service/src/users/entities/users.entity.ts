@@ -14,6 +14,9 @@ class User {
   @Column({ nullable: true })
   password?: string;
 
+  @Exclude({ toPlainOnly: true })
+  passwordExpiration: Date;
+
   @Column({ unique: true })
   email!: string;
 

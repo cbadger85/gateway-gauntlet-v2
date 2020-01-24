@@ -15,6 +15,9 @@ class UserRepository {
   findUserByUsername = (username: string): Promise<User | undefined> =>
     this.repository.findOne({ username });
 
+  findUserByEmail = (email: string): Promise<User | undefined> =>
+    this.repository.findOne({ email });
+
   countUsersByUsernameOrEmail = async (
     username: string,
     email: string,
