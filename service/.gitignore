@@ -1,7 +1,4 @@
-.idea/
-.vscode/
 node_modules/
-build/
-dist/
+build/dist/
 tmp/
 temp/coverage/

@@ -4,3 +4,4 @@ db.sql
 dist
 coverage/
 .DS_Store
+.vscode/
