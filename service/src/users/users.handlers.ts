@@ -80,3 +80,12 @@ export const authorizedToUpdateUser = AuthenticatedUser.of<
   .can('users::update')
   .when(async params => await Container.get(UserService).getUser(params.id))
   .done();
+
+export const authorizedToCreateUser = AuthenticatedUser.of<
+  { id: string },
+  User,
+  User
+>(rbacConfig)
+  .can('users::create')
+  .when(async params => await Container.get(UserService).getUser(params.id))
+  .done();

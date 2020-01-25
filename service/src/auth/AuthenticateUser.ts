@@ -98,12 +98,12 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
       op => this.isCanObj(op) && op.name === operation,
     );
 
-    const providedParams = { ...(await has(params)), userId, params };
+    const providedParams = { ...(await has(params)), params, body };
 
     if (
       requiredOp &&
       this.isCanObj(requiredOp) &&
-      requiredOp.where(userId, providedParams, body)
+      requiredOp.where(userId, providedParams)
     ) {
       return true;
     }
@@ -152,7 +152,7 @@ type WhenFn<P extends Params, ReqBody, R> = (
 ) => { done: DoneFn<P, ReqBody> };
 
 export type Where = {
-  where: <P, ReqBody>(userId: string, params: P, body: ReqBody) => boolean;
+  where: <P, ReqBody>(userId: string, params: P) => boolean;
   name: string;
 };
 
@@ -167,9 +167,5 @@ type CanPermission =
   | string
   | {
       name: string;
-      where: (
-        userId: string,
-        params: Record<string, unknown>,
-        body: any,
-      ) => boolean;
+      where: (userId: string, params: Record<string, unknown>) => boolean;
     };

@@ -8,23 +8,27 @@ export const rbacConfig: RbacConfig = {
         name: 'users::update',
         where: (userId, { id }) => id === userId,
       },
+      {
+        name: 'users::read',
+        where: (userId, { id }) => id === userId,
+      },
     ],
   },
   [Role.ADMIN]: {
     can: [
       'users::create',
       'users::read',
-      'users::delete',
       {
         name: 'users::update',
         where: (_, { roles }) =>
-          Array.isArray(roles) && roles.includes(Role.USER),
+          Array.isArray(roles) &&
+          !(roles.includes(Role.ADMIN) || roles.includes(Role.SUPER_ADMIN)),
       },
     ],
     inherits: [Role.USER],
   },
   [Role.SUPER_ADMIN]: {
-    can: ['users::update'],
+    can: ['users::update', 'users::create', 'users::delete'],
     inherits: [Role.ADMIN],
   },
 };

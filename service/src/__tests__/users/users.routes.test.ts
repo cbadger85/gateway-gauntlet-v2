@@ -7,7 +7,6 @@ import { Role } from '../../auth/models/Role';
 import BadRequest from '../../errors/BadRequest';
 import AuthService from '../../auth/auth.service';
 import Forbidden from '../../errors/Forbidden';
-import NotAuthorized from '../../errors/NotAuthorized';
 
 class MockService {
   addUser = jest.fn();
@@ -37,6 +36,12 @@ describe('user.routes', () => {
   });
   describe('POST /users', () => {
     it('should call addUser', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.ADMIN] },
+      });
+
       const savedUser = {
         id: '1',
         username: 'foo',
@@ -61,7 +66,40 @@ describe('user.routes', () => {
       expect(response.body).toEqual(savedUser);
     });
 
+    it('should send a 403 if the user is unauthorized', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.USER] },
+      });
+
+      const savedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      const sentUser = {
+        username: 'foo',
+        email: 'email@example.com',
+        roles: ['USER'],
+      };
+
+      userService.addUser.mockResolvedValue(savedUser);
+      await request(await server())
+        .post('/users')
+        .send(sentUser)
+        .expect(403);
+    });
+
     it('should send a BadRequest if the request body is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.ADMIN] },
+      });
+
       const response = await request(await server())
         .post('/users')
         .send({ username: 'foo', password: 'bar' })
@@ -71,6 +109,12 @@ describe('user.routes', () => {
     });
 
     it('should send a BadRequest if the user already exists', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.ADMIN] },
+      });
+
       const badRequest = new BadRequest('user already exists');
 
       const responseBody = {

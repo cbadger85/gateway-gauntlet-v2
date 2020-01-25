@@ -7,6 +7,7 @@ import {
   resetPassword,
   requestResetPassword,
   changePassword,
+  authorizedToCreateUser,
 } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
@@ -17,7 +18,13 @@ import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dt
 
 const userRoutes = express.Router();
 
-userRoutes.post('/', requestValidator(AddUserRequest), asyncHandler(addUser));
+userRoutes.post(
+  '/',
+  asyncHandler(verifyAuthorization),
+  asyncHandler(authorizedToCreateUser),
+  requestValidator(AddUserRequest),
+  asyncHandler(addUser),
+);
 
 userRoutes.post(
   '/:id/disable',

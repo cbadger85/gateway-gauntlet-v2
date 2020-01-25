@@ -22,7 +22,7 @@ beforeEach(jest.clearAllMocks);
 describe('AuthenticateUser', () => {
   it('should call next if the user has access to the operation', async () => {
     const testFn = AuthenticationUser.of(rbacConfig)
-      .can('users::create')
+      .can('users::read')
       .done();
     const next = jest.fn();
     await testFn(mockReqAdmin as any, {} as any, next);
