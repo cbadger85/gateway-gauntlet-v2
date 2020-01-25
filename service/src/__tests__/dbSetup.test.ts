@@ -7,27 +7,37 @@ jest.mock('typedi', () => ({
 }));
 
 jest.mock('typeorm', () => ({
-  createConnection: jest.fn().mockResolvedValue('connection'),
+  createConnection: jest.fn(),
   useContainer: jest.fn(),
   getConnectionOptions: jest.fn().mockResolvedValue({ option: true }),
 }));
 
 describe('dbSetup', () => {
   it('should call useContainer with Container', async () => {
+    (createConnection as jest.Mock).mockResolvedValue('connection');
     await dbSetup();
 
     expect(useContainer).toBeCalledWith(Container);
   });
 
   it('should get the connection options', async () => {
+    (createConnection as jest.Mock).mockResolvedValue('connection');
     await dbSetup();
 
     expect(getConnectionOptions).toBeCalled();
   });
 
-  it('should get the connection options', async () => {
+  it('should return the connection', async () => {
+    (createConnection as jest.Mock).mockResolvedValue('connection');
     await dbSetup();
 
     expect(createConnection).toBeCalledWith({ option: true });
+  });
+
+  it('should return a connection', async () => {
+    (createConnection as jest.Mock).mockRejectedValue(new Error());
+    const error = await dbSetup().catch(e => e);
+
+    expect(error).toBeInstanceOf(Error);
   });
 });

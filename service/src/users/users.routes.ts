@@ -38,8 +38,6 @@ userRoutes.post(
   asyncHandler(requestResetPassword),
 );
 
-// TODO: add route to update user info
-
 userRoutes.put(
   '/:id/password',
   asyncHandler(verifyAuthorization),

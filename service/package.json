@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "serve": "NODE_ENV=production node dist/index.js",
+    "bootstrap": "node dist/bootstrap",
+    "bootstrap:dev": "ts-node src/bootstrap",
     "build": "tsc -b",
     "start": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.test.ts' --exec 'ts-node' src/index.ts",
     "test": "jest --watch",
