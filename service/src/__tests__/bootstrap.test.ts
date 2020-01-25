@@ -1,8 +1,7 @@
-import dotenv from 'dotenv';
-import dbSetup from '../dbSetup';
-import { bootstrap } from '../bootstrap';
-import User from '../users/entities/users.entity';
 import { Role } from '../auth/models/Role';
+import { bootstrap } from '../bootstrap';
+import dbSetup from '../dbSetup';
+import User from '../users/entities/users.entity';
 
 jest.mock('../dbSetup.ts', () => ({
   __esModule: true,
