@@ -86,6 +86,18 @@ class UserService {
 
     return classToPlain(user) as User;
   };
+
+  changePassword = async (id: string, password: string): Promise<void> => {
+    const user = await this.repository.findUser(id);
+
+    if (!user) {
+      throw new NotFound('user not found');
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+
+    this.repository.saveUser(user);
+  };
 }
 
 export default UserService;

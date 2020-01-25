@@ -262,7 +262,7 @@ describe('UserService', () => {
       expect(error).toBeInstanceOf(Forbidden);
     });
 
-    it('should throw a Forbidden if there is no password expiration has elapsed', async () => {
+    it('should throw a Forbidden if the password expiration has elapsed', async () => {
       const user = {
         id: '1',
         passwordExpiration: new Date(Date.now() - 3600000),
@@ -306,6 +306,62 @@ describe('UserService', () => {
     it('should throw an error if no user is found', async () => {
       mockRepository.findUser.mockResolvedValue(undefined);
       const error = await userService.getUser('2').catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('changePassword', () => {
+    it('should call repository.findUser with user id', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+
+      const password = 'foobarbaz';
+
+      await userService.changePassword('1', password);
+
+      expect(mockRepository.findUser).toBeCalledWith('1');
+    });
+
+    it('should call bcrypt.hash with the password', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+
+      const password = 'foobarbaz';
+
+      await userService.changePassword('1', password);
+
+      expect(bcrypt.hash).toBeCalledWith(password, 10);
+    });
+
+    it('should call repository.saveUser with the updated user', async () => {
+      const user = {
+        id: '1',
+        ...mockUser,
+      };
+      mockRepository.findUser.mockResolvedValue(user);
+
+      const password = 'foobarbaz';
+
+      await userService.changePassword('1', password);
+
+      const expectedUser = { ...user, password: 'hashedPassword' };
+
+      expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
+    });
+
+    it('should throw a NotFound if no user can be found', async () => {
+      mockRepository.findUser.mockResolvedValue(undefined);
+
+      const password = 'foobarbaz';
+
+      const error = await userService
+        .changePassword('1', password)
+        .catch(e => e);
 
       expect(error).toBeInstanceOf(NotFound);
     });

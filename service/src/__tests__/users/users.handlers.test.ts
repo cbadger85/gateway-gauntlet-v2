@@ -6,6 +6,7 @@ import {
   requestResetPassword,
   disableAccount,
   resetPassword,
+  changePassword,
 } from '../../users/users.handlers';
 import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
@@ -29,6 +30,7 @@ class MockService {
   requestResetPassword = jest.fn();
   disableAccount = jest.fn();
   resetPassword = jest.fn();
+  changePassword = jest.fn();
 }
 
 beforeEach(() => {
@@ -166,21 +168,32 @@ describe('users.handlers', () => {
 
       expect(mockRes.json).toBeCalledWith({ id: '1', ...mockUser });
     });
+  });
 
-    it('should reject the promise if the userService.getUser fails', async () => {
+  describe('changePassword', () => {
+    it('should call userService.resetPassword with the user id and new password', async () => {
       const mockReq = {
-        params: { id: 1 },
+        params: { id: '1' },
+        body: { password: 'foobarbaz' },
       };
 
-      userService.getUser.mockRejectedValue(new NotFound('not found'));
+      await changePassword(mockReq as any, mockRes as any, jest.fn());
 
-      const error = await getUser(
-        mockReq as any,
-        mockRes as any,
-        jest.fn(),
-      ).catch((e: Error) => e);
+      expect(userService.changePassword).toBeCalledWith(
+        mockReq.params.id,
+        mockReq.body.password,
+      );
+    });
 
-      expect(error).toBeInstanceOf(NotFound);
+    it('should call res.sendStatus with 204', async () => {
+      const mockReq = {
+        params: { id: '1' },
+        body: { password: 'foobarbaz' },
+      };
+
+      await changePassword(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.sendStatus).toBeCalledWith(204);
     });
   });
 });

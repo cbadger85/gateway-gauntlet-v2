@@ -15,6 +15,7 @@ class MockService {
   disableAccount = jest.fn();
   resetPassword = jest.fn();
   getUser = jest.fn();
+  changePassword = jest.fn();
 }
 
 class MockAuthService {
@@ -95,7 +96,7 @@ describe('user.routes', () => {
     });
   });
 
-  describe('PUT /users/:id/disable', () => {
+  describe('POST /users/:id/disable', () => {
     it('should call disableAccount', async () => {
       const retrievedUser = {
         id: '1',
@@ -115,7 +116,7 @@ describe('user.routes', () => {
       userService.disableAccount.mockResolvedValue(undefined);
 
       await request(await server())
-        .put('/users/1/disable')
+        .post('/users/1/disable')
         .expect(204);
 
       expect(userService.disableAccount).toBeCalledWith('1');
@@ -140,7 +141,7 @@ describe('user.routes', () => {
       userService.disableAccount.mockResolvedValue(undefined);
 
       await request(await server())
-        .put('/users/1/disable')
+        .post('/users/1/disable')
         .expect(403);
 
       expect(userService.disableAccount).not.toBeCalled();
@@ -164,17 +165,17 @@ describe('user.routes', () => {
       userService.disableAccount.mockRejectedValue(new NotFound('not found'));
 
       await request(await server())
-        .put('/users/1/disable')
+        .post('/users/1/disable')
         .expect(404);
     });
   });
 
-  describe('PUT /:id/reset', () => {
+  describe('POST /:id/reset-password', () => {
     it('should call resetPassword', async () => {
       userService.resetPassword.mockResolvedValue(undefined);
 
       await request(await server())
-        .put('/users/1/reset')
+        .post('/users/1/reset-password')
         .send({ password: 'foobarbaz' })
         .expect(204);
 
@@ -185,7 +186,7 @@ describe('user.routes', () => {
       userService.resetPassword.mockResolvedValue(undefined);
 
       await request(await server())
-        .put('/users/1/reset')
+        .post('/users/1/reset-password')
         .expect(400);
     });
 
@@ -193,18 +194,18 @@ describe('user.routes', () => {
       userService.resetPassword.mockRejectedValue(new Forbidden());
 
       await request(await server())
-        .put('/users/1/reset')
+        .post('/users/1/reset-password')
         .send({ password: 'foobarbaz' })
         .expect(403);
     });
   });
 
-  describe('PUT /:id/request-reset', () => {
+  describe('POST /:id/request-reset-password', () => {
     it('should call resetPassword', async () => {
       userService.requestResetPassword.mockResolvedValue(void 0);
 
       await request(await server())
-        .put('/users/1/request-reset')
+        .post('/users/1/request-reset-password')
         .send({ email: 'foo@example.com' })
         .expect(204);
 
@@ -217,7 +218,7 @@ describe('user.routes', () => {
       userService.resetPassword.mockResolvedValue(void 0);
 
       await request(await server())
-        .put('/users/1/request-reset')
+        .post('/users/1/request-reset-password')
         .expect(400);
     });
   });
@@ -299,6 +300,114 @@ describe('user.routes', () => {
         .expect(404);
 
       expect(response.body).toEqual(responseBody);
+    });
+  });
+
+  describe('PUT /:id/password', () => {
+    it('should send a 204 if the user is changing their password', async () => {
+      userService.changePassword.mockResolvedValue(undefined);
+      const retrievedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '1', roles: [Role.USER] },
+      });
+      userService.getUser.mockResolvedValue(retrievedUser);
+      await request(await server())
+        .put('/users/1/password')
+        .send({ password: 'foobarbaz' })
+        .expect(204);
+
+      expect(userService.changePassword).toBeCalledWith('1', 'foobarbaz');
+    });
+
+    it('should send a 204 if the admin is trying to change a users password', async () => {
+      userService.changePassword.mockResolvedValue(undefined);
+      const retrievedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.ADMIN] },
+      });
+      userService.getUser.mockResolvedValue(retrievedUser);
+      await request(await server())
+        .put('/users/1/password')
+        .send({ password: 'foobarbaz' })
+        .expect(204);
+    });
+
+    it('should send a 403 if the admin is trying to change a admin password', async () => {
+      userService.changePassword.mockResolvedValue(undefined);
+      const retrievedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.ADMIN],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.ADMIN] },
+      });
+      userService.getUser.mockResolvedValue(retrievedUser);
+      await request(await server())
+        .put('/users/1/password')
+        .send({ password: 'foobarbaz' })
+        .expect(403);
+    });
+
+    it('should call send a 400 if the password is missing', async () => {
+      userService.changePassword.mockResolvedValue(undefined);
+      const retrievedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '1', roles: [Role.USER] },
+      });
+      userService.getUser.mockResolvedValue(retrievedUser);
+      await request(await server())
+        .put('/users/1/password')
+        .expect(400);
+    });
+
+    it('should send a 403 if the user is trying to change a password that is not theirs', async () => {
+      userService.changePassword.mockRejectedValue(undefined);
+      const retrievedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.USER] },
+      });
+      userService.getUser.mockResolvedValue(retrievedUser);
+      await request(await server())
+        .put('/users/1/password')
+        .send({ password: 'foobarbaz' })
+        .expect(403);
     });
   });
 });

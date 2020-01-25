@@ -6,40 +6,47 @@ import {
   disableAccount,
   resetPassword,
   requestResetPassword,
+  changePassword,
 } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
 import AddUserRequest from './models/AddUserRequest.dto';
 import { verifyAuthorization } from '../auth/auth.handlers';
-import ResetPasswordRequest from './models/ResetPasswordRequest.dto';
+import PasswordRequest from './models/PasswordRequest.dto';
 import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dto';
 
 const userRoutes = express.Router();
 
 userRoutes.post('/', requestValidator(AddUserRequest), asyncHandler(addUser));
 
-userRoutes.put(
-  '/:id/disable', // TODO: POST??
+userRoutes.post(
+  '/:id/disable',
   asyncHandler(verifyAuthorization),
   asyncHandler(authorizedToUpdateUser),
   asyncHandler(disableAccount),
 );
 
-userRoutes.put(
-  '/:id/reset', // TODO: change to reset-password. POST??
-  requestValidator(ResetPasswordRequest),
+userRoutes.post(
+  '/:id/reset-password',
+  requestValidator(PasswordRequest),
   asyncHandler(resetPassword),
 );
 
-userRoutes.put(
-  '/:id/request-reset', // TODO: change to request-reset-password. POST??
+userRoutes.post(
+  '/:id/request-reset-password',
   requestValidator(RequestResetPasswordRequest),
   asyncHandler(requestResetPassword),
 );
 
 // TODO: add route to update user info
 
-// TODO: add route to change password when the user is authenticated
+userRoutes.put(
+  '/:id/password',
+  asyncHandler(verifyAuthorization),
+  asyncHandler(authorizedToUpdateUser),
+  requestValidator(PasswordRequest),
+  asyncHandler(changePassword),
+);
 
 userRoutes.get(
   '/:id',
