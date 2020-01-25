@@ -15,6 +15,7 @@ class MockService {
   resetPassword = jest.fn();
   getUser = jest.fn();
   changePassword = jest.fn();
+  getAllUsers = jest.fn();
 }
 
 class MockAuthService {
@@ -61,7 +62,7 @@ describe('user.routes', () => {
         .send(sentUser)
         .expect(200);
 
-      expect(userService.addUser).toBeCalledWith(sentUser);
+      expect(userService.addUser).toBeCalledWith(sentUser, [Role.ADMIN]);
 
       expect(response.body).toEqual(savedUser);
     });
@@ -344,6 +345,73 @@ describe('user.routes', () => {
         .expect(404);
 
       expect(response.body).toEqual(responseBody);
+    });
+  });
+
+  describe('GET /users', () => {
+    it('should call getUser', async () => {
+      const retrievedUser1 = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      const retrievedUser2 = {
+        id: '2',
+        username: 'foo',
+        email: 'email2@example.com',
+        roles: [Role.USER],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '1', roles: [Role.ADMIN] },
+      });
+
+      userService.getAllUsers.mockResolvedValue([
+        retrievedUser1,
+        retrievedUser2,
+      ]);
+      const response = await request(await server())
+        .get('/users')
+        .expect(200);
+
+      expect(userService.getAllUsers).toBeCalledWith();
+
+      expect(response.body).toEqual([retrievedUser1, retrievedUser2]);
+    });
+
+    it('should should send a 403 if the user is not authorized', async () => {
+      const retrievedUser1 = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      };
+
+      const retrievedUser2 = {
+        id: '2',
+        username: 'foo',
+        email: 'email2@example.com',
+        roles: [Role.USER],
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '1', roles: [Role.USER] },
+      });
+
+      userService.getAllUsers.mockResolvedValue([
+        retrievedUser1,
+        retrievedUser2,
+      ]);
+
+      await request(await server())
+        .get('/users')
+        .expect(403);
     });
   });
 

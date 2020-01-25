@@ -8,26 +8,47 @@ import NotFound from '../errors/NotFound';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
+import { Role } from '../auth/models/Role';
 
 @Service()
 class UserService {
   constructor(private repository: UserRepository) {}
 
-  addUser = async (user: AddUserRequest): Promise<User> => {
+  private upsertRolePermissionsMap: { [key: string]: Role[] } = {
+    [Role.SUPER_ADMIN]: [Role.ADMIN, Role.USER],
+    [Role.ADMIN]: [Role.USER],
+    [Role.USER]: [],
+  };
+
+  canUpsertRole = (upsertUserRoles: Role[], userRoles: Role[]): boolean =>
+    userRoles.some(userRole =>
+      upsertUserRoles.some(role =>
+        this.upsertRolePermissionsMap[userRole].includes(role),
+      ),
+    );
+
+  addUser = async (
+    newUser: AddUserRequest,
+    userRoles: Role[],
+  ): Promise<User> => {
     const existingUsers = await this.repository.countUsersByUsernameOrEmail(
-      user.username,
-      user.email,
+      newUser.username,
+      newUser.email,
     );
 
     if (existingUsers) {
       throw new BadRequest('User already exists');
     }
 
+    if (!this.canUpsertRole(newUser.roles, userRoles)) {
+      throw new Forbidden();
+    }
+
     const sessionId = uuid();
     const passwordExpiration = new Date(Date.now() + 3600000);
 
     const savedUser = await this.repository.saveUser(
-      plainToClass(User, { ...user, passwordExpiration, sessionId }),
+      plainToClass(User, { ...newUser, passwordExpiration, sessionId }),
     );
 
     // TODO: call email service and send new user email.
@@ -86,6 +107,9 @@ class UserService {
 
     return classToPlain(user) as User;
   };
+
+  getAllUsers = async (): Promise<User[]> =>
+    await this.repository.findAllUsers();
 
   changePassword = async (id: string, password: string): Promise<void> => {
     const user = await this.repository.findUser(id);

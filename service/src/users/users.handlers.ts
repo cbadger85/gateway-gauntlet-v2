@@ -13,7 +13,8 @@ export const addUser: RequestHandler<never, User, AddUserRequest> = async (
   res,
 ) => {
   const userService = Container.get(UserService);
-  const user = await userService.addUser(req.body);
+
+  const user = await userService.addUser(req.body, req.user?.roles || []);
 
   return res.json(user);
 };
@@ -61,6 +62,16 @@ export const getUser: RequestHandler<{ id: string }, User, never> = async (
   return res.json(user);
 };
 
+export const getAllUsers: RequestHandler<never, User[], never> = async (
+  req,
+  res,
+) => {
+  const userService = Container.get(UserService);
+  const users = await userService.getAllUsers();
+
+  return res.json(users);
+};
+
 export const changePassword: RequestHandler<
   { id: string },
   void,
@@ -79,6 +90,17 @@ export const authorizedToUpdateUser = AuthenticatedUser.of<
 >(rbacConfig)
   .can('users::update')
   .when(async params => await Container.get(UserService).getUser(params.id))
+  .done();
+
+export const authorizedToReadUser = AuthenticatedUser.of<
+  { id: string },
+  User,
+  User
+>(rbacConfig)
+  .can('users::read')
+  .when(
+    async params => await Container.get(UserService).getUser(params?.id || ''),
+  )
   .done();
 
 export const authorizedToCreateUser = AuthenticatedUser.of<

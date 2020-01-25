@@ -8,6 +8,8 @@ import {
   requestResetPassword,
   changePassword,
   authorizedToCreateUser,
+  authorizedToReadUser,
+  getAllUsers,
 } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
@@ -56,8 +58,22 @@ userRoutes.put(
 userRoutes.get(
   '/:id',
   asyncHandler(verifyAuthorization),
-  asyncHandler(authorizedToUpdateUser),
+  asyncHandler(authorizedToReadUser),
   asyncHandler(getUser),
+);
+
+userRoutes.get(
+  '/:id',
+  asyncHandler(verifyAuthorization),
+  asyncHandler(authorizedToReadUser),
+  asyncHandler(getUser),
+);
+
+userRoutes.get(
+  '/',
+  asyncHandler(verifyAuthorization),
+  asyncHandler(authorizedToReadUser),
+  asyncHandler(getAllUsers),
 );
 
 export default userRoutes;

@@ -12,6 +12,8 @@ class UserRepository {
   findUser = (id: string): Promise<User | undefined> =>
     this.repository.findOne(id);
 
+  findAllUsers = (): Promise<User[]> => this.repository.find();
+
   findUserByUsername = (username: string): Promise<User | undefined> =>
     this.repository.findOne({ username });
 

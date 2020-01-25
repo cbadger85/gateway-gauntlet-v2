@@ -6,11 +6,11 @@ export const rbacConfig: RbacConfig = {
     can: [
       {
         name: 'users::update',
-        where: (userId, { id }) => id === userId,
+        where: (userId, params) => params?.id === userId,
       },
       {
         name: 'users::read',
-        where: (userId, { id }) => id === userId,
+        where: (userId, params) => params?.id === userId,
       },
     ],
   },

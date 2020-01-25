@@ -46,7 +46,20 @@ describe('users.handlers', () => {
   });
 
   describe('saveUser', () => {
-    it('should call userService.addUser with the user', async () => {
+    it('should call userService.addUser with the user and the role of the reqUser', async () => {
+      const mockReq = {
+        body: mockUser,
+        user: { id: '1', roles: [Role.ADMIN] },
+      };
+
+      userService.addUser.mockResolvedValue({ id: '1', ...mockUser });
+
+      await addUser(mockReq as any, mockRes as any, jest.fn());
+
+      expect(userService.addUser).toBeCalledWith(mockUser, [Role.ADMIN]);
+    });
+
+    it('should call userService.addUser with the user and an empty array if there is no reqUser', async () => {
       const mockReq = {
         body: mockUser,
       };
@@ -55,12 +68,13 @@ describe('users.handlers', () => {
 
       await addUser(mockReq as any, mockRes as any, jest.fn());
 
-      expect(userService.addUser).toBeCalledWith(mockUser);
+      expect(userService.addUser).toBeCalledWith(mockUser, []);
     });
 
     it('should call res.send with the returned user', async () => {
       const mockReq = {
         body: mockUser,
+        user: { id: '1', roles: [Role.ADMIN] },
       };
 
       userService.addUser.mockResolvedValue({ id: '1', ...mockUser });
