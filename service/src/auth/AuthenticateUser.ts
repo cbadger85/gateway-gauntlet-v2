@@ -153,7 +153,7 @@ type WhenFn<P extends Params, ReqBody, R> = (
 ) => { done: DoneFn<P, ReqBody> };
 
 export type Where = {
-  where: <ReqBody>(user: UserAuth, params: any, body: ReqBody) => boolean;
+  where: <ReqBody, R>(user: UserAuth, params: R, body: ReqBody) => boolean;
   name: string;
 };
 
@@ -168,9 +168,5 @@ type CanPermission =
   | string
   | {
       name: string;
-      where: (
-        user: UserAuth,
-        params: Record<string, any>,
-        body: any,
-      ) => boolean;
+      where: (user: UserAuth, params: any, body: any) => boolean;
     };
