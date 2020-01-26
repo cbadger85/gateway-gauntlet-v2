@@ -21,6 +21,14 @@ class AddUserRequest {
   @IsArray()
   @IsEnum(Role, { each: true })
   roles: Role[];
+
+  @MaxLength(16)
+  @IsNotEmpty()
+  firstName: string;
+
+  @MaxLength(16)
+  @IsNotEmpty()
+  lastName: string;
 }
 
 export default AddUserRequest;

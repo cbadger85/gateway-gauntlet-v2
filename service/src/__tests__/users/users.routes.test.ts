@@ -48,12 +48,16 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       const sentUser = {
         username: 'foo',
         email: 'email@example.com',
         roles: ['USER'],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       userService.addUser.mockResolvedValue(savedUser);
@@ -79,12 +83,16 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       const sentUser = {
         username: 'foo',
         email: 'email@example.com',
         roles: ['USER'],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       userService.addUser.mockResolvedValue(savedUser);
@@ -106,12 +114,16 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.ADMIN],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       const sentUser = {
         username: 'foo',
         email: 'email@example.com',
         roles: ['ADMIN'],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       userService.addUser.mockResolvedValue(savedUser);
@@ -133,7 +145,7 @@ describe('user.routes', () => {
         .send({ username: 'foo', password: 'bar' })
         .expect(400);
 
-      expect(response.body.errors).toHaveLength(2);
+      expect(response.body.errors).toHaveLength(4);
     });
 
     it('should send a BadRequest if the user already exists', async () => {
@@ -157,6 +169,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: ['USER'],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       const response = await request(await server())
@@ -175,6 +189,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -200,6 +216,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.ADMIN],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -225,6 +243,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -302,6 +322,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -334,6 +356,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -382,6 +406,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       const retrievedUser2 = {
@@ -389,6 +415,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email2@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -416,6 +444,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       const retrievedUser2 = {
@@ -423,6 +453,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email2@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -450,6 +482,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -473,6 +507,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -494,6 +530,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.ADMIN],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -515,6 +553,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({
@@ -535,6 +575,8 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       authService.refresh.mockResolvedValue({

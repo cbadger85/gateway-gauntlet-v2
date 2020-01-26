@@ -59,6 +59,8 @@ describe('bootstrap', () => {
     user.password = 'hashedPassword';
     user.roles = [Role.SUPER_ADMIN];
     user.sessionId = expect.any(String);
+    user.firstName = 'foo';
+    user.lastName = 'bar';
 
     await bootstrap();
 

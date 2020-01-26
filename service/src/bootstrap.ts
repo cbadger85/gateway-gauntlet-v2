@@ -12,7 +12,9 @@ export const bootstrap = async (): Promise<void> => {
   if (
     !process.env.ADMIN_EMAIL ||
     !process.env.ADMIN_USERNAME ||
-    !process.env.ADMIN_PASSWORD
+    !process.env.ADMIN_PASSWORD ||
+    !process.env.ADMIN_FIRST_NAME ||
+    !process.env.ADMIN_LAST_NAME
   ) {
     console.log('No user info found...');
     return;
@@ -36,6 +38,8 @@ export const bootstrap = async (): Promise<void> => {
   const user = new User();
   user.email = process.env.ADMIN_EMAIL;
   user.username = process.env.ADMIN_USERNAME;
+  user.firstName = process.env.ADMIN_FIRST_NAME;
+  user.lastName = process.env.ADMIN_LAST_NAME;
   user.password = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
   user.roles = [Role.SUPER_ADMIN];
   user.sessionId = uuid();

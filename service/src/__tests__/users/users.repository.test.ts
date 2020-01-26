@@ -39,6 +39,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '1234',
       email: 'foo@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const savedUser = await userRepository.saveUser(user as any);
@@ -53,6 +55,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '1234',
       email: 'foo@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const repo = getRepository(User, 'user-repository-test');
@@ -71,6 +75,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '1234',
       email: 'foo@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const repo = getRepository(User, 'user-repository-test');
@@ -91,6 +97,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '1234',
       email: 'foo@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const repo = getRepository(User, 'user-repository-test');
@@ -109,6 +117,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '1234',
       email: 'foo1@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const user2 = {
@@ -117,6 +127,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '5678',
       email: 'foo2@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const user3 = {
@@ -125,6 +137,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '9012',
       email: 'foo3@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const repo = getRepository(User, 'user-repository-test');
@@ -148,6 +162,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '1234',
       email: 'foo1@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const user2 = {
@@ -156,6 +172,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '5678',
       email: 'foo2@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const user3 = {
@@ -164,6 +182,8 @@ describe('UserRepository', () => {
       roles: [Role.USER],
       sessionId: '9012',
       email: 'foo3@example.com',
+      firstName: 'foo',
+      lastName: 'bar',
     };
 
     const repo = getRepository(User, 'user-repository-test');

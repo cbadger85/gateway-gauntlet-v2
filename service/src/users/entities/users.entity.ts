@@ -27,6 +27,12 @@ class User {
   @Exclude({ toPlainOnly: true })
   @Column({ nullable: true })
   sessionId?: string;
+
+  @Column()
+  firstName: string;
+
+  @Column()
+  lastName: string;
 }
 
 export default User;
