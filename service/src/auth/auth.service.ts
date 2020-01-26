@@ -34,7 +34,7 @@ class AuthService {
     }
 
     const sanitizedUser = classToPlain(user) as User;
-    const { id, sessionId, roles } = sanitizedUser;
+    const { id, sessionId, roles } = user;
     const accessToken = this.getAccessToken({ id, roles });
     const refreshToken = this.getRefreshToken({ id, sessionId });
 

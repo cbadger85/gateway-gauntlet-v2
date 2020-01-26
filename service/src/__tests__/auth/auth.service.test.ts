@@ -74,12 +74,12 @@ describe('AuthService', () => {
       expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(bcrypt.compare).toBeCalledWith('bar', 'bar');
       expect(authService.getAccessToken).toBeCalledWith({
-        id: user.id,
-        roles: user.roles,
+        id: '1',
+        roles: [Role.USER],
       });
       expect(authService.getRefreshToken).toBeCalledWith({
-        id: user.id,
-        sessionId: user.sessionId,
+        id: '1',
+        sessionId: '1234',
       });
       expect(user).toEqual(expectedUser);
       expect(accessToken).toBe('access token');
