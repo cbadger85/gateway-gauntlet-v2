@@ -52,14 +52,11 @@ describe('UserService', () => {
 
   describe('addUser', () => {
     it('should check to see if the user already exists', async () => {
-      await userService.addUser(
-        {
-          username: 'foo',
-          email: 'email@example.com',
-          roles: [Role.USER],
-        },
-        [Role.ADMIN],
-      );
+      await userService.addUser({
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      });
 
       expect(mockRepository.countUsersByUsernameOrEmail).toBeCalledWith(
         'foo',
@@ -68,28 +65,22 @@ describe('UserService', () => {
     });
 
     it('should call uuid to generate a sessionId', async () => {
-      await userService.addUser(
-        {
-          username: 'foo',
-          email: 'email@example.com',
-          roles: [Role.USER],
-        },
-        [Role.ADMIN],
-      );
+      await userService.addUser({
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      });
 
       expect(uuid).toBeCalled();
     });
 
     it('should call repository.saveUser with the user', async () => {
       mockRepository.saveUser.mockResolvedValue(mockUser);
-      await userService.addUser(
-        {
-          username: 'foo',
-          email: 'email@example.com',
-          roles: [Role.USER],
-        },
-        [Role.ADMIN],
-      );
+      await userService.addUser({
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      });
 
       const savedUser = {
         username: 'foo',
@@ -105,14 +96,11 @@ describe('UserService', () => {
     it('should return a user after save', async () => {
       mockRepository.saveUser.mockResolvedValue(mockUser);
 
-      const savedUser = await userService.addUser(
-        {
-          username: 'foo',
-          email: 'email@example.com',
-          roles: [Role.USER],
-        },
-        [Role.ADMIN],
-      );
+      const savedUser = await userService.addUser({
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      });
 
       const expectedUser = {
         id: '1',
@@ -128,32 +116,14 @@ describe('UserService', () => {
       mockRepository.countUsersByUsernameOrEmail.mockResolvedValueOnce(1);
 
       const error = await userService
-        .addUser(
-          {
-            username: 'foo',
-            email: 'email@example.com',
-            roles: [Role.USER],
-          },
-          [Role.ADMIN],
-        )
+        .addUser({
+          username: 'foo',
+          email: 'email@example.com',
+          roles: [Role.USER],
+        })
         .catch(e => e);
 
       expect(error).toBeInstanceOf(BadRequest);
-    });
-
-    it('should throw a Forbidden if the user does not have permissions to add or update the role', async () => {
-      const error = await userService
-        .addUser(
-          {
-            username: 'foo',
-            email: 'email@example.com',
-            roles: [Role.ADMIN],
-          },
-          [Role.ADMIN],
-        )
-        .catch(e => e);
-
-      expect(error).toBeInstanceOf(Forbidden);
     });
   });
 
@@ -402,32 +372,6 @@ describe('UserService', () => {
         .catch(e => e);
 
       expect(error).toBeInstanceOf(NotFound);
-    });
-  });
-
-  describe('canUpsertRole', () => {
-    it('should return true if the user is allowed to upsert the role', () => {
-      const newUserRoles = [Role.USER];
-      const userCreatorRoles = [Role.ADMIN];
-
-      const isAllowed = userService.canUpsertRole(
-        newUserRoles,
-        userCreatorRoles,
-      );
-
-      expect(isAllowed).toBeTruthy();
-    });
-
-    it('should prevent upserting roles the user is not allowed to', () => {
-      const newUserRoles = [Role.ADMIN];
-      const userCreatorRoles = [Role.ADMIN];
-
-      const isAllowed = userService.canUpsertRole(
-        newUserRoles,
-        userCreatorRoles,
-      );
-
-      expect(isAllowed).toBeFalsy();
     });
   });
 });

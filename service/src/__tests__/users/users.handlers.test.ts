@@ -56,19 +56,7 @@ describe('users.handlers', () => {
 
       await addUser(mockReq as any, mockRes as any, jest.fn());
 
-      expect(userService.addUser).toBeCalledWith(mockUser, [Role.ADMIN]);
-    });
-
-    it('should call userService.addUser with the user and an empty array if there is no reqUser', async () => {
-      const mockReq = {
-        body: mockUser,
-      };
-
-      userService.addUser.mockResolvedValue({ id: '1', ...mockUser });
-
-      await addUser(mockReq as any, mockRes as any, jest.fn());
-
-      expect(userService.addUser).toBeCalledWith(mockUser, []);
+      expect(userService.addUser).toBeCalledWith(mockUser);
     });
 
     it('should call res.send with the returned user', async () => {

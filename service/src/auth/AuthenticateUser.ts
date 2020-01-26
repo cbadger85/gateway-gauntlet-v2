@@ -1,6 +1,7 @@
 import { Params, RequestHandler } from 'express-serve-static-core';
 import Forbidden from '../errors/Forbidden';
 import { Role } from './models/Role';
+import { UserAuth } from './models/UserAuth';
 
 class AuthenticateUser<P extends Params, ReqBody, R> {
   private constructor(
@@ -36,10 +37,10 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
       return next(new Forbidden());
     }
 
-    const { roles, id } = req.user;
+    // const { roles, id } = req.user;
     const { params, body } = req;
 
-    const hasOperation = roles.some(role =>
+    const hasOperation = req.user.roles.some(role =>
       this.hasOperation(role, this.operation),
     );
 
@@ -47,16 +48,16 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
       return next();
     }
 
-    const isAllowed = await roles.reduce<Promise<boolean>>(
+    const isAllowed = await req.user.roles.reduce<Promise<boolean>>(
       async (acc, role) =>
         (await acc)
           ? true
           : await this.isAllowed(
               role,
-              id,
               params,
               body,
               this.operation,
+              req.user,
               this.has,
             ),
       Promise.resolve(false),
@@ -84,13 +85,13 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
 
   private isAllowed = async (
     role: Role,
-    userId: string,
     params: P,
     body: ReqBody,
     operation: string,
+    user?: UserAuth,
     has?: (params: P) => R | Promise<R>,
   ): Promise<boolean> => {
-    if (!has) {
+    if (!user) {
       return false;
     }
 
@@ -98,12 +99,12 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
       op => this.isCanObj(op) && op.name === operation,
     );
 
-    const providedParams = { ...(await has(params)), params, body };
+    const providedParams = has ? await has(params) : {};
 
     if (
       requiredOp &&
       this.isCanObj(requiredOp) &&
-      requiredOp.where(userId, providedParams)
+      requiredOp.where(user, { ...providedParams }, body)
     ) {
       return true;
     }
@@ -116,10 +117,10 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
           ? true
           : await this.isAllowed(
               role,
-              userId,
               params,
               body,
               this.operation,
+              user,
               this.has,
             ),
       Promise.resolve(false),
@@ -152,7 +153,7 @@ type WhenFn<P extends Params, ReqBody, R> = (
 ) => { done: DoneFn<P, ReqBody> };
 
 export type Where = {
-  where: <P, ReqBody>(userId: string, params: P) => boolean;
+  where: <ReqBody>(user: UserAuth, params: any, body: ReqBody) => boolean;
   name: string;
 };
 
@@ -167,5 +168,9 @@ type CanPermission =
   | string
   | {
       name: string;
-      where: (userId: string, params: Record<string, unknown>) => boolean;
+      where: (
+        user: UserAuth,
+        params: Record<string, any>,
+        body: any,
+      ) => boolean;
     };

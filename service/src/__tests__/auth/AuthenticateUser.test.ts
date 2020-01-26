@@ -46,7 +46,7 @@ describe('AuthenticateUser', () => {
         can: [
           {
             name: 'users::update',
-            where: (userId, { id }) => id === userId,
+            where: (user, params) => user.id === params.id,
           },
         ],
       },
@@ -109,36 +109,13 @@ describe('AuthenticateUser', () => {
     expect(next).toBeCalledWith();
   });
 
-  it('should call next with a 403... *delete after integration test is setup*', async () => {
-    const testFn = AuthenticationUser.of(rbacConfig)
-      .can('users::update')
-      .when(() => ({
-        id: '5678',
-        roles: [Role.ADMIN],
-      }))
-      .done();
-    const next = jest.fn();
-    await testFn(mockReqAdmin as any, {} as any, next);
-
-    const testFn2 = AuthenticationUser.of(rbacConfig)
-      .can('users::update')
-      .when(() => ({
-        id: '5678',
-      }))
-      .done();
-    const next2 = jest.fn();
-    await testFn2(mockReqAdmin as any, {} as any, next2);
-
-    expect(next2).toBeCalledWith(new Forbidden());
-  });
-
   it('should call next if the user inherits the operation and meets the condition', async () => {
     const config: RbacConfig = {
       [Role.USER]: {
         can: [
           {
             name: 'users::update',
-            where: (userId, { id }) => id === userId,
+            where: (user, params) => user.id === params.id,
           },
         ],
       },

@@ -10,6 +10,7 @@ import {
   authorizedToCreateUser,
   authorizedToReadUser,
   getAllUsers,
+  authorizedToUpsertUserRole,
 } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
@@ -23,8 +24,9 @@ const userRoutes = express.Router();
 userRoutes.post(
   '/',
   asyncHandler(verifyAuthorization),
-  asyncHandler(authorizedToCreateUser),
   requestValidator(AddUserRequest),
+  asyncHandler(authorizedToCreateUser),
+  asyncHandler(authorizedToUpsertUserRole),
   asyncHandler(addUser),
 );
 
@@ -50,8 +52,8 @@ userRoutes.post(
 userRoutes.put(
   '/:id/password',
   asyncHandler(verifyAuthorization),
-  asyncHandler(authorizedToUpdateUser),
   requestValidator(PasswordRequest),
+  asyncHandler(authorizedToUpdateUser),
   asyncHandler(changePassword),
 );
 

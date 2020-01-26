@@ -62,12 +62,12 @@ describe('user.routes', () => {
         .send(sentUser)
         .expect(200);
 
-      expect(userService.addUser).toBeCalledWith(sentUser, [Role.ADMIN]);
+      expect(userService.addUser).toBeCalledWith(sentUser);
 
       expect(response.body).toEqual(savedUser);
     });
 
-    it('should send a 403 if the user is unauthorized', async () => {
+    it('should send a 403 if the user is unauthorized to add a user', async () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
@@ -85,6 +85,33 @@ describe('user.routes', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: ['USER'],
+      };
+
+      userService.addUser.mockResolvedValue(savedUser);
+      await request(await server())
+        .post('/users')
+        .send(sentUser)
+        .expect(403);
+    });
+
+    it('should send a 403 if the user is trying to add a higher role than their own', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        userAuth: { id: '2', roles: [Role.ADMIN] },
+      });
+
+      const savedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.ADMIN],
+      };
+
+      const sentUser = {
+        username: 'foo',
+        email: 'email@example.com',
+        roles: ['ADMIN'],
       };
 
       userService.addUser.mockResolvedValue(savedUser);

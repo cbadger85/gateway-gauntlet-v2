@@ -8,29 +8,12 @@ import NotFound from '../errors/NotFound';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
-import { Role } from '../auth/models/Role';
 
 @Service()
 class UserService {
   constructor(private repository: UserRepository) {}
 
-  private upsertRolePermissionsMap: { [key: string]: Role[] } = {
-    [Role.SUPER_ADMIN]: [Role.ADMIN, Role.USER],
-    [Role.ADMIN]: [Role.USER],
-    [Role.USER]: [],
-  };
-
-  canUpsertRole = (upsertUserRoles: Role[], userRoles: Role[]): boolean =>
-    userRoles.some(userRole =>
-      upsertUserRoles.some(role =>
-        this.upsertRolePermissionsMap[userRole].includes(role),
-      ),
-    );
-
-  addUser = async (
-    newUser: AddUserRequest,
-    userRoles: Role[],
-  ): Promise<User> => {
+  addUser = async (newUser: AddUserRequest): Promise<User> => {
     const existingUsers = await this.repository.countUsersByUsernameOrEmail(
       newUser.username,
       newUser.email,
@@ -38,10 +21,6 @@ class UserService {
 
     if (existingUsers) {
       throw new BadRequest('User already exists');
-    }
-
-    if (!this.canUpsertRole(newUser.roles, userRoles)) {
-      throw new Forbidden();
     }
 
     const sessionId = uuid();

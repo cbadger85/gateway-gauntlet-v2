@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express-serve-static-core';
 import { Container } from 'typedi';
-import AuthenticatedUser from '../auth/AuthenticateUser';
+import AuthenticateUser from '../auth/AuthenticateUser';
 import { rbacConfig } from '../auth/rbacConfig';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
@@ -14,7 +14,7 @@ export const addUser: RequestHandler<never, User, AddUserRequest> = async (
 ) => {
   const userService = Container.get(UserService);
 
-  const user = await userService.addUser(req.body, req.user?.roles || []);
+  const user = await userService.addUser(req.body);
 
   return res.json(user);
 };
@@ -83,7 +83,7 @@ export const changePassword: RequestHandler<
   return res.sendStatus(204);
 };
 
-export const authorizedToUpdateUser = AuthenticatedUser.of<
+export const authorizedToUpdateUser = AuthenticateUser.of<
   { id: string },
   User,
   User
@@ -92,7 +92,7 @@ export const authorizedToUpdateUser = AuthenticatedUser.of<
   .when(async params => await Container.get(UserService).getUser(params.id))
   .done();
 
-export const authorizedToReadUser = AuthenticatedUser.of<
+export const authorizedToReadUser = AuthenticateUser.of<
   { id: string },
   User,
   User
@@ -103,11 +103,15 @@ export const authorizedToReadUser = AuthenticatedUser.of<
   )
   .done();
 
-export const authorizedToCreateUser = AuthenticatedUser.of<
+export const authorizedToCreateUser = AuthenticateUser.of<
   { id: string },
   User,
   User
 >(rbacConfig)
   .can('users::create')
   .when(async params => await Container.get(UserService).getUser(params.id))
+  .done();
+
+export const authorizedToUpsertUserRole = AuthenticateUser.of(rbacConfig)
+  .can('users::create-role')
   .done();
