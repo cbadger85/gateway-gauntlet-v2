@@ -2,6 +2,7 @@ import { Role } from '../auth/models/Role';
 import { bootstrap } from '../bootstrap';
 import dbSetup from '../dbSetup';
 import User from '../users/entities/users.entity';
+import bcrypt from 'bcryptjs';
 
 jest.mock('../dbSetup.ts', () => ({
   __esModule: true,
@@ -18,7 +19,9 @@ jest.mock('dotenv', () => ({
   config: jest.fn(),
 }));
 
-jest.spyOn(console, 'log');
+jest.mock('bcryptjs', () => ({
+  hash: jest.fn().mockResolvedValue('hashedPassword'),
+}));
 
 beforeEach(jest.clearAllMocks);
 
@@ -43,11 +46,17 @@ describe('bootstrap', () => {
     );
   });
 
+  it('should call bcrypt.hash with the password', async () => {
+    await bootstrap();
+
+    expect(bcrypt.hash).toBeCalledWith('foobarbaz', 10);
+  });
+
   it('should save the user', async () => {
     const user = new User();
     user.email = 'foo@example.com';
     user.username = 'foo';
-    user.password = 'foobarbaz';
+    user.password = 'hashedPassword';
     user.roles = [Role.SUPER_ADMIN];
     user.sessionId = expect.any(String);
 
