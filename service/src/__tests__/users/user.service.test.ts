@@ -9,6 +9,8 @@ import NotFound from '../../errors/NotFound';
 import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import UserService from '../../users/users.service';
+import { getMailTransporter } from '../../email/email.service';
+import { getTestMessageUrl } from 'nodemailer';
 
 const mockUser = new User();
 
@@ -26,6 +28,16 @@ class MockRepository {
   findUserByEmail = jest.fn();
   countUsersByUsernameOrEmail = jest.fn();
 }
+
+jest.mock('../../email/email.service', () => ({
+  getMailTransporter: jest.fn().mockResolvedValue({
+    sendMail: jest.fn().mockResolvedValue({ messageId: '1234' }),
+  }),
+}));
+
+jest.mock('nodemailer', () => ({
+  getTestMessageUrl: jest.fn().mockReturnValue('email sent!'),
+}));
 
 jest.mock('uuid/v4', () => ({
   __esModule: true,
@@ -52,6 +64,7 @@ describe('UserService', () => {
 
   describe('addUser', () => {
     it('should check to see if the user already exists', async () => {
+      mockRepository.saveUser.mockResolvedValue(mockUser);
       await userService.addUser({
         username: 'foo',
         email: 'email@example.com',
@@ -65,6 +78,7 @@ describe('UserService', () => {
     });
 
     it('should call uuid to generate a sessionId', async () => {
+      mockRepository.saveUser.mockResolvedValue(mockUser);
       await userService.addUser({
         username: 'foo',
         email: 'email@example.com',
@@ -91,6 +105,25 @@ describe('UserService', () => {
       };
 
       expect(mockRepository.saveUser).toBeCalledWith(savedUser);
+    });
+
+    it('should call sendMail with the new user email', async () => {
+      mockRepository.saveUser.mockResolvedValue(mockUser);
+      await userService.addUser({
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+      });
+
+      const email = {
+        from: expect.any(String),
+        to: mockUser.email,
+        subject: expect.any(String),
+        text: expect.any(String),
+        html: expect.anything(),
+      };
+
+      expect((await getMailTransporter()).sendMail).toBeCalledWith(email);
     });
 
     it('should return a user after save', async () => {

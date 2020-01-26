@@ -8,6 +8,8 @@ import NotFound from '../errors/NotFound';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
+import { getTestMessageUrl } from 'nodemailer';
+import { getMailTransporter } from '../email/email.service';
 
 @Service()
 class UserService {
@@ -31,6 +33,17 @@ class UserService {
     );
 
     // TODO: call email service and send new user email.
+    const info = await (await getMailTransporter()).sendMail({
+      from: '"Fred Foo 👻" <admin@example.com>',
+      to: savedUser.email,
+      subject: 'Hello ✔',
+      text: 'Hello world?',
+      html: '<b>Hello world?</b>',
+    });
+
+    console.log('Message sent: %s', info.messageId);
+
+    console.log('Preview URL: %s', getTestMessageUrl(info));
 
     return classToPlain(savedUser) as User;
   };
