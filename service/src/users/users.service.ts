@@ -2,18 +2,20 @@ import bcrypt from 'bcryptjs';
 import { classToPlain, plainToClass } from 'class-transformer';
 import { Service } from 'typedi';
 import uuid from 'uuid/v4';
+import EmailService from '../email/email.service';
 import BadRequest from '../errors/BadRequest';
 import Forbidden from '../errors/Forbidden';
 import NotFound from '../errors/NotFound';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
-import { getTestMessageUrl } from 'nodemailer';
-import { getMailTransporter } from '../email/email.service';
 
 @Service()
 class UserService {
-  constructor(private repository: UserRepository) {}
+  constructor(
+    private repository: UserRepository,
+    private emailService: EmailService,
+  ) {}
 
   addUser = async (newUser: AddUserRequest): Promise<User> => {
     const existingUsers = await this.repository.countUsersByUsernameOrEmail(
@@ -32,23 +34,11 @@ class UserService {
       plainToClass(User, { ...newUser, passwordExpiration, sessionId }),
     );
 
-    // TODO: call email service and send new user email.
-    const info = await (await getMailTransporter()).sendMail({
-      from: '"Fred Foo 👻" <admin@example.com>',
-      to: savedUser.email,
-      subject: 'Hello ✔',
-      text: 'Hello world?',
-      html: '<b>Hello world?</b>',
-    });
-
-    console.log('Message sent: %s', info.messageId);
-
-    console.log('Preview URL: %s', getTestMessageUrl(info));
+    this.emailService.sendNewUserEmail(savedUser);
 
     return classToPlain(savedUser) as User;
   };
 
-  // TODO: add request body to this and validate email
   requestResetPassword = async (email: string): Promise<void> => {
     const user = await this.repository.findUserByEmail(email);
 
@@ -58,7 +48,7 @@ class UserService {
 
     user.passwordExpiration = new Date(Date.now() + 3600000);
 
-    // TODO: call email service and send reset password email;
+    this.emailService.sendResetPasswordEmail(user);
 
     this.repository.saveUser(user);
   };

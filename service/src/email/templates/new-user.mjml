@@ -1,0 +1,39 @@
+<mjml>
+  <mj-head>
+    <mj-title>Gateway Gauntlet - Registration</mj-title>
+    <mj-font name="Orbitron" href="https://fonts.googleapis.com/css?family=Orbitron" />
+    <mj-font name="Lato" href="https://fonts.googleapis.com/css?family=Lato" />
+  </mj-head>
+  <mj-body background-color="#121212">
+
+    <mj-section background-color="#222831">
+      <mj-column width="100px" vertical-align="middle">
+        <mj-image width="75px" src="https://res.cloudinary.com/dtzb3uw9o/image/upload/v1580068727/gateway-gauntlet/gateway-gauntlet.png" alt="gauntlet logo" />
+      </mj-column>
+      <mj-column width="500px" vertical-align="middle">
+        <mj-text font-family="Orbitron" font-weight="bold" font-size="32px" color="#eeeeee">
+          Gateway Gauntlet
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#181818">
+      <mj-column width="400px">
+        <mj-text font-style="italic" font-size="20px" font-family="Lato" color="#eeeeee">Welcome %FIRST_NAME%!</mj-text>
+        <mj-text color="#eeeeee" font-family="Lato">
+          You're account is almost ready! Please click the button below to set your password. This link will expire in %PASSWORD_EXPIRATION%.
+        </mj-text>
+        <mj-button background-color="#d65a31" href="%PASSWORD_LINK%">Set Password</mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#272727">
+      <mj-column width="400px">
+        <mj-text font-family="Lato" color="#eeeeee">
+          © 2019 gatewaygauntlet.com
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+  </mj-body>
+</mjml>

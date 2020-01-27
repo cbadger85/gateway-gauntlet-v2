@@ -9,8 +9,7 @@ import NotFound from '../../errors/NotFound';
 import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import UserService from '../../users/users.service';
-import { getMailTransporter } from '../../email/email.service';
-import { getTestMessageUrl } from 'nodemailer';
+import EmailService from '../../email/email.service';
 
 const mockUser = new User();
 
@@ -29,15 +28,10 @@ class MockRepository {
   countUsersByUsernameOrEmail = jest.fn();
 }
 
-jest.mock('../../email/email.service', () => ({
-  getMailTransporter: jest.fn().mockResolvedValue({
-    sendMail: jest.fn().mockResolvedValue({ messageId: '1234' }),
-  }),
-}));
-
-jest.mock('nodemailer', () => ({
-  getTestMessageUrl: jest.fn().mockReturnValue('email sent!'),
-}));
+class MockEmailService {
+  sendNewUserEmail = jest.fn().mockResolvedValue('<html>email</html>');
+  sendResetPasswordEmail = jest.fn().mockResolvedValue('<html>email</html>');
+}
 
 jest.mock('uuid/v4', () => ({
   __esModule: true,
@@ -53,11 +47,15 @@ beforeEach(jest.clearAllMocks);
 describe('UserService', () => {
   let userService: UserService;
   const mockRepository = new MockRepository();
+  const mockEmailService = new MockEmailService();
 
   beforeAll(() => {
     Container.set(
       UserService,
-      new UserService((mockRepository as unknown) as UserRepository),
+      new UserService(
+        (mockRepository as unknown) as UserRepository,
+        (mockEmailService as unknown) as EmailService,
+      ),
     );
     userService = Container.get(UserService);
   });
@@ -69,6 +67,8 @@ describe('UserService', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       });
 
       expect(mockRepository.countUsersByUsernameOrEmail).toBeCalledWith(
@@ -83,6 +83,8 @@ describe('UserService', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       });
 
       expect(uuid).toBeCalled();
@@ -94,6 +96,8 @@ describe('UserService', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       });
 
       const savedUser = {
@@ -102,28 +106,24 @@ describe('UserService', () => {
         sessionId: '5678',
         passwordExpiration: expect.any(Date),
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       };
 
       expect(mockRepository.saveUser).toBeCalledWith(savedUser);
     });
 
-    it('should call sendMail with the new user email', async () => {
+    it('should call emailService.sendNewUserEmail with the user', async () => {
       mockRepository.saveUser.mockResolvedValue(mockUser);
       await userService.addUser({
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       });
 
-      const email = {
-        from: expect.any(String),
-        to: mockUser.email,
-        subject: expect.any(String),
-        text: expect.any(String),
-        html: expect.anything(),
-      };
-
-      expect((await getMailTransporter()).sendMail).toBeCalledWith(email);
+      expect(mockEmailService.sendNewUserEmail).toBeCalledWith(mockUser);
     });
 
     it('should return a user after save', async () => {
@@ -133,6 +133,8 @@ describe('UserService', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
       });
 
       const expectedUser = {
@@ -153,6 +155,8 @@ describe('UserService', () => {
           username: 'foo',
           email: 'email@example.com',
           roles: [Role.USER],
+          firstName: 'foo',
+          lastName: 'bar',
         })
         .catch(e => e);
 
@@ -189,11 +193,36 @@ describe('UserService', () => {
       expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
     });
 
+    it('should call emailService.sendResetPassword with the updated user', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+      await userService.requestResetPassword('email@example.com');
+
+      const expectedUser = {
+        ...mockUser,
+        id: '1',
+        passwordExpiration: expect.any(Date),
+      };
+
+      expect(mockEmailService.sendResetPasswordEmail).toBeCalledWith(
+        expectedUser,
+      );
+    });
+
     it('should not call userRepository.save if the user cannot be found', async () => {
       mockRepository.findUserByEmail.mockResolvedValue(undefined);
       await userService.requestResetPassword('foo@example.com');
 
       expect(mockRepository.saveUser).not.toBeCalled();
+    });
+
+    it('should not call emailService.sendResetPasswordEmail if the user cannot be found', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue(undefined);
+      await userService.requestResetPassword('foo@example.com');
+
+      expect(mockEmailService.sendResetPasswordEmail).not.toBeCalled();
     });
   });
 
