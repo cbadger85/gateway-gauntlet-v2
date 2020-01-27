@@ -62,7 +62,7 @@ class EmailService {
 
     this.transporter
       .sendMail({
-        from: '"Admin" <NO_REPLY@gatewaygauntlet.com>',
+        from: '"NO REPLY" <NO_REPLY@gatewaygauntlet.com>',
         to: email,
         subject: 'Gateway Gauntlet - Registration',
         text: `Your account has been set up. Please go to ${passwordResetLink} to set your password. This link will expire in ${expirationDate}`,
@@ -107,7 +107,7 @@ class EmailService {
 
     this.transporter
       .sendMail({
-        from: '"Admin" <NO_REPLY@gatewaygauntlet.com>',
+        from: '"NO REPLY" <NO_REPLY@gatewaygauntlet.com>',
         to: email,
         subject: 'Gateway Gauntlet - Reset Password',
         text: `Your password has been reset. Go to ${passwordResetLink} to change it. This link will expire in ${expirationDate}`,
