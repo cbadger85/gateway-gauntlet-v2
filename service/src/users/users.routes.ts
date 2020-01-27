@@ -5,7 +5,6 @@ import {
   authorizedToUpdateUser,
   disableAccount,
   resetPassword,
-  requestResetPassword,
   changePassword,
   authorizedToCreateUser,
   authorizedToReadUser,
@@ -17,7 +16,6 @@ import { requestValidator } from '../handlers/requestValidator';
 import AddUserRequest from './models/AddUserRequest.dto';
 import { verifyAuthorization } from '../auth/auth.handlers';
 import PasswordRequest from './models/PasswordRequest.dto';
-import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dto';
 
 const userRoutes = express.Router();
 
@@ -38,15 +36,9 @@ userRoutes.post(
 );
 
 userRoutes.post(
-  '/:id/reset-password',
+  '/:id/password/:passwordResetId/reset',
   requestValidator(PasswordRequest),
   asyncHandler(resetPassword),
-);
-
-userRoutes.post(
-  '/:id/request-reset-password',
-  requestValidator(RequestResetPasswordRequest),
-  asyncHandler(requestResetPassword),
 );
 
 userRoutes.put(

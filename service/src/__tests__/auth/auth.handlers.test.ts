@@ -1,7 +1,12 @@
 import { Role } from '../../auth/models/Role';
 import Container from 'typedi';
 import AuthService from '../../auth/auth.service';
-import { login, logout, verifyAuthorization } from '../../auth/auth.handlers';
+import {
+  login,
+  logout,
+  verifyAuthorization,
+  requestResetPassword,
+} from '../../auth/auth.handlers';
 
 const mockUser = {
   id: '1234',
@@ -20,6 +25,7 @@ const mockRes = {
 class MockService {
   login = jest.fn();
   refresh = jest.fn();
+  requestResetPassword = jest.fn();
 }
 
 beforeEach(() => {
@@ -88,6 +94,30 @@ describe('auth.handlers', () => {
       logout({} as any, mockRes as any, jest.fn());
 
       expect(mockRes.sendStatus).toHaveBeenCalledWith(204);
+    });
+  });
+
+  describe('requestResetPassword', () => {
+    it('should call userService.requestResetPassword with the email', async () => {
+      const mockReq = {
+        body: { email: 'foo@example.com' },
+      };
+
+      await requestResetPassword(mockReq as any, mockRes as any, jest.fn());
+
+      expect(authService.requestResetPassword).toBeCalledWith(
+        mockReq.body.email,
+      );
+    });
+
+    it('should call res.sendStatus with 204', async () => {
+      const mockReq = {
+        body: { email: 'foo@example.com' },
+      };
+
+      await requestResetPassword(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.sendStatus).toBeCalledWith(204);
     });
   });
 

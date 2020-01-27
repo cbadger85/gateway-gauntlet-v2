@@ -4,7 +4,6 @@ import AuthenticateUser from '../auth/AuthenticateUser';
 import { rbacConfig } from '../auth/rbacConfig';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
-import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dto';
 import PasswordRequest from './models/PasswordRequest.dto';
 import UserService from './users.service';
 
@@ -19,17 +18,6 @@ export const addUser: RequestHandler<never, User, AddUserRequest> = async (
   return res.json(user);
 };
 
-export const requestResetPassword: RequestHandler<
-  never,
-  void,
-  RequestResetPasswordRequest
-> = async (req, res) => {
-  const userService = Container.get(UserService);
-  await userService.requestResetPassword(req.body.email);
-
-  return res.sendStatus(204);
-};
-
 export const disableAccount: RequestHandler<
   { id: string },
   void,
@@ -42,12 +30,16 @@ export const disableAccount: RequestHandler<
 };
 
 export const resetPassword: RequestHandler<
-  { id: string },
+  { id: string; passwordResetId: string },
   void,
   PasswordRequest
 > = async (req, res) => {
   const userService = Container.get(UserService);
-  await userService.resetPassword(req.params.id, req.body.password);
+  await userService.resetPassword(
+    req.params.id,
+    req.params.passwordResetId,
+    req.body.password,
+  );
 
   return res.sendStatus(204);
 };
@@ -98,9 +90,7 @@ export const authorizedToReadUser = AuthenticateUser.of<
   User
 >(rbacConfig)
   .can('users::read')
-  .when(
-    async params => await Container.get(UserService).getUser(params?.id || ''),
-  )
+  .when(async params => await Container.get(UserService).getUser(params.id))
   .done();
 
 export const authorizedToCreateUser = AuthenticateUser.of<

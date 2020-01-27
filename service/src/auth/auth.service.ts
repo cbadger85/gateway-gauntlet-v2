@@ -8,10 +8,15 @@ import LoginRequest from './models/LoginRequest.dto';
 import jwt from 'jsonwebtoken';
 import { Role } from './models/Role';
 import { UserAuth } from './models/UserAuth';
+import shortid from 'shortid';
+import EmailService from '../email/email.service';
 
 @Service()
 class AuthService {
-  constructor(private repository: UserRepository) {}
+  constructor(
+    private repository: UserRepository,
+    private emailService: EmailService,
+  ) {}
 
   login = async (
     loginRequest: LoginRequest,
@@ -80,6 +85,21 @@ class AuthService {
 
       return { accessToken, refreshToken, userAuth };
     }
+  };
+
+  requestResetPassword = async (email: string): Promise<void> => {
+    const user = await this.repository.findUserByEmail(email);
+
+    if (!user) {
+      return;
+    }
+
+    user.passwordExpiration = new Date(Date.now() + 3600000);
+    user.passwordResetId = shortid();
+
+    this.emailService.sendResetPasswordEmail(user);
+
+    this.repository.saveUser(user);
   };
 
   getAccessToken = ({ id, roles }: AccessTokenPayload): string =>

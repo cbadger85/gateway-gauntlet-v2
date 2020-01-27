@@ -36,6 +36,7 @@ class EmailService {
     passwordExpiration,
     id,
     email,
+    passwordResetId,
   }: User): Promise<void> => {
     const template = await this.readTemplateFromDisk('new-user');
 
@@ -44,7 +45,7 @@ class EmailService {
       new Date(Date.now()),
     );
 
-    const passwordResetLink = `${process.env.ROOT_URL}/password/reset/${id}`;
+    const passwordResetLink = `${process.env.ROOT_URL}/users/${id}/password/${passwordResetId}/reset`;
 
     const newUserEmail = template
       .replace(this.PASSWORD_LINK, passwordResetLink)
@@ -79,6 +80,7 @@ class EmailService {
     firstName,
     passwordExpiration,
     id,
+    passwordResetId,
     email,
   }: User): Promise<void> => {
     const template = await this.readTemplateFromDisk('reset-password');
@@ -88,7 +90,7 @@ class EmailService {
       new Date(Date.now()),
     );
 
-    const passwordResetLink = `${process.env.ROOT_URL}/password/reset/${id}`;
+    const passwordResetLink = `${process.env.ROOT_URL}/users/${id}/password/${passwordResetId}/reset`;
 
     const newUserEmail = template
       .replace(this.PASSWORD_LINK, passwordResetLink)

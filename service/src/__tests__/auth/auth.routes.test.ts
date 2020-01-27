@@ -9,6 +9,7 @@ class MockService {
   login = jest.fn();
   logout = jest.fn();
   refresh = jest.fn();
+  requestResetPassword = jest.fn();
 }
 
 describe('auth.routes', () => {
@@ -93,6 +94,29 @@ describe('auth.routes', () => {
           expect.stringContaining('refresh-token=;'),
         ]),
       );
+    });
+  });
+
+  describe('POST /password/reset', () => {
+    it('should call resetPassword', async () => {
+      authService.requestResetPassword.mockResolvedValue(void 0);
+
+      await request(await server())
+        .post('/auth/password/reset')
+        .send({ email: 'foo@example.com' })
+        .expect(204);
+
+      expect(authService.requestResetPassword).toBeCalledWith(
+        'foo@example.com',
+      );
+    });
+
+    it('should send a  400 if there is no email address sent', async () => {
+      authService.requestResetPassword.mockResolvedValue(void 0);
+
+      await request(await server())
+        .post('/auth/password/reset')
+        .expect(400);
     });
   });
 });

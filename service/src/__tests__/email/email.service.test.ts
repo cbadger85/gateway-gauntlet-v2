@@ -90,8 +90,9 @@ describe('EmailService', () => {
         firstName: 'foo',
         lastName: 'bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        passwordResetId: 'aaa',
       };
-      const passwordResetLink = `${process.env.ROOT_URL}/password/reset/${user.id}`;
+      const passwordResetLink = `${process.env.ROOT_URL}/users/${user.id}/password/${user.passwordResetId}/reset`;
 
       const expirationDate = formatDistance(
         user.passwordExpiration,
@@ -221,8 +222,9 @@ describe('EmailService', () => {
         firstName: 'foo',
         lastName: 'bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        passwordResetId: 'aaa',
       };
-      const passwordResetLink = `${process.env.ROOT_URL}/password/reset/${user.id}`;
+      const passwordResetLink = `${process.env.ROOT_URL}/users/${user.id}/password/${user.passwordResetId}/reset`;
 
       const expirationDate = formatDistance(
         user.passwordExpiration,

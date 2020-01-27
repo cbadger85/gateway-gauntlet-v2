@@ -3,6 +3,7 @@ import Container from 'typedi';
 import User from '../users/entities/users.entity';
 import AuthService from './auth.service';
 import LoginRequest from './models/LoginRequest.dto';
+import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dto';
 
 export const login: RequestHandler<never, User, LoginRequest> = async (
   req,
@@ -30,6 +31,17 @@ export const logout: RequestHandler<never, void, never> = (
 ): Response<void> => {
   res.clearCookie('access-token');
   res.clearCookie('refresh-token');
+
+  return res.sendStatus(204);
+};
+
+export const requestResetPassword: RequestHandler<
+  never,
+  void,
+  RequestResetPasswordRequest
+> = async (req, res) => {
+  const authService = Container.get(AuthService);
+  await authService.requestResetPassword(req.body.email);
 
   return res.sendStatus(204);
 };

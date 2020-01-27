@@ -18,6 +18,10 @@ class User {
   @Column({ nullable: true })
   passwordExpiration: Date;
 
+  @Exclude({ toPlainOnly: true })
+  @Column({ nullable: true })
+  passwordResetId?: string;
+
   @Column({ unique: true })
   email!: string;
 

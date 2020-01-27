@@ -7,6 +7,8 @@ import UserRepository from '../../users/users.repository';
 import { Role } from '../../auth/models/Role';
 import NotAuthorized from '../../errors/NotAuthorized';
 import jwt from 'jsonwebtoken';
+import EmailService from '../../email/email.service';
+import shortId from 'shortid';
 
 const mockLoginRequest = {
   username: 'foo',
@@ -26,6 +28,11 @@ class MockRepository {
   saveUser = jest.fn();
   findUser = jest.fn();
   findUserByUsername = jest.fn();
+  findUserByEmail = jest.fn();
+}
+
+class MockEmailService {
+  sendResetPasswordEmail = jest.fn().mockResolvedValue('<html>email</html>');
 }
 
 jest.mock('bcryptjs', () => ({
@@ -37,16 +44,22 @@ jest.mock('jsonwebtoken', () => ({
   verify: jest.fn(),
 }));
 
+jest.mock('shortid', () => jest.fn().mockReturnValue('shortid'));
+
 beforeEach(jest.clearAllMocks);
 
 describe('AuthService', () => {
   let authService: AuthService;
   const mockRepository = new MockRepository();
+  const mockEmailService = new MockEmailService();
 
   beforeAll(() => {
     Container.set(
       AuthService,
-      new AuthService((mockRepository as unknown) as UserRepository),
+      new AuthService(
+        (mockRepository as unknown) as UserRepository,
+        (mockEmailService as unknown) as EmailService,
+      ),
     );
     authService = Container.get(AuthService);
   });
@@ -126,6 +139,73 @@ describe('AuthService', () => {
       expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(bcrypt.compare).toBeCalledWith('baz', 'bar');
       expect(error).toBeInstanceOf(NotAuthorized);
+    });
+  });
+
+  describe('requestResetPassword', () => {
+    it('should call repository.findUser with the email', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue({
+        id: '1',
+        passwordResetId: 'shortid',
+        ...mockUser,
+      });
+      await authService.requestResetPassword('email@example.com');
+
+      expect(mockRepository.findUserByEmail).toBeCalledWith(
+        'email@example.com',
+      );
+    });
+
+    it('should call repository.save with the updated user', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue({
+        id: '1',
+        passwordResetId: 'shortid',
+        ...mockUser,
+      });
+      await authService.requestResetPassword('email@example.com');
+
+      const expectedUser = {
+        ...mockUser,
+        id: '1',
+        passwordResetId: 'shortid',
+        passwordExpiration: expect.any(Date),
+      };
+
+      expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
+    });
+
+    it('should call emailService.sendResetPassword with the updated user', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue({
+        id: '1',
+        passwordResetId: 'shortid',
+        ...mockUser,
+      });
+      await authService.requestResetPassword('email@example.com');
+
+      const expectedUser = {
+        ...mockUser,
+        id: '1',
+        passwordExpiration: expect.any(Date),
+        passwordResetId: 'shortid',
+      };
+
+      expect(mockEmailService.sendResetPasswordEmail).toBeCalledWith(
+        expectedUser,
+      );
+    });
+
+    it('should not call userRepository.save if the user cannot be found', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue(undefined);
+      await authService.requestResetPassword('foo@example.com');
+
+      expect(mockRepository.saveUser).not.toBeCalled();
+    });
+
+    it('should not call emailService.sendResetPasswordEmail if the user cannot be found', async () => {
+      mockRepository.findUserByEmail.mockResolvedValue(undefined);
+      await authService.requestResetPassword('foo@example.com');
+
+      expect(mockEmailService.sendResetPasswordEmail).not.toBeCalled();
     });
   });
 

@@ -262,23 +262,23 @@ describe('user.routes', () => {
     });
   });
 
-  describe('POST /:id/reset-password', () => {
+  describe('POST /users/:id/password/:passwordResetId/reset', () => {
     it('should call resetPassword', async () => {
       userService.resetPassword.mockResolvedValue(undefined);
 
       await request(await server())
-        .post('/users/1/reset-password')
+        .post('/users/1/password/aaa/reset')
         .send({ password: 'foobarbaz' })
         .expect(204);
 
-      expect(userService.resetPassword).toBeCalledWith('1', 'foobarbaz');
+      expect(userService.resetPassword).toBeCalledWith('1', 'aaa', 'foobarbaz');
     });
 
     it('should call send a 400 if the password is missing', async () => {
       userService.resetPassword.mockResolvedValue(undefined);
 
       await request(await server())
-        .post('/users/1/reset-password')
+        .post('/users/1/password/aaa/reset')
         .expect(400);
     });
 
@@ -286,32 +286,9 @@ describe('user.routes', () => {
       userService.resetPassword.mockRejectedValue(new Forbidden());
 
       await request(await server())
-        .post('/users/1/reset-password')
+        .post('/users/1/password/aaa/reset')
         .send({ password: 'foobarbaz' })
         .expect(403);
-    });
-  });
-
-  describe('POST /:id/request-reset-password', () => {
-    it('should call resetPassword', async () => {
-      userService.requestResetPassword.mockResolvedValue(void 0);
-
-      await request(await server())
-        .post('/users/1/request-reset-password')
-        .send({ email: 'foo@example.com' })
-        .expect(204);
-
-      expect(userService.requestResetPassword).toBeCalledWith(
-        'foo@example.com',
-      );
-    });
-
-    it('should send a  400 if there is no email sent', async () => {
-      userService.resetPassword.mockResolvedValue(void 0);
-
-      await request(await server())
-        .post('/users/1/request-reset-password')
-        .expect(400);
     });
   });
 

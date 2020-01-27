@@ -10,6 +10,7 @@ import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import UserService from '../../users/users.service';
 import EmailService from '../../email/email.service';
+import shortId from 'shortid';
 
 const mockUser = new User();
 
@@ -30,7 +31,6 @@ class MockRepository {
 
 class MockEmailService {
   sendNewUserEmail = jest.fn().mockResolvedValue('<html>email</html>');
-  sendResetPasswordEmail = jest.fn().mockResolvedValue('<html>email</html>');
 }
 
 jest.mock('uuid/v4', () => ({
@@ -41,6 +41,8 @@ jest.mock('uuid/v4', () => ({
 jest.mock('bcryptjs', () => ({
   hash: jest.fn().mockResolvedValue('hashedPassword'),
 }));
+
+jest.mock('shortid', () => jest.fn().mockReturnValue('shortid'));
 
 beforeEach(jest.clearAllMocks);
 
@@ -105,6 +107,7 @@ describe('UserService', () => {
         email: 'email@example.com',
         sessionId: '5678',
         passwordExpiration: expect.any(Date),
+        passwordResetId: 'shortid',
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
@@ -164,68 +167,6 @@ describe('UserService', () => {
     });
   });
 
-  describe('requestResetPassword', () => {
-    it('should call repository.findUser with the email', async () => {
-      mockRepository.findUserByEmail.mockResolvedValue({
-        id: '1',
-        ...mockUser,
-      });
-      await userService.requestResetPassword('email@example.com');
-
-      expect(mockRepository.findUserByEmail).toBeCalledWith(
-        'email@example.com',
-      );
-    });
-
-    it('should call repository.save with the updated user', async () => {
-      mockRepository.findUserByEmail.mockResolvedValue({
-        id: '1',
-        ...mockUser,
-      });
-      await userService.requestResetPassword('email@example.com');
-
-      const expectedUser = {
-        ...mockUser,
-        id: '1',
-        passwordExpiration: expect.any(Date),
-      };
-
-      expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
-    });
-
-    it('should call emailService.sendResetPassword with the updated user', async () => {
-      mockRepository.findUserByEmail.mockResolvedValue({
-        id: '1',
-        ...mockUser,
-      });
-      await userService.requestResetPassword('email@example.com');
-
-      const expectedUser = {
-        ...mockUser,
-        id: '1',
-        passwordExpiration: expect.any(Date),
-      };
-
-      expect(mockEmailService.sendResetPasswordEmail).toBeCalledWith(
-        expectedUser,
-      );
-    });
-
-    it('should not call userRepository.save if the user cannot be found', async () => {
-      mockRepository.findUserByEmail.mockResolvedValue(undefined);
-      await userService.requestResetPassword('foo@example.com');
-
-      expect(mockRepository.saveUser).not.toBeCalled();
-    });
-
-    it('should not call emailService.sendResetPasswordEmail if the user cannot be found', async () => {
-      mockRepository.findUserByEmail.mockResolvedValue(undefined);
-      await userService.requestResetPassword('foo@example.com');
-
-      expect(mockEmailService.sendResetPasswordEmail).not.toBeCalled();
-    });
-  });
-
   describe('disableAccount', () => {
     it('should call repository.findUser with the user id', async () => {
       mockRepository.findUser.mockResolvedValue({
@@ -267,12 +208,13 @@ describe('UserService', () => {
       mockRepository.findUser.mockResolvedValue({
         id: '1',
         passwordExpiration: new Date(Date.now() + 3600000),
+        passwordResetId: 'shortid',
         ...mockUser,
       });
 
       const password = 'foobarbaz';
 
-      await userService.resetPassword('1', password);
+      await userService.resetPassword('1', 'shortid', password);
 
       expect(mockRepository.findUser).toBeCalledWith('1');
     });
@@ -281,12 +223,13 @@ describe('UserService', () => {
       mockRepository.findUser.mockResolvedValue({
         id: '1',
         passwordExpiration: new Date(Date.now() + 3600000),
+        passwordResetId: 'shortid',
         ...mockUser,
       });
 
       const password = 'foobarbaz';
 
-      await userService.resetPassword('1', password);
+      await userService.resetPassword('1', 'shortid', password);
 
       expect(bcrypt.hash).toBeCalledWith(password, 10);
     });
@@ -295,13 +238,14 @@ describe('UserService', () => {
       const user = {
         id: '1',
         passwordExpiration: new Date(Date.now() + 3600000),
+        passwordResetId: 'shortid',
         ...mockUser,
       };
       mockRepository.findUser.mockResolvedValue(user);
 
       const password = 'foobarbaz';
 
-      await userService.resetPassword('1', password);
+      await userService.resetPassword('1', 'shortid', password);
 
       const expectedUser = { ...user, password: 'hashedPassword' };
 
@@ -311,6 +255,7 @@ describe('UserService', () => {
     it('should throw a Forbidden if there is no password expiration', async () => {
       const user = {
         id: '1',
+        passwordResetId: 'shortid',
         ...mockUser,
       };
       mockRepository.findUser.mockResolvedValue(user);
@@ -318,7 +263,25 @@ describe('UserService', () => {
       const password = 'foobarbaz';
 
       const error = await userService
-        .resetPassword('1', password)
+        .resetPassword('1', 'shortid', password)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(Forbidden);
+    });
+
+    it('should throw a Forbidden if the shortids do not match', async () => {
+      const user = {
+        id: '1',
+        passwordExpiration: new Date(Date.now() + 3600000),
+        passwordResetId: 'shortid2',
+        ...mockUser,
+      };
+      mockRepository.findUser.mockResolvedValue(user);
+
+      const password = 'foobarbaz';
+
+      const error = await userService
+        .resetPassword('1', 'shortid', password)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(Forbidden);
@@ -327,6 +290,7 @@ describe('UserService', () => {
     it('should throw a Forbidden if the password expiration has elapsed', async () => {
       const user = {
         id: '1',
+        passwordResetId: 'shortid',
         passwordExpiration: new Date(Date.now() - 3600000),
         ...mockUser,
       };
@@ -335,7 +299,7 @@ describe('UserService', () => {
       const password = 'foobarbaz';
 
       const error = await userService
-        .resetPassword('1', password)
+        .resetPassword('1', 'shortid', password)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(Forbidden);
@@ -347,7 +311,7 @@ describe('UserService', () => {
       const password = 'foobarbaz';
 
       const error = await userService
-        .resetPassword('1', password)
+        .resetPassword('1', 'shortid', password)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(Forbidden);

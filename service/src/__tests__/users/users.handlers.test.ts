@@ -3,7 +3,6 @@ import UserService from '../../users/users.service';
 import {
   addUser,
   getUser,
-  requestResetPassword,
   disableAccount,
   resetPassword,
   changePassword,
@@ -27,7 +26,6 @@ const mockRes = {
 class MockService {
   addUser = jest.fn();
   getUser = jest.fn();
-  requestResetPassword = jest.fn();
   disableAccount = jest.fn();
   resetPassword = jest.fn();
   changePassword = jest.fn();
@@ -73,30 +71,6 @@ describe('users.handlers', () => {
     });
   });
 
-  describe('requestResetPassword', () => {
-    it('should call userService.requestResetPassword with the email', async () => {
-      const mockReq = {
-        body: { email: 'foo@example.com' },
-      };
-
-      await requestResetPassword(mockReq as any, mockRes as any, jest.fn());
-
-      expect(userService.requestResetPassword).toBeCalledWith(
-        mockReq.body.email,
-      );
-    });
-
-    it('should call res.sendStatus with 204', async () => {
-      const mockReq = {
-        body: { email: 'foo@example.com' },
-      };
-
-      await requestResetPassword(mockReq as any, mockRes as any, jest.fn());
-
-      expect(mockRes.sendStatus).toBeCalledWith(204);
-    });
-  });
-
   describe('disableAccount', () => {
     it('should call userService.disableAccount with the user id', async () => {
       const mockReq = {
@@ -122,7 +96,7 @@ describe('users.handlers', () => {
   describe('resetPassword', () => {
     it('should call userService.resetPassword with the user id and new password', async () => {
       const mockReq = {
-        params: { id: '1' },
+        params: { id: '1', passwordResetId: 'aaa' },
         body: { password: 'foobarbaz' },
       };
 
@@ -130,6 +104,7 @@ describe('users.handlers', () => {
 
       expect(userService.resetPassword).toBeCalledWith(
         mockReq.params.id,
+        mockReq.params.passwordResetId,
         mockReq.body.password,
       );
     });

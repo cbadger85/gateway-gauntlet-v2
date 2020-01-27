@@ -9,6 +9,7 @@ import NotFound from '../errors/NotFound';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
+import shortid from 'shortid';
 
 @Service()
 class UserService {
@@ -29,28 +30,20 @@ class UserService {
 
     const sessionId = uuid();
     const passwordExpiration = new Date(Date.now() + 3600000);
+    const passwordResetId = shortid();
 
     const savedUser = await this.repository.saveUser(
-      plainToClass(User, { ...newUser, passwordExpiration, sessionId }),
+      plainToClass(User, {
+        ...newUser,
+        passwordExpiration,
+        passwordResetId,
+        sessionId,
+      }),
     );
 
     this.emailService.sendNewUserEmail(savedUser);
 
     return classToPlain(savedUser) as User;
-  };
-
-  requestResetPassword = async (email: string): Promise<void> => {
-    const user = await this.repository.findUserByEmail(email);
-
-    if (!user) {
-      return;
-    }
-
-    user.passwordExpiration = new Date(Date.now() + 3600000);
-
-    this.emailService.sendResetPasswordEmail(user);
-
-    this.repository.saveUser(user);
   };
 
   disableAccount = async (id: string): Promise<void> => {
@@ -65,12 +58,17 @@ class UserService {
     this.repository.saveUser(user);
   };
 
-  resetPassword = async (id: string, password: string): Promise<void> => {
-    const user = await this.repository.findUser(id);
+  resetPassword = async (
+    userId: string,
+    passwordResetId: string,
+    password: string,
+  ): Promise<void> => {
+    const user = await this.repository.findUser(userId);
 
     if (
       !user?.passwordExpiration ||
-      user.passwordExpiration < new Date(Date.now())
+      user.passwordExpiration < new Date(Date.now()) ||
+      passwordResetId !== user.passwordResetId
     ) {
       throw new Forbidden();
     }
