@@ -1,16 +1,22 @@
-import { createSlice, createAction } from '@reduxjs/toolkit';
-import { User } from '../user/userSlice';
+import { createAction, createSlice } from '@reduxjs/toolkit';
 import { AppThunk } from '..';
-import axios from 'axios';
+import { User } from '../user/userSlice';
+import {
+  postLogout,
+  postLogin,
+  getToken,
+} from '../../controllers/authController';
+import history from '../../utils/history';
 
 export enum AuthState {
   LOGGED_IN = 'LOGGED_IN',
   LOGGED_OUT = 'LOGGED_OUT',
   LOADING = 'LOADING',
+  LOGIN_FAILURE = 'LOGIN_FAILURE',
 }
 
 export const loginSuccess = createAction<User>('auth/loginSuccess');
-export const logoutSucess = createAction('auth/logoutSucess');
+export const logoutSucess = createAction('auth/logoutSuccess');
 
 const authSlice = createSlice({
   name: 'auth',
@@ -20,7 +26,7 @@ const authSlice = createSlice({
       return AuthState.LOADING;
     },
     loginFailure() {
-      return AuthState.LOGGED_OUT;
+      return AuthState.LOGIN_FAILURE;
     },
   },
   extraReducers: {
@@ -33,7 +39,7 @@ const authSlice = createSlice({
   },
 });
 
-const { loading, loginFailure } = authSlice.actions;
+export const { loading, loginFailure } = authSlice.actions;
 
 export default authSlice.reducer;
 
@@ -43,10 +49,9 @@ export const login = (
 ): AppThunk => dispatch => {
   dispatch(loading());
 
-  axios
-    .post<User>('/auth/login', { username, password })
-    .then(res => {
-      dispatch(loginSuccess(res.data));
+  postLogin(username, password)
+    .then(user => {
+      dispatch(loginSuccess(user));
     })
     .catch(e => {
       dispatch(loginFailure());
@@ -54,7 +59,23 @@ export const login = (
 };
 
 export const logout = (): AppThunk => dispatch => {
-  dispatch(logoutSucess());
+  postLogout()
+    .then(() => {
+      history.push('/login');
+      dispatch(logoutSucess());
+    })
+    .catch();
+};
 
-  axios.post('/auth/logout');
+export const checkToken = (): AppThunk => dispatch => {
+  dispatch(loading());
+
+  getToken()
+    .then(user => {
+      dispatch(loginSuccess(user));
+    })
+    .catch(e => {
+      history.push('/login');
+      dispatch(loginFailure());
+    });
 };

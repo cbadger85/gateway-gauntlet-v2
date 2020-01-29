@@ -1,16 +1,26 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { login, logout } from './store/auth/authSlice';
+import { Router, Route, Switch, Redirect } from 'react-router-dom';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import Homepage from './pages/Homepage';
+import history from './utils/history';
 
 const App: React.FC = () => {
-  const dispatch = useDispatch();
   return (
     <div className="App">
-      <button onClick={() => dispatch(login('super-admin', 'password123'))}>
-        Login
-      </button>
-
-      <button onClick={() => dispatch(logout())}>Logout</button>
+      <Router history={history}>
+        <Switch>
+          <Route exact path="/login">
+            <Login />
+          </Route>
+          <ProtectedRoute exact path="/">
+            <Homepage />
+          </ProtectedRoute>
+          <Route>
+            <Redirect to="/login" />
+          </Route>
+        </Switch>
+      </Router>
     </div>
   );
 };
