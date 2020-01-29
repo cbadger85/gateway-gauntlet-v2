@@ -1,7 +1,7 @@
 import { Params, RequestHandler } from 'express-serve-static-core';
 import Forbidden from '../errors/Forbidden';
 import { Role } from './models/Role';
-import { UserAuth } from './models/UserAuth';
+import User from '../users/entities/users.entity';
 
 class AuthenticateUser<P extends Params, ReqBody, R> {
   private constructor(
@@ -88,7 +88,7 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
     params: P,
     body: ReqBody,
     operation: string,
-    user?: UserAuth,
+    user?: User,
     has?: (params: P) => R | Promise<R>,
   ): Promise<boolean> => {
     if (!user) {
@@ -153,7 +153,7 @@ type WhenFn<P extends Params, ReqBody, R> = (
 ) => { done: DoneFn<P, ReqBody> };
 
 export type Where = {
-  where: <ReqBody, R>(user: UserAuth, params: R, body: ReqBody) => boolean;
+  where: <ReqBody, R>(user: User, params: R, body: ReqBody) => boolean;
   name: string;
 };
 
@@ -168,5 +168,5 @@ type CanPermission =
   | string
   | {
       name: string;
-      where: (user: UserAuth, params: any, body: any) => boolean;
+      where: (user: User, params: any, body: any) => boolean;
     };

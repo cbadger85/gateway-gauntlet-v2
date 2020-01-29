@@ -1,15 +1,14 @@
 import bcrypt from 'bcryptjs';
 import { classToPlain } from 'class-transformer';
+import jwt from 'jsonwebtoken';
+import shortid from 'shortid';
 import { Service } from 'typedi';
+import EmailService from '../email/email.service';
 import NotAuthorized from '../errors/NotAuthorized';
 import User from '../users/entities/users.entity';
 import UserRepository from '../users/users.repository';
 import LoginRequest from './models/LoginRequest.dto';
-import jwt from 'jsonwebtoken';
 import { Role } from './models/Role';
-import { UserAuth } from './models/UserAuth';
-import shortid from 'shortid';
-import EmailService from '../email/email.service';
 
 @Service()
 class AuthService {
@@ -39,8 +38,8 @@ class AuthService {
     }
 
     const sanitizedUser = classToPlain(user) as User;
-    const { id, sessionId, roles } = user;
-    const accessToken = this.getAccessToken({ id, roles });
+    const { id, sessionId } = user;
+    const accessToken = this.getAccessToken(sanitizedUser);
     const refreshToken = this.getRefreshToken({ id, sessionId });
 
     return { user: sanitizedUser, accessToken, refreshToken };
@@ -52,21 +51,19 @@ class AuthService {
   ): Promise<{
     accessToken: string;
     refreshToken: string;
-    userAuth: UserAuth;
+    user: User;
   }> => {
     try {
-      const accessPayload = this.parseAccessToken(oldAccessToken);
+      const user = this.parseAccessToken(oldAccessToken);
       const refreshPayload = this.parseRefreshToken(oldRefreshToken);
 
-      const accessToken = this.getAccessToken(accessPayload);
+      const accessToken = this.getAccessToken(user);
       const refreshToken = this.getRefreshToken(refreshPayload);
-
-      const userAuth = { id: accessPayload.id, roles: accessPayload.roles };
 
       return {
         accessToken,
         refreshToken,
-        userAuth,
+        user,
       };
     } catch {
       const token = this.parseRefreshToken(oldRefreshToken);
@@ -76,14 +73,15 @@ class AuthService {
         throw new NotAuthorized();
       }
 
-      const { id, sessionId, roles } = user;
+      const sanitizedUser = classToPlain(user) as User;
 
-      const accessToken = this.getAccessToken({ id, roles });
-      const refreshToken = this.getRefreshToken({ id, sessionId });
+      const accessToken = this.getAccessToken(sanitizedUser);
+      const refreshToken = this.getRefreshToken({
+        id: user.id,
+        sessionId: user.sessionId,
+      });
 
-      const userAuth = { id: user.id, roles: user.roles };
-
-      return { accessToken, refreshToken, userAuth };
+      return { accessToken, refreshToken, user: sanitizedUser };
     }
   };
 
@@ -102,8 +100,8 @@ class AuthService {
     this.repository.saveUser(user);
   };
 
-  getAccessToken = ({ id, roles }: AccessTokenPayload): string =>
-    jwt.sign({ id, roles }, process.env.JWT_ACCESS_SECRET as string, {
+  getAccessToken = (user: User): string =>
+    jwt.sign(user, process.env.JWT_ACCESS_SECRET as string, {
       expiresIn: '10m',
     });
 
@@ -112,14 +110,14 @@ class AuthService {
       expiresIn: '24h',
     });
 
-  parseAccessToken = (accessToken: string): AccessTokenPayload => {
+  parseAccessToken = (accessToken: string): User => {
     try {
       const payload = jwt.verify(
         accessToken,
         process.env.JWT_ACCESS_SECRET as string,
       );
 
-      return payload as AccessTokenPayload;
+      return payload as User;
     } catch {
       throw new NotAuthorized();
     }

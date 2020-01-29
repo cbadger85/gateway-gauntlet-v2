@@ -97,7 +97,7 @@ describe('auth.routes', () => {
     });
   });
 
-  describe('POST /password/reset', () => {
+  describe('POST auth/password/reset', () => {
     it('should call resetPassword', async () => {
       authService.requestResetPassword.mockResolvedValue(void 0);
 
@@ -117,6 +117,23 @@ describe('auth.routes', () => {
       await request(await server())
         .post('/auth/password/reset')
         .expect(400);
+    });
+  });
+
+  describe('GET auth/token', () => {
+    it('should return the user from the request object', async () => {
+      const user = { id: '1', roles: [Role.USER] };
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user,
+      });
+
+      const response = await request(await server())
+        .get('/auth/token')
+        .expect(200);
+
+      expect(response.body).toEqual(user);
     });
   });
 });

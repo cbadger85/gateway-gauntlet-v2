@@ -6,6 +6,7 @@ import {
   logout,
   verifyAuthorization,
   requestResetPassword,
+  getToken,
 } from '../../auth/auth.handlers';
 
 const mockUser = {
@@ -121,7 +122,7 @@ describe('auth.handlers', () => {
     });
   });
 
-  describe('verify authorization', () => {
+  describe('verifyAuthorization', () => {
     it('should call authService.refresh with the old access token and old refresh token', async () => {
       const userAuth = {
         id: '1234',
@@ -192,14 +193,14 @@ describe('auth.handlers', () => {
     });
 
     it('should add the user to the request object', async () => {
-      const userAuth = {
+      const user = {
         id: '1234',
         sessionId: '5678',
         roles: [Role.USER],
       };
 
       authService.refresh.mockReturnValue({
-        userAuth,
+        user,
         accessToken: 'access token',
         refreshToken: 'refresh token',
       });
@@ -215,18 +216,18 @@ describe('auth.handlers', () => {
       const next = jest.fn();
       await verifyAuthorization(mockReq as any, mockRes as any, next);
 
-      expect(mockReq.user).toEqual(userAuth);
+      expect(mockReq.user).toEqual(user);
     });
 
     it('should call next', async () => {
-      const userAuth = {
+      const user = {
         id: '1234',
         sessionId: '5678',
         roles: [Role.USER],
       };
 
       authService.refresh.mockReturnValue({
-        userAuth,
+        user,
         accessToken: 'access token',
         refreshToken: 'refresh token',
       });
@@ -242,6 +243,18 @@ describe('auth.handlers', () => {
       await verifyAuthorization(mockReq as any, mockRes as any, next);
 
       expect(next).toBeCalledWith();
+    });
+  });
+
+  describe('getToken', () => {
+    it('should call res.json with the user', () => {
+      const mockReq = {
+        user: mockUser,
+      };
+
+      getToken(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(mockUser);
     });
   });
 });

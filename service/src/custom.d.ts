@@ -1,5 +1,5 @@
 declare namespace Express {
   export interface Request {
-    user?: import('./auth/models/UserAuth').UserAuth;
+    user?: import('./users/entities/users.entity').default;
   }
 }

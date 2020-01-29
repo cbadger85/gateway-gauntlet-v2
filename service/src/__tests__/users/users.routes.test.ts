@@ -40,7 +40,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
 
       const savedUser = {
@@ -75,7 +75,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.USER] },
+        user: { id: '2', roles: [Role.USER] },
       });
 
       const savedUser = {
@@ -106,7 +106,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
 
       const savedUser = {
@@ -137,7 +137,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
 
       const response = await request(await server())
@@ -152,7 +152,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
 
       const badRequest = new BadRequest('user already exists');
@@ -196,7 +196,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
 
       userService.getUser.mockResolvedValue(retrievedUser);
@@ -223,7 +223,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
 
       userService.getUser.mockResolvedValue(retrievedUser);
@@ -250,7 +250,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
 
       userService.getUser.mockResolvedValueOnce(retrievedUser);
@@ -306,7 +306,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '1', roles: [Role.USER] },
+        user: { id: '1', roles: [Role.USER] },
       });
 
       userService.getUser.mockResolvedValue(retrievedUser);
@@ -340,7 +340,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '1', roles: [Role.USER] },
+        user: { id: '1', roles: [Role.USER] },
       });
       userService.getUser.mockResolvedValue(retrievedUser);
       const response = await request(await server())
@@ -365,7 +365,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '1', roles: [Role.USER] },
+        user: { id: '1', roles: [Role.USER] },
       });
 
       const response = await request(await server())
@@ -399,7 +399,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '1', roles: [Role.ADMIN] },
+        user: { id: '1', roles: [Role.ADMIN] },
       });
 
       userService.getAllUsers.mockResolvedValue([
@@ -437,7 +437,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '1', roles: [Role.USER] },
+        user: { id: '1', roles: [Role.USER] },
       });
 
       userService.getAllUsers.mockResolvedValue([
@@ -466,7 +466,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '1', roles: [Role.USER] },
+        user: { id: '1', roles: [Role.USER] },
       });
       userService.getUser.mockResolvedValue(retrievedUser);
       await request(await server())
@@ -491,7 +491,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
       userService.getUser.mockResolvedValue(retrievedUser);
       await request(await server())
@@ -514,7 +514,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.ADMIN] },
+        user: { id: '2', roles: [Role.ADMIN] },
       });
       userService.getUser.mockResolvedValue(retrievedUser);
       await request(await server())
@@ -537,7 +537,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '1', roles: [Role.USER] },
+        user: { id: '1', roles: [Role.USER] },
       });
       userService.getUser.mockResolvedValue(retrievedUser);
       await request(await server())
@@ -559,7 +559,7 @@ describe('user.routes', () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
-        userAuth: { id: '2', roles: [Role.USER] },
+        user: { id: '2', roles: [Role.USER] },
       });
       userService.getUser.mockResolvedValue(retrievedUser);
       await request(await server())

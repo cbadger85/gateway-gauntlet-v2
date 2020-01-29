@@ -28,7 +28,6 @@ class User {
   @Column('simple-array')
   roles!: Role[];
 
-  @Exclude({ toPlainOnly: true })
   @Column({ nullable: true })
   sessionId?: string;
 

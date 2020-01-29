@@ -1,6 +1,6 @@
 import { Role } from './models/Role';
 import { RbacConfig } from './AuthenticateUser';
-import { UserAuth } from './models/UserAuth';
+import User from '../users/entities/users.entity';
 
 const upsertRolePermissionsMap: { [key: string]: Role[] } = {
   [Role.SUPER_ADMIN]: [Role.ADMIN, Role.USER],
@@ -9,7 +9,7 @@ const upsertRolePermissionsMap: { [key: string]: Role[] } = {
 };
 
 export const canUpsertRole = (
-  user: UserAuth,
+  user: User,
   params: {},
   body: { roles?: Role[] },
 ): boolean =>
@@ -18,12 +18,12 @@ export const canUpsertRole = (
   );
 
 export const isUsersId = (
-  user: UserAuth,
+  user: User,
   params?: Record<string, string>,
 ): boolean => user.id === params?.id;
 
 export const canUpsertUser = (
-  user: UserAuth,
+  user: User,
   params?: Record<string, Role[] | undefined>,
 ): boolean =>
   !params?.roles?.includes(Role.ADMIN) &&

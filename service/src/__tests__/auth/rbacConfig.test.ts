@@ -1,19 +1,25 @@
 import { Role } from '../../auth/models/Role';
 import { canUpsertRole, isUsersId, canUpsertUser } from '../../auth/rbacConfig';
+import User from '../../users/entities/users.entity';
 
 describe('rbacConfig', () => {
   describe('canUpsertRole', () => {
     it('should return true if the user is allowed to upsert the role', () => {
       const user = {
         id: '1234',
+        firstName: 'foo',
+        lastName: 'bar',
         roles: [Role.ADMIN],
+        sessionId: '1234',
+        username: 'foobar',
+        email: 'foo@example.com',
       };
 
       const newUser = {
         roles: [Role.USER],
       };
 
-      const isAllowed = canUpsertRole(user, {}, newUser);
+      const isAllowed = canUpsertRole(user as User, {}, newUser);
 
       expect(isAllowed).toBeTruthy();
     });
@@ -21,14 +27,19 @@ describe('rbacConfig', () => {
     it('should prevent upserting roles the user is not allowed to', () => {
       const user = {
         id: '1234',
+        firstName: 'foo',
+        lastName: 'bar',
         roles: [Role.ADMIN],
+        sessionId: '1234',
+        username: 'foobar',
+        email: 'foo@example.com',
       };
 
       const newUser = {
         roles: [Role.ADMIN],
       };
 
-      const isAllowed = canUpsertRole(user, {}, newUser);
+      const isAllowed = canUpsertRole(user as User, {}, newUser);
 
       expect(isAllowed).toBeFalsy();
     });
@@ -36,10 +47,15 @@ describe('rbacConfig', () => {
     it('should return false if no role is provided', () => {
       const user = {
         id: '1234',
+        firstName: 'foo',
+        lastName: 'bar',
         roles: [Role.ADMIN],
+        sessionId: '1234',
+        username: 'foobar',
+        email: 'foo@example.com',
       };
 
-      const isAllowed = canUpsertRole(user, {}, {});
+      const isAllowed = canUpsertRole(user as User, {}, {});
 
       expect(isAllowed).toBeFalsy();
     });
@@ -49,14 +65,19 @@ describe('rbacConfig', () => {
     it('should be true if the ids match', () => {
       const user = {
         id: '1234',
+        firstName: 'foo',
+        lastName: 'bar',
         roles: [Role.ADMIN],
+        sessionId: '1234',
+        username: 'foobar',
+        email: 'foo@example.com',
       };
 
       const requestedUser = {
         id: '1234',
       };
 
-      const isAllowed = isUsersId(user, requestedUser);
+      const isAllowed = isUsersId(user as User, requestedUser);
 
       expect(isAllowed).toBeTruthy();
     });
@@ -64,14 +85,19 @@ describe('rbacConfig', () => {
     it('should be false if the ids don`t match', () => {
       const user = {
         id: '1234',
+        firstName: 'foo',
+        lastName: 'bar',
         roles: [Role.ADMIN],
+        sessionId: '1234',
+        username: 'foobar',
+        email: 'foo@example.com',
       };
 
       const requestedUser = {
         id: '1235',
       };
 
-      const isAllowed = isUsersId(user, requestedUser);
+      const isAllowed = isUsersId(user as User, requestedUser);
 
       expect(isAllowed).toBeFalsy();
     });
@@ -79,10 +105,15 @@ describe('rbacConfig', () => {
     it('should be false if there is no requested user id', () => {
       const user = {
         id: '1234',
+        firstName: 'foo',
+        lastName: 'bar',
         roles: [Role.ADMIN],
+        sessionId: '1234',
+        username: 'foobar',
+        email: 'foo@example.com',
       };
 
-      const isAllowed = isUsersId(user, {});
+      const isAllowed = isUsersId(user as User, {});
 
       expect(isAllowed).toBeFalsy();
     });
