@@ -23,7 +23,7 @@ export const prodOptions: ConnectionOptions = {
   type: 'postgres',
   entities: ['dist/**/*entity.js'],
   synchronize: true,
-  url: process.env.DB_URI,
+  host: process.env.DB_HOST,
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB,
