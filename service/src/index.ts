@@ -15,4 +15,7 @@ export default (async function Main() {
   app.listen(port, () => {
     console.log('👂'.padEnd(4), `App is listening on port: ${port}`);
   });
-})();
+})().catch(e => {
+  console.log('app failed...');
+  console.error(e);
+});
