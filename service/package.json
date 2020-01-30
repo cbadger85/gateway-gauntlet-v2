@@ -4,15 +4,16 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "serve": "NODE_ENV=production node dist/index.js",
-    "bootstrap": "node dist/bootstrap",
+    "serve": "cd dist && node index.js",
+    "bootstrap": "cd dist && node bootstrap",
     "bootstrap:dev": "ts-node src/bootstrap",
     "build": "tsc -b",
     "start": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.test.ts' --exec 'ts-node' src/index.ts",
     "test": "jest --watch",
     "test:ci": "CI=true jest --env=jsdom --verbose --coverage",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "ci": "yarn lint && yarn test:ci"
+    "ci": "yarn lint && yarn test:ci",
+    "prod": "NODE_ENV=production npm run build && npm run bootstrap && npm run serve"
   },
   "jest": {
     "collectCoverageFrom": [
