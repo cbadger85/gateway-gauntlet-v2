@@ -1,15 +1,15 @@
-name: service-CI
+name: service CI
 
 on: [pull_request]
 
 jobs:
   build:
-    name: Test and lint project
-    runs-on: ubuntu-latest
+    name: Test and lint service
+    runs-on: docker://alpine:3.11
 
     strategy:
       matrix:
-        node-version: [10-alpine3.11]
+        node-version: [10.x]
 
     steps:
       - uses: actions/checkout@v1
