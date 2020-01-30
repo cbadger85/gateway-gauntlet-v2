@@ -25,7 +25,7 @@ jobs:
         run: |
           echo Running tests on gateway gauntlet service...
           cd service
-          npm ci
+          npm install
           npm run ci
         env:
           CI: true
