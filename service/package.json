@@ -12,7 +12,7 @@
     "test": "jest --watch",
     "test:ci": "CI=true jest --env=jsdom --verbose --coverage",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "ci": "yarn lint && yarn test:ci",
+    "ci": "npm lint && npm test:ci",
     "prod": "npm run build && npm run bootstrap && npm run serve"
   },
   "jest": {
