@@ -26,7 +26,7 @@ export const prodOptions: ConnectionOptions = {
   url: process.env.DB_URI,
   username: process.env.DB_USERNAME,
   password: process.env.DB_USERNAME,
-  database: process.env.DB_NAME,
+  database: process.env.DB,
 };
 
 export const dbSetup = async (): Promise<Connection> => {
