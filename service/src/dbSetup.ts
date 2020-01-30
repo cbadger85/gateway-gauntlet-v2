@@ -1,6 +1,33 @@
 import { Container } from 'typedi';
-import { createConnection, useContainer, Connection } from 'typeorm';
-import { prodOptions, devOptions } from './ormconfig';
+import {
+  createConnection,
+  useContainer,
+  Connection,
+  ConnectionOptions,
+} from 'typeorm';
+
+export const devOptions: ConnectionOptions = {
+  synchronize: true,
+  logging: false,
+  type: 'sqlite',
+  database: './db.sql',
+  entities: ['src/**/*entity.ts'],
+  migrations: ['src/migration/**/*.ts'],
+  cli: {
+    entitiesDir: 'src/**',
+    migrationsDir: 'src/migration',
+  },
+};
+
+export const prodOptions: ConnectionOptions = {
+  type: 'postgres',
+  entities: ['dist/**/*entity.js'],
+  synchronize: true,
+  url: process.env.DB_URI,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_USERNAME,
+  database: process.env.DB_NAME,
+};
 
 export const dbSetup = async (): Promise<Connection> => {
   console.log('🐬'.padEnd(4), 'Setting up database...');
