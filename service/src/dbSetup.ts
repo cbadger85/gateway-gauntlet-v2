@@ -25,7 +25,7 @@ export const prodOptions: ConnectionOptions = {
   synchronize: true,
   url: process.env.DB_URI,
   username: process.env.DB_USERNAME,
-  password: process.env.DB_USERNAME,
+  password: process.env.D_PASSWORD,
   database: process.env.DB,
 };
 
