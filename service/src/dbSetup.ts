@@ -36,6 +36,8 @@ export const dbSetup = async (): Promise<Connection> => {
   const config =
     process.env.NODE_ENV === 'production' ? prodOptions : devOptions;
 
+  console.log(config);
+
   const connection = await createConnection(config).catch(e => {
     console.error(e);
   });
