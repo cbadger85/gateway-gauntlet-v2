@@ -5,7 +5,7 @@ on: [pull_request]
 jobs:
   build:
     name: Test and lint service
-    runs-on: docker://alpine:3.11
+    runs-on: alpine-3.11
 
     strategy:
       matrix:
