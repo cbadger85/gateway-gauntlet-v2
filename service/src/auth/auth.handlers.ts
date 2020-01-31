@@ -4,7 +4,6 @@ import User from '../users/entities/users.entity';
 import AuthService from './auth.service';
 import LoginRequest from './models/LoginRequest.dto';
 import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dto';
-import NotAuthorized from '../errors/NotAuthorized';
 
 export const login: RequestHandler<never, User, LoginRequest> = async (
   req,
