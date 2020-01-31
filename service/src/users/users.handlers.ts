@@ -35,7 +35,7 @@ export const resetPassword: RequestHandler<
   PasswordRequest
 > = async (req, res) => {
   const userService = Container.get(UserService);
-  await userService.resetPassword(
+  await userService.resetForgottenPassword(
     req.params.id,
     req.params.passwordResetId,
     req.body.password,

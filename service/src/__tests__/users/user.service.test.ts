@@ -214,7 +214,7 @@ describe('UserService', () => {
 
       const password = 'foobarbaz';
 
-      await userService.resetPassword('1', 'shortid', password);
+      await userService.resetForgottenPassword('1', 'shortid', password);
 
       expect(mockRepository.findUser).toBeCalledWith('1');
     });
@@ -229,7 +229,7 @@ describe('UserService', () => {
 
       const password = 'foobarbaz';
 
-      await userService.resetPassword('1', 'shortid', password);
+      await userService.resetForgottenPassword('1', 'shortid', password);
 
       expect(bcrypt.hash).toBeCalledWith(password, 10);
     });
@@ -245,7 +245,7 @@ describe('UserService', () => {
 
       const password = 'foobarbaz';
 
-      await userService.resetPassword('1', 'shortid', password);
+      await userService.resetForgottenPassword('1', 'shortid', password);
 
       const expectedUser = { ...user, password: 'hashedPassword' };
 
@@ -263,7 +263,7 @@ describe('UserService', () => {
       const password = 'foobarbaz';
 
       const error = await userService
-        .resetPassword('1', 'shortid', password)
+        .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(Forbidden);
@@ -281,7 +281,7 @@ describe('UserService', () => {
       const password = 'foobarbaz';
 
       const error = await userService
-        .resetPassword('1', 'shortid', password)
+        .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(Forbidden);
@@ -299,7 +299,7 @@ describe('UserService', () => {
       const password = 'foobarbaz';
 
       const error = await userService
-        .resetPassword('1', 'shortid', password)
+        .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(Forbidden);
@@ -311,7 +311,7 @@ describe('UserService', () => {
       const password = 'foobarbaz';
 
       const error = await userService
-        .resetPassword('1', 'shortid', password)
+        .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(Forbidden);

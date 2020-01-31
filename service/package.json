@@ -10,7 +10,7 @@
     "build": "NODE_ENV=production tsc -b",
     "start": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.test.ts' --exec 'ts-node' src/index.ts",
     "test": "jest --watch",
-    "test:ci": "CI=true jest --env=jsdom --verbose --coverage",
+    "test:ci": "CI=true jest --env=jsdom --verbose --coverage --silent",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "ci": "npm run lint && npm run test:ci",
     "prod": "npm run build && npm run bootstrap && npm run serve"

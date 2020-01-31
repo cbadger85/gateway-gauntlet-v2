@@ -12,7 +12,7 @@ class MockService {
   addUser = jest.fn();
   requestResetPassword = jest.fn();
   disableAccount = jest.fn();
-  resetPassword = jest.fn();
+  resetForgottenPassword = jest.fn();
   getUser = jest.fn();
   changePassword = jest.fn();
   getAllUsers = jest.fn();
@@ -264,18 +264,22 @@ describe('user.routes', () => {
 
   describe('POST /users/:id/password/:passwordResetId/reset', () => {
     it('should call resetPassword', async () => {
-      userService.resetPassword.mockResolvedValue(undefined);
+      userService.resetForgottenPassword.mockResolvedValue(undefined);
 
       await request(await server())
         .post('/users/1/password/aaa/reset')
         .send({ password: 'foobarbaz' })
         .expect(204);
 
-      expect(userService.resetPassword).toBeCalledWith('1', 'aaa', 'foobarbaz');
+      expect(userService.resetForgottenPassword).toBeCalledWith(
+        '1',
+        'aaa',
+        'foobarbaz',
+      );
     });
 
     it('should call send a 400 if the password is missing', async () => {
-      userService.resetPassword.mockResolvedValue(undefined);
+      userService.resetForgottenPassword.mockResolvedValue(undefined);
 
       await request(await server())
         .post('/users/1/password/aaa/reset')
@@ -283,7 +287,7 @@ describe('user.routes', () => {
     });
 
     it('should send a  403 if resetPassword throws a NotAuthorized', async () => {
-      userService.resetPassword.mockRejectedValue(new Forbidden());
+      userService.resetForgottenPassword.mockRejectedValue(new Forbidden());
 
       await request(await server())
         .post('/users/1/password/aaa/reset')

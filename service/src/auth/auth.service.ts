@@ -7,8 +7,8 @@ import EmailService from '../email/email.service';
 import NotAuthorized from '../errors/NotAuthorized';
 import User from '../users/entities/users.entity';
 import UserRepository from '../users/users.repository';
+import { getEmojiLog } from '../utils/getEmojiLog';
 import LoginRequest from './models/LoginRequest.dto';
-import { Role } from './models/Role';
 
 @Service()
 class AuthService {
@@ -20,11 +20,16 @@ class AuthService {
   login = async (
     loginRequest: LoginRequest,
   ): Promise<{ user: User; accessToken: string; refreshToken: string }> => {
+    console.log(getEmojiLog('👤', 'User attempting login...'));
     const user = await this.repository.findUserByUsername(
       loginRequest.username,
     );
 
     if (!user || !user.sessionId || !user.password) {
+      console.log(
+        getEmojiLog('🚫', 'Login failed!'),
+        `User doesn't exist, or has no password or sessionId. ID: ${user?.id}`,
+      );
       throw new NotAuthorized();
     }
 
@@ -34,6 +39,10 @@ class AuthService {
     );
 
     if (!isValidPassword) {
+      console.log(
+        getEmojiLog('🚫', 'Login failed!'),
+        `User has incorrect password. ID: ${user.id}`,
+      );
       throw new NotAuthorized();
     }
 
@@ -41,6 +50,8 @@ class AuthService {
     const { id, sessionId } = user;
     const accessToken = this.getAccessToken(sanitizedUser);
     const refreshToken = this.getRefreshToken({ id, sessionId });
+
+    console.log(getEmojiLog('🙌', 'User logged in!'), `ID: ${user.id}`);
 
     return { user: sanitizedUser, accessToken, refreshToken };
   };
@@ -54,22 +65,34 @@ class AuthService {
     user: User;
   }> => {
     try {
+      console.log(getEmojiLog('👤', 'Refreshing user tokens...'));
       const user = this.parseAccessToken(oldAccessToken);
       const refreshPayload = this.parseRefreshToken(oldRefreshToken);
 
       const accessToken = this.getAccessToken(user);
       const refreshToken = this.getRefreshToken(refreshPayload);
 
+      console.log(getEmojiLog('🙌', 'Tokens refreshed!'), `ID: ${user.id}`);
       return {
         accessToken,
         refreshToken,
         user,
       };
     } catch {
+      console.log(
+        getEmojiLog(
+          '👎',
+          'Access token failed to refresh. Checking refresh token...',
+        ),
+      );
       const token = this.parseRefreshToken(oldRefreshToken);
       const user = await this.repository.findUser(token.id);
 
       if (!user || !user.sessionId || token.sessionId !== user.sessionId) {
+        console.log(
+          getEmojiLog('🚫', 'Refreshing token failed!'),
+          `User doesn't exist, or has no sessionId, or sessionIds did not match. ID: ${user?.id}`,
+        );
         throw new NotAuthorized();
       }
 
@@ -81,14 +104,20 @@ class AuthService {
         sessionId: user.sessionId,
       });
 
+      console.log(getEmojiLog('🙌', 'Tokens refreshed!'), `ID: ${user.id}`);
       return { accessToken, refreshToken, user: sanitizedUser };
     }
   };
 
   requestResetPassword = async (email: string): Promise<void> => {
+    console.log(getEmojiLog('👤', 'User requesting password reset...'));
     const user = await this.repository.findUserByEmail(email);
 
     if (!user) {
+      console.log(
+        getEmojiLog('🚫', 'Refreshing token failed!'),
+        'User does not exist!',
+      );
       return;
     }
 
@@ -138,11 +167,6 @@ class AuthService {
 }
 
 export default AuthService;
-
-interface AccessTokenPayload {
-  id: string;
-  roles: Role[];
-}
 
 interface RefreshTokenPayload {
   id: string;
