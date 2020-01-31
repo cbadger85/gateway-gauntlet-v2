@@ -5,6 +5,7 @@ import { createTransport, Transporter } from 'nodemailer';
 import { Service } from 'typedi';
 import util from 'util';
 import User from '../users/entities/users.entity';
+import { getEmojiLog } from '../utils/getEmojiLog';
 
 @Service()
 class EmailService {
@@ -69,7 +70,10 @@ class EmailService {
         html,
       })
       .then(info => {
-        console.log('Message sent: %s', info.messageId);
+        console.log(
+          getEmojiLog('👋', 'New user email sent!'),
+          `messageId: ${info.messageId}`,
+        );
       })
       .catch(e => {
         console.error(e);
@@ -114,7 +118,10 @@ class EmailService {
         html,
       })
       .then(info => {
-        console.log('Message sent: %s', info.messageId);
+        console.log(
+          getEmojiLog('🔏', 'Password reset email sent!!'),
+          `messageId: ${info.messageId}`,
+        );
       })
       .catch(e => {
         console.error(e);

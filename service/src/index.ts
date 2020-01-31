@@ -2,9 +2,10 @@ import dotenv from 'dotenv';
 import 'reflect-metadata';
 import dbSetup from './dbSetup';
 import server from './server';
+import { getEmojiLog } from './utils/getEmojiLog';
 
 export default (async function Main() {
-  console.log('🔗'.padEnd(4), 'Initializing app...');
+  console.log(getEmojiLog('🔗', 'Initializing app...'));
   dotenv.config();
 
   await dbSetup();
@@ -13,9 +14,9 @@ export default (async function Main() {
 
   const port = process.env.PORT || 4444;
   app.listen(port, () => {
-    console.log('👂'.padEnd(4), `App is listening on port: ${port}`);
+    console.log(getEmojiLog('👂', `App is listening on port: ${port}`));
   });
 })().catch(e => {
-  console.log('app failed...');
+  console.log(getEmojiLog('🙀', 'app failed...'));
   console.error(e);
 });

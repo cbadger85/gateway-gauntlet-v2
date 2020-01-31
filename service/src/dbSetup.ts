@@ -5,6 +5,7 @@ import {
   Connection,
   ConnectionOptions,
 } from 'typeorm';
+import { getEmojiLog } from './utils/getEmojiLog';
 
 export const devOptions: ConnectionOptions = {
   synchronize: true,
@@ -30,7 +31,7 @@ export const prodOptions: ConnectionOptions = {
 };
 
 export const dbSetup = async (): Promise<Connection> => {
-  console.log('🐬'.padEnd(4), 'Setting up database...');
+  console.log(getEmojiLog('🐬', 'Setting up database...'));
   useContainer(Container);
 
   const config =
@@ -41,10 +42,10 @@ export const dbSetup = async (): Promise<Connection> => {
   });
 
   if (!connection) {
-    throw new Error('💥'.padEnd(4) + 'Failed to connect');
+    throw new Error(getEmojiLog('💥', 'Failed to connect'));
   }
 
-  console.log('🎉'.padEnd(4), 'Database connected!');
+  console.log(getEmojiLog('🎉', 'Database connected!'));
 
   return connection;
 };

@@ -4,6 +4,7 @@ import { Role } from './auth/models/Role';
 import dbSetup from './dbSetup';
 import User from './users/entities/users.entity';
 import bcrypt from 'bcryptjs';
+import { getEmojiLog } from './utils/getEmojiLog';
 
 export const bootstrap = async (): Promise<void> => {
   console.log('Bootstraping admin user...');
@@ -31,7 +32,10 @@ export const bootstrap = async (): Promise<void> => {
   });
 
   if (exists) {
+    console.log('test');
     console.log('User already exists... Exiting bootstrap...');
+    await connection.close();
+    console.log(getEmojiLog('⬇️', 'Connection closed'));
     return;
   }
 
@@ -48,6 +52,7 @@ export const bootstrap = async (): Promise<void> => {
 
   await connection.close();
   console.log('Admin User bootstrapped!');
+  console.log(getEmojiLog('⬇️', 'Connection closed'));
 };
 
 bootstrap().catch(e => {

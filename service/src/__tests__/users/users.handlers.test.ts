@@ -7,7 +7,6 @@ import {
   resetPassword,
   changePassword,
 } from '../../users/users.handlers';
-import NotFound from '../../errors/NotFound';
 import { Role } from '../../auth/models/Role';
 
 const mockUser = {
@@ -27,7 +26,7 @@ class MockService {
   addUser = jest.fn();
   getUser = jest.fn();
   disableAccount = jest.fn();
-  resetPassword = jest.fn();
+  resetForgottenPassword = jest.fn();
   changePassword = jest.fn();
 }
 
@@ -102,7 +101,7 @@ describe('users.handlers', () => {
 
       await resetPassword(mockReq as any, mockRes as any, jest.fn());
 
-      expect(userService.resetPassword).toBeCalledWith(
+      expect(userService.resetForgottenPassword).toBeCalledWith(
         mockReq.params.id,
         mockReq.params.passwordResetId,
         mockReq.body.password,

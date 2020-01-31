@@ -10,6 +10,7 @@ import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
 import shortid from 'shortid';
+import { getEmojiLog } from '../utils/getEmojiLog';
 
 @Service()
 class UserService {
@@ -19,12 +20,14 @@ class UserService {
   ) {}
 
   addUser = async (newUser: AddUserRequest): Promise<User> => {
+    console.log(getEmojiLog('👤', 'Creating new user...'));
     const existingUsers = await this.repository.countUsersByUsernameOrEmail(
       newUser.username,
       newUser.email,
     );
 
     if (existingUsers) {
+      console.log(getEmojiLog('🚫', 'User creation failed!'));
       throw new BadRequest('User already exists');
     }
 
@@ -43,26 +46,31 @@ class UserService {
 
     this.emailService.sendNewUserEmail(savedUser);
 
+    console.log(getEmojiLog('🙌', 'User created!'), `ID: ${savedUser.id}`);
     return classToPlain(savedUser) as User;
   };
 
   disableAccount = async (id: string): Promise<void> => {
+    console.log(getEmojiLog('🔐', 'Disabling user account...'), `ID: ${id}`);
     const user = await this.repository.findUser(id);
 
     if (!user) {
+      console.log(getEmojiLog('🚫', 'Disabling account failed!'));
       throw new NotFound('user not found');
     }
 
     user.sessionId = undefined;
 
+    console.log(getEmojiLog('🙌', 'User account disabled!'), `ID: ${user.id}`);
     this.repository.saveUser(user);
   };
 
-  resetPassword = async (
+  resetForgottenPassword = async (
     userId: string,
     passwordResetId: string,
     password: string,
   ): Promise<void> => {
+    console.log(getEmojiLog('👤', 'Resetting forgotten password...'));
     const user = await this.repository.findUser(userId);
 
     if (
@@ -70,36 +78,55 @@ class UserService {
       user.passwordExpiration < new Date(Date.now()) ||
       passwordResetId !== user.passwordResetId
     ) {
+      console.log(
+        getEmojiLog('🚫', 'Resetting password failed!'),
+        `User doesn't exist, password expiration doesn't exist or is past, or reset id doesn't exist. ID: ${user?.id}`,
+      );
       throw new Forbidden();
     }
 
     user.password = await bcrypt.hash(password, 10);
 
     this.repository.saveUser(user);
+    console.log(
+      getEmojiLog('🙌', 'password successfully changed!'),
+      `ID: ${user.id}`,
+    );
   };
 
   getUser = async (id: string): Promise<User> => {
+    console.log(getEmojiLog('👤', 'Retrieving user...'), `ID: ${id}`);
     const user = await this.repository.findUser(id);
 
     if (!user) {
+      console.log(getEmojiLog('🚫', 'Retrieving user failed!'));
       throw new NotFound('user not found');
     }
 
+    console.log(getEmojiLog('🙌', 'Found user!'), `ID: ${user.id}`);
     return classToPlain(user) as User;
   };
 
-  getAllUsers = async (): Promise<User[]> =>
-    await this.repository.findAllUsers();
+  getAllUsers = async (): Promise<User[]> => {
+    console.log(getEmojiLog('👤👤👤', 'Retrieving user list...'));
+    return await this.repository.findAllUsers();
+  };
 
   changePassword = async (id: string, password: string): Promise<void> => {
+    console.log(getEmojiLog('🔏', 'User changing password...'));
     const user = await this.repository.findUser(id);
 
     if (!user) {
+      console.log(getEmojiLog('🚫', 'Failed to change user password!'));
       throw new NotFound('user not found');
     }
 
     user.password = await bcrypt.hash(password, 10);
 
+    console.log(
+      getEmojiLog('🙌', 'User password successfullly changed!'),
+      `ID: ${user.id}`,
+    );
     this.repository.saveUser(user);
   };
 }
