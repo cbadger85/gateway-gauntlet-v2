@@ -30,7 +30,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom --verbose --coverage --collectCoverageFrom=src/**/*.{ts,tsx} --testPathIgnorePatterns=src/__tests__/__data__",
     "test:ci": "CI=true yarn test --verbose",
-    "ci": "npm run test:ci",
+    "lint": "eslint 'src/**/*.{ts,tsx}'",
+    "ci": "npm run lint && npm run test:ci",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -54,6 +55,20 @@
     "@types/react-redux": "^7.1.7",
     "@types/redux-mock-store": "^1.0.2",
     "@types/webpack-env": "^1.15.0",
+    "@typescript-eslint/eslint-plugin": "^2.x",
+    "@typescript-eslint/parser": "^2.x",
+    "babel-eslint": "10.x",
+    "eslint": "^6.x",
+    "eslint-config-prettier": "^4.2.0",
+    "eslint-config-react": "^1.1.7",
+    "eslint-config-react-app": "^5.1.0",
+    "eslint-plugin-flowtype": "^3.x",
+    "eslint-plugin-import": "^2.x",
+    "eslint-plugin-jsx-a11y": "^6.x",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-react": "^7.x",
+    "eslint-plugin-react-hooks": "^1.x",
+    "prettier": "^1.19.1",
     "redux-mock-store": "^1.5.4"
   }
 }

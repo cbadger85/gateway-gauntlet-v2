@@ -21,7 +21,6 @@ jobs:
       - name: Service CI lint and test
         run: |
           echo Installing packages...
-          npm install
           cd service
           npm install
           cd ../admin-ui

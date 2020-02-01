@@ -58,7 +58,7 @@ export const logout = (): AppThunk => dispatch => {
       history.push('/login');
       dispatch(logoutSucess());
     })
-    .catch(e => {});
+    .catch(e => null);
 };
 
 export const checkToken = (): AppThunk => dispatch => {

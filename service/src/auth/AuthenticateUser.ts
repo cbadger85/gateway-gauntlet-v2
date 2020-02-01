@@ -37,7 +37,6 @@ class AuthenticateUser<P extends Params, ReqBody, R> {
       return next(new Forbidden());
     }
 
-    // const { roles, id } = req.user;
     const { params, body } = req;
 
     const hasOperation = req.user.roles.some(role =>
