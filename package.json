@@ -5,6 +5,10 @@
   "repository": "https://github.com/cbadger85/gateway-gauntlet-v2.git",
   "author": "Charles Badger",
   "license": "MIT",
+  "scripts": {
+    "ci:service": "npm run ci --prefix service",
+    "ci:admin-ui": "npm run ci --prefix admin-ui"
+  },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^2.15.0",
     "@typescript-eslint/parser": "^2.7.0",

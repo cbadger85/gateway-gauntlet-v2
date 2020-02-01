@@ -30,6 +30,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom --verbose --coverage --collectCoverageFrom=src/**/*.{ts,tsx} --testPathIgnorePatterns=src/__tests__/__data__",
     "test:ci": "CI=true yarn test --verbose",
+    "ci": "npm run test:ci",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

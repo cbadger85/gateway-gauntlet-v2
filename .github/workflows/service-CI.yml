@@ -1,9 +1,6 @@
 name: service CI
 
-on:
-  pull_request:
-    paths:
-      - 'service/*'
+on: [pull_request]
 
 jobs:
   build:
