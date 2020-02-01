@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { loginSuccess, logoutSucess } from '../auth/authSlice';
+import { User } from '../../types/User';
 
 const initialState: User = {
   firstName: '',
@@ -25,18 +26,3 @@ const userSlice = createSlice({
 });
 
 export default userSlice.reducer;
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  roles: Role[];
-  firstName: string;
-  lastName: string;
-}
-
-export enum Role {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
-  SUPER_ADMIN = 'SUPER_ADMIN',
-}

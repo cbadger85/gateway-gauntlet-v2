@@ -1,5 +1,5 @@
 import axios from './axios';
-import { User } from '../store/user/userSlice';
+import { User } from '../types/User';
 
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 

@@ -57,7 +57,7 @@ describe('authController', () => {
     });
   });
 
-  describe('getTokem', () => {
+  describe('getToken', () => {
     it('should call axios with the url, username and password', async () => {
       (axios.get as jest.Mock).mockResolvedValue({ data: 'user' });
 

@@ -1,5 +1,4 @@
 import authReducer, {
-  AuthState,
   loading,
   loginFailure,
   loginSuccess,
@@ -16,6 +15,7 @@ import {
   getToken,
 } from '../../controllers/authController';
 import history from '../../utils/history';
+import { Auth } from '../../types/Auth';
 
 jest.mock('../../store');
 
@@ -34,35 +34,35 @@ const mockStore = configureStore([...getDefaultMiddleware()]);
 describe('authSlice', () => {
   describe('authReducer', () => {
     it('should set state to LOGGED_IN when logged in', () => {
-      const authState = authReducer(undefined, {
+      const auth = authReducer(undefined, {
         type: loginSuccess.type,
       });
 
-      expect(authState).toBe(AuthState.LOGGED_IN);
+      expect(auth).toBe(Auth.LOGGED_IN);
     });
 
     it('should set state to LOGGED_OUT when logged out', () => {
-      const authState = authReducer(undefined, {
+      const auth = authReducer(undefined, {
         type: logoutSucess.type,
       });
 
-      expect(authState).toBe(AuthState.LOGGED_OUT);
+      expect(auth).toBe(Auth.LOGGED_OUT);
     });
 
     it('should set state to LOADING when logged state has not been determined', () => {
-      const authState = authReducer(undefined, {
+      const auth = authReducer(undefined, {
         type: loading.type,
       });
 
-      expect(authState).toBe(AuthState.LOADING);
+      expect(auth).toBe(Auth.LOADING);
     });
 
     it('should set state to LOGIN_FAILURE when logging in has failed', () => {
-      const authState = authReducer(undefined, {
+      const auth = authReducer(undefined, {
         type: loginFailure.type,
       });
 
-      expect(authState).toBe(AuthState.LOGIN_FAILURE);
+      expect(auth).toBe(Auth.LOGIN_FAILURE);
     });
   });
 

@@ -1,0 +1,6 @@
+export enum Auth {
+  LOGGED_IN = 'LOGGED_IN',
+  LOGGED_OUT = 'LOGGED_OUT',
+  LOADING = 'LOADING',
+  LOGIN_FAILURE = 'LOGIN_FAILURE',
+}

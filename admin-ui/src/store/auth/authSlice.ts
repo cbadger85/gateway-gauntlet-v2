@@ -1,40 +1,34 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { AppThunk } from '..';
-import { User } from '../user/userSlice';
 import {
   postLogout,
   postLogin,
   getToken,
 } from '../../controllers/authController';
 import history from '../../utils/history';
-
-export enum AuthState {
-  LOGGED_IN = 'LOGGED_IN',
-  LOGGED_OUT = 'LOGGED_OUT',
-  LOADING = 'LOADING',
-  LOGIN_FAILURE = 'LOGIN_FAILURE',
-}
+import { User } from '../../types/User';
+import { Auth } from '../../types/Auth';
 
 export const loginSuccess = createAction<User>('auth/loginSuccess');
 export const logoutSucess = createAction('auth/logoutSuccess');
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: AuthState.LOGGED_OUT,
+  initialState: Auth.LOGGED_OUT,
   reducers: {
     loading() {
-      return AuthState.LOADING;
+      return Auth.LOADING;
     },
     loginFailure() {
-      return AuthState.LOGIN_FAILURE;
+      return Auth.LOGIN_FAILURE;
     },
   },
   extraReducers: {
     [loginSuccess.type]() {
-      return AuthState.LOGGED_IN;
+      return Auth.LOGGED_IN;
     },
     [logoutSucess.type]() {
-      return AuthState.LOGGED_OUT;
+      return Auth.LOGGED_OUT;
     },
   },
 });

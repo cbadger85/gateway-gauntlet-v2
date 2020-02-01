@@ -1,7 +1,7 @@
 import * as reactRedux from 'react-redux';
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useHasRole } from '../../hooks/useHasRole';
-import { Role } from '../../store/user/userSlice';
+import { Role } from '../../types/User';
 
 jest.mock('../../store');
 

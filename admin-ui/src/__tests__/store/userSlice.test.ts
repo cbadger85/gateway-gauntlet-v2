@@ -1,5 +1,6 @@
-import userReducer, { User, Role } from '../../store/user/userSlice';
+import userReducer from '../../store/user/userSlice';
 import { loginSuccess, logoutSucess } from '../../store/auth/authSlice';
+import { User, Role } from '../../types/User';
 
 jest.mock('../../store');
 
