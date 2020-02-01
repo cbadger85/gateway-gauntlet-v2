@@ -25,6 +25,7 @@ jobs:
           cd service
           npm install
           cd ../admin-ui
+          npm install
           cd ..
           echo Running tests on gateway gauntlet service...
           npm run ci:service
