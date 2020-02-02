@@ -1,11 +1,12 @@
 import authReducer, {
   loading,
-  loginFailure,
+  tokenFailure,
   loginSuccess,
   logoutSucess,
   login,
   logout,
   checkToken,
+  loginFailure,
 } from '../../store/auth/authSlice';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureStore from 'redux-mock-store';
@@ -55,6 +56,14 @@ describe('authSlice', () => {
       });
 
       expect(auth).toBe(Auth.LOADING);
+    });
+
+    it('should set state to TOKEN_FAILURE when logging in has failed', () => {
+      const auth = authReducer(undefined, {
+        type: tokenFailure.type,
+      });
+
+      expect(auth).toBe(Auth.TOKEN_FAILURE);
     });
 
     it('should set state to LOGIN_FAILURE when logging in has failed', () => {
@@ -168,7 +177,7 @@ describe('authSlice', () => {
       (getToken as jest.Mock).mockRejectedValue(new Error());
 
       const loadingAction = { type: loading.type };
-      const loginAction = { type: loginFailure.type };
+      const loginAction = { type: tokenFailure.type };
 
       const store = mockStore({ auth: undefined });
       try {

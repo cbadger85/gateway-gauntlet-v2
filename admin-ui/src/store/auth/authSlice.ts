@@ -8,6 +8,7 @@ import {
 import history from '../../utils/history';
 import { User } from '../../types/User';
 import { Auth } from '../../types/Auth';
+import { addSnackbar } from '../alert/alertSlice';
 
 export const loginSuccess = createAction<User>('auth/loginSuccess');
 export const logoutSucess = createAction('auth/logoutSuccess');
@@ -18,6 +19,9 @@ const authSlice = createSlice({
   reducers: {
     loading() {
       return Auth.LOADING;
+    },
+    tokenFailure() {
+      return Auth.TOKEN_FAILURE;
     },
     loginFailure() {
       return Auth.LOGIN_FAILURE;
@@ -33,7 +37,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { loading, loginFailure } = authSlice.actions;
+export const { loading, tokenFailure, loginFailure } = authSlice.actions;
 
 export default authSlice.reducer;
 
@@ -46,9 +50,11 @@ export const login = (
   postLogin(username, password)
     .then(user => {
       dispatch(loginSuccess(user));
+      dispatch(addSnackbar('Welcome!'));
     })
     .catch(e => {
       dispatch(loginFailure());
+      dispatch(addSnackbar('Invalid Credentials', 'error'));
     });
 };
 
@@ -70,6 +76,6 @@ export const checkToken = (): AppThunk => dispatch => {
     })
     .catch(e => {
       history.push('/login');
-      dispatch(loginFailure());
+      dispatch(tokenFailure());
     });
 };

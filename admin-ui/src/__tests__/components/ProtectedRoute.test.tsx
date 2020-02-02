@@ -105,7 +105,7 @@ describe('<ProtectedRoute />', () => {
   });
 
   it('should show not authorized if login has failed', () => {
-    (useSelector as jest.Mock).mockReturnValue(Auth.LOGIN_FAILURE);
+    (useSelector as jest.Mock).mockReturnValue(Auth.TOKEN_FAILURE);
 
     const wrapper = shallow(<ProtectedRoute />);
 

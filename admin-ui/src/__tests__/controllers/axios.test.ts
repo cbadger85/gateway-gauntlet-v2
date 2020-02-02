@@ -2,10 +2,10 @@ import {
   axiosSuccessInterceptor,
   axiosErrorInterceptor,
 } from '../../controllers/axios';
-import { loginFailure } from '../../store/auth/authSlice';
+import { tokenFailure } from '../../store/auth/authSlice';
 
 jest.mock('../../store/auth/authSlice', () => ({
-  loginFailure: jest.fn(),
+  tokenFailure: jest.fn(),
 }));
 
 jest.mock('../../store', () => ({
@@ -32,7 +32,7 @@ describe('axios', () => {
 
     it('should call loginFailure', async () => {
       axiosErrorInterceptor(new Error() as any).catch(() => {
-        expect(loginFailure).toBeCalledWith();
+        expect(tokenFailure).toBeCalledWith();
       });
     });
   });

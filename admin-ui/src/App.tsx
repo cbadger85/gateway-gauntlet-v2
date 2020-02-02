@@ -4,10 +4,13 @@ import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import Homepage from './pages/Homepage';
 import history from './utils/history';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import SnackbarManager from './components/SnackbarAlert';
 
 const App: React.FC = () => {
   return (
     <div className="App">
+      <CssBaseline />
       <Router history={history}>
         <Switch>
           <Route exact path="/login">
@@ -21,6 +24,7 @@ const App: React.FC = () => {
           </Route>
         </Switch>
       </Router>
+      <SnackbarManager />
     </div>
   );
 };
