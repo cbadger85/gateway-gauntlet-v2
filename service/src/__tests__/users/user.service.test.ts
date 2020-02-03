@@ -3,14 +3,13 @@ import Container from 'typedi';
 import { Repository } from 'typeorm';
 import uuid from 'uuid/v4';
 import { Role } from '../../auth/models/Role';
+import EmailService from '../../email/email.service';
 import BadRequest from '../../errors/BadRequest';
-import Forbidden from '../../errors/Forbidden';
+import NotAuthorized from '../../errors/NotAuthorized';
 import NotFound from '../../errors/NotFound';
 import User from '../../users/entities/users.entity';
 import UserRepository from '../../users/users.repository';
 import UserService from '../../users/users.service';
-import EmailService from '../../email/email.service';
-import shortId from 'shortid';
 
 const mockUser = new User();
 
@@ -252,7 +251,7 @@ describe('UserService', () => {
       expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
     });
 
-    it('should throw a Forbidden if there is no password expiration', async () => {
+    it('should throw a NotAuthorized if there is no password expiration', async () => {
       const user = {
         id: '1',
         passwordResetId: 'shortid',
@@ -266,10 +265,10 @@ describe('UserService', () => {
         .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
-      expect(error).toBeInstanceOf(Forbidden);
+      expect(error).toBeInstanceOf(NotAuthorized);
     });
 
-    it('should throw a Forbidden if the shortids do not match', async () => {
+    it('should throw a NotAuthorized if the shortids do not match', async () => {
       const user = {
         id: '1',
         passwordExpiration: new Date(Date.now() + 3600000),
@@ -284,10 +283,10 @@ describe('UserService', () => {
         .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
-      expect(error).toBeInstanceOf(Forbidden);
+      expect(error).toBeInstanceOf(NotAuthorized);
     });
 
-    it('should throw a Forbidden if the password expiration has elapsed', async () => {
+    it('should throw a NotAuthorized if the password expiration has elapsed', async () => {
       const user = {
         id: '1',
         passwordResetId: 'shortid',
@@ -302,10 +301,10 @@ describe('UserService', () => {
         .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
-      expect(error).toBeInstanceOf(Forbidden);
+      expect(error).toBeInstanceOf(NotAuthorized);
     });
 
-    it('should throw a Forbidden if no user can be found', async () => {
+    it('should throw a NotAuthorized if no user can be found', async () => {
       mockRepository.findUser.mockResolvedValue(undefined);
 
       const password = 'foobarbaz';
@@ -314,7 +313,7 @@ describe('UserService', () => {
         .resetForgottenPassword('1', 'shortid', password)
         .catch(e => e);
 
-      expect(error).toBeInstanceOf(Forbidden);
+      expect(error).toBeInstanceOf(NotAuthorized);
     });
   });
 
