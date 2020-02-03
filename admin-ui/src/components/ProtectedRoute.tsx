@@ -23,7 +23,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     }
   }, [auth, dispatch]);
 
-  if (auth === Auth.LOADING) {
+  if (auth === Auth.LOADING || auth === Auth.LOGGED_OUT) {
     return <>{showLoader && <div>Loading...</div>}</>;
   }
 

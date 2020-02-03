@@ -71,6 +71,18 @@ describe('<ProtectedRoute />', () => {
     expect(wrapper.text()).toBe('Loading...');
   });
 
+  it('should show the loader if user is logged out and show loader is true', () => {
+    (useSelector as jest.Mock).mockReturnValue(Auth.LOGGED_OUT);
+    (useLoaderDelay as jest.Mock).mockReturnValue(true);
+
+    const wrapper = shallow(<ProtectedRoute />);
+
+    const route = wrapper.find(Route);
+
+    expect(route.exists()).toBeFalsy();
+    expect(wrapper.text()).toBe('Loading...');
+  });
+
   it('should show the Route if logged in and no required roles are provided', () => {
     (useSelector as jest.Mock).mockReturnValue(Auth.LOGGED_IN);
 
