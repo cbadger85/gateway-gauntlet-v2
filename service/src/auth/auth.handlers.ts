@@ -15,13 +15,11 @@ export const login: RequestHandler<never, User, LoginRequest> = async (
   res.cookie('access-token', accessToken, {
     expires: new Date(Date.now() + 600000),
     httpOnly: true,
-    domain: process.env.COOKIE_DOMAIN,
   });
 
   res.cookie('refresh-token', refreshToken, {
     expires: new Date(Date.now() + 86400000),
     httpOnly: true,
-    domain: process.env.COOKIE_DOMAIN,
   });
 
   return res.json(user);
