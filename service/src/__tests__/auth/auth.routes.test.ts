@@ -40,12 +40,8 @@ describe('auth.routes', () => {
         .expect(200);
 
       expect(response.body).toEqual(user);
-      expect(response.header['set-cookie']).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('access-token=access_token;'),
-          expect.stringContaining('refresh-token=refresh_token;'),
-        ]),
-      );
+      expect(response.header['x-access-token']).toBe(accessToken);
+      expect(response.header['x-refresh-token']).toBe(refreshToken);
     });
 
     it('should return a 400 if the login request is invalid', async () => {
@@ -78,22 +74,6 @@ describe('auth.routes', () => {
 
       expect(response.body).toEqual(errorBody);
       expect(response.header['set-cookie']).toBe(undefined);
-    });
-  });
-
-  describe('POST auth/logout', () => {
-    it('should send a 204 and no cookies', async () => {
-      const response = await request(await server())
-        .post('/auth/logout')
-        .set('Cookie', 'access-token=access_token; refresh-token=refresh_token')
-        .expect(204);
-
-      expect(response.header['set-cookie']).toEqual(
-        expect.arrayContaining([
-          expect.stringContaining('access-token=;'),
-          expect.stringContaining('refresh-token=;'),
-        ]),
-      );
     });
   });
 

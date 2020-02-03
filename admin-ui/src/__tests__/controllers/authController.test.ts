@@ -1,7 +1,6 @@
 import axios from '../../controllers/axios';
 import {
   postLogin,
-  postLogout,
   getToken,
   postRequestResetPassword,
 } from '../../controllers/authController';
@@ -35,26 +34,6 @@ describe('authController', () => {
       const user = await postLogin(username, password);
 
       expect(user).toBe('user');
-    });
-  });
-
-  describe('postLogout', () => {
-    it('should call axios with the url, username and password', async () => {
-      (axios.post as jest.Mock).mockResolvedValue({ data: undefined });
-
-      await postLogout();
-
-      const url = `${process.env.REACT_APP_BASE_URL}/auth/logout`;
-
-      expect(axios.post).toBeCalledWith(url);
-    });
-
-    it('should return nothing', async () => {
-      (axios.post as jest.Mock).mockResolvedValue({ data: undefined });
-
-      const data = await postLogout();
-
-      expect(data).toBeUndefined();
     });
   });
 

@@ -3,7 +3,6 @@ import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
 import {
   login,
-  logout,
   requestResetPassword,
   verifyAuthorization,
   getToken,
@@ -14,7 +13,6 @@ import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dt
 const authRoutes = express.Router();
 
 authRoutes.post('/login', requestValidator(LoginRequest), asyncHandler(login));
-authRoutes.post('/logout', logout);
 
 authRoutes.get('/token', asyncHandler(verifyAuthorization), getToken);
 

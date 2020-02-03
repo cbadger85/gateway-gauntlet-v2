@@ -3,7 +3,6 @@ import Container from 'typedi';
 import AuthService from '../../auth/auth.service';
 import {
   login,
-  logout,
   verifyAuthorization,
   requestResetPassword,
   getToken,
@@ -21,6 +20,7 @@ const mockRes = {
   cookie: jest.fn(),
   clearCookie: jest.fn(),
   sendStatus: jest.fn(),
+  setHeader: jest.fn(),
 };
 
 class MockService {
@@ -42,7 +42,7 @@ describe('auth.handlers', () => {
   });
 
   describe('login', () => {
-    it('should call res.cookie twice for each cookie created', async () => {
+    it('should call res.setHeader for each token', async () => {
       authService.login.mockReturnValue({
         user: mockUser,
         accessToken: 'access token',
@@ -51,22 +51,15 @@ describe('auth.handlers', () => {
 
       await login({} as any, mockRes as any, jest.fn());
 
-      const cookieOptions = {
-        expires: expect.any(Date),
-        httpOnly: true,
-      };
-
-      expect(mockRes.cookie).toHaveBeenNthCalledWith(
+      expect(mockRes.setHeader).toHaveBeenNthCalledWith(
         1,
-        'access-token',
+        'x-access-token',
         'access token',
-        cookieOptions,
       );
-      expect(mockRes.cookie).toHaveBeenNthCalledWith(
+      expect(mockRes.setHeader).toHaveBeenNthCalledWith(
         2,
-        'refresh-token',
+        'x-refresh-token',
         'refresh token',
-        cookieOptions,
       );
     });
 
@@ -80,21 +73,6 @@ describe('auth.handlers', () => {
       await login({} as any, mockRes as any, jest.fn());
 
       expect(mockRes.json).toBeCalledWith(mockUser);
-    });
-  });
-
-  describe('logout', () => {
-    it('should call res.clearCookie twice', () => {
-      logout({} as any, mockRes as any, jest.fn());
-
-      expect(mockRes.clearCookie).toHaveBeenNthCalledWith(1, 'access-token');
-      expect(mockRes.clearCookie).toHaveBeenNthCalledWith(2, 'refresh-token');
-    });
-
-    it('should call res.sendStatus', () => {
-      logout({} as any, mockRes as any, jest.fn());
-
-      expect(mockRes.sendStatus).toHaveBeenCalledWith(204);
     });
   });
 
@@ -137,21 +115,21 @@ describe('auth.handlers', () => {
       });
 
       const mockReq = {
-        cookies: {
-          'access-token': 'old access token',
-          'refresh-token': 'old refresh token',
+        headers: {
+          'x-access-token': 'old access token',
+          'x-refresh-token': 'old refresh token',
         },
       };
 
       await verifyAuthorization(mockReq as any, mockRes as any, jest.fn());
 
       expect(authService.refresh).toBeCalledWith(
-        mockReq.cookies['access-token'],
-        mockReq.cookies['refresh-token'],
+        mockReq.headers['x-access-token'],
+        mockReq.headers['x-refresh-token'],
       );
     });
 
-    it('should call res.cookie twice for each cookie created', async () => {
+    it('should call res.setHeader for each token', async () => {
       const userAuth = {
         id: '1234',
         sessionId: '5678',
@@ -165,30 +143,23 @@ describe('auth.handlers', () => {
       });
 
       const mockReq = {
-        cookies: {
-          'access-token': 'old access token',
-          'refresh-token': 'old refresh token',
+        headers: {
+          'x-access-token': 'old access token',
+          'x-refresh-token': 'old refresh token',
         },
       };
 
       await verifyAuthorization(mockReq as any, mockRes as any, jest.fn());
 
-      const cookieOptions = {
-        expires: expect.any(Date),
-        httpOnly: true,
-      };
-
-      expect(mockRes.cookie).toHaveBeenNthCalledWith(
+      expect(mockRes.setHeader).toHaveBeenNthCalledWith(
         1,
-        'access-token',
+        'x-access-token',
         'access token',
-        cookieOptions,
       );
-      expect(mockRes.cookie).toHaveBeenNthCalledWith(
+      expect(mockRes.setHeader).toHaveBeenNthCalledWith(
         2,
-        'refresh-token',
+        'x-refresh-token',
         'refresh token',
-        cookieOptions,
       );
     });
 
@@ -206,9 +177,9 @@ describe('auth.handlers', () => {
       });
 
       const mockReq = {
-        cookies: {
-          'access-token': 'old access token',
-          'refresh-token': 'old refresh token',
+        headers: {
+          'x-access-token': 'old access token',
+          'x-refresh-token': 'old refresh token',
         },
         user: undefined,
       };
@@ -233,9 +204,9 @@ describe('auth.handlers', () => {
       });
 
       const mockReq = {
-        cookies: {
-          'access-token': 'old access token',
-          'refresh-token': 'old refresh token',
+        headers: {
+          'x-access-token': 'old access token',
+          'x-refresh-token': 'old refresh token',
         },
       };
 

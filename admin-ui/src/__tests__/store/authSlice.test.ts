@@ -1,10 +1,6 @@
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureStore from 'redux-mock-store';
-import {
-  getToken,
-  postLogin,
-  postLogout,
-} from '../../controllers/authController';
+import { getToken, postLogin } from '../../controllers/authController';
 import { addSnackbar } from '../../store/alert/alertSlice';
 import authReducer, {
   checkToken,
@@ -136,46 +132,31 @@ describe('authSlice', () => {
   });
 
   describe('logout', () => {
-    it('should dispatch the logout success action', async () => {
-      (postLogout as jest.Mock).mockResolvedValue(undefined);
+    it('should remove the tokens from local storage', () => {
+      const store = mockStore({ auth: undefined });
+      store.dispatch(logout() as any);
 
+      expect(localStorage.removeItem).toHaveBeenNthCalledWith(1, 'accessToken');
+      expect(localStorage.removeItem).toHaveBeenNthCalledWith(
+        2,
+        'refreshToken',
+      );
+    });
+
+    it('should dispatch the logout success action', () => {
       const logoutAction = { type: logoutSucess.type };
 
       const store = mockStore({ auth: undefined });
-      await store.dispatch(logout() as any);
+      store.dispatch(logout() as any);
 
       expect(store.getActions()).toEqual([logoutAction]);
     });
 
-    it('should dispatch no action if the logout fails', async () => {
-      expect.assertions(1);
-      (postLogout as jest.Mock).mockRejectedValue(new Error());
-
+    it(`should call history.push with '/login'`, () => {
       const store = mockStore({ auth: undefined });
-
-      await store.dispatch((async (dispatch: any) => {
-        dispatch(logout() as any);
-      }) as any);
-
-      expect(store.getActions()).toEqual([]);
-    });
-
-    it(`should call history.push with '/login'`, async () => {
-      (postLogout as jest.Mock).mockResolvedValue(undefined);
-
-      const store = mockStore({ auth: undefined });
-      await store.dispatch(logout() as any);
+      store.dispatch(logout() as any);
 
       expect(history.push).toBeCalledWith('/login');
-    });
-
-    it(`should call postLogout`, async () => {
-      (postLogout as jest.Mock).mockResolvedValue(undefined);
-
-      const store = mockStore({ auth: undefined });
-      await store.dispatch(logout() as any);
-
-      expect(postLogout).toBeCalledWith();
     });
   });
 
