@@ -14,7 +14,13 @@ const app = express();
 export const server = async (): Promise<Express> => {
   app.use(serverTimout());
 
-  app.use(cors({ credentials: true }));
+  app.use(
+    cors({
+      credentials: true,
+      allowedHeaders: 'x-access-token,x-refresh-token,content-type',
+      exposedHeaders: 'x-access-token,x-refresh-token',
+    }),
+  );
 
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use(bodyParser.json());
