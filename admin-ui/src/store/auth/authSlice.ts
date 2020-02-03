@@ -1,13 +1,9 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { AppThunk } from '..';
-import {
-  postLogout,
-  postLogin,
-  getToken,
-} from '../../controllers/authController';
-import history from '../../utils/history';
-import { User } from '../../types/User';
+import { getToken, postLogin } from '../../controllers/authController';
 import { Auth } from '../../types/Auth';
+import { User } from '../../types/User';
+import history from '../../utils/history';
 import { addSnackbar } from '../alert/alertSlice';
 
 export const loginSuccess = createAction<User>('auth/loginSuccess');
@@ -58,12 +54,11 @@ export const login = (
 };
 
 export const logout = (): AppThunk => dispatch => {
-  postLogout()
-    .then(() => {
-      history.push('/login');
-      dispatch(logoutSucess());
-    })
-    .catch(e => null);
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('refreshToken');
+
+  dispatch(logoutSucess());
+  history.push('/login');
 };
 
 export const checkToken = (): AppThunk => dispatch => {
