@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export const useLoaderDelay = (predicate: boolean) => {
+export const useLoaderDelay = (predicate: boolean): boolean => {
   const [showLoader, setShowLoader] = useState(false);
 
   useEffect(() => {

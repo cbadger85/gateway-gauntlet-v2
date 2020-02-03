@@ -4,7 +4,7 @@ import store from './store';
 import './index.css';
 import { Provider } from 'react-redux';
 
-const render = () => {
+const render = (): void => {
   const App = require('./App').default;
   ReactDOM.render(
     <Provider store={store}>

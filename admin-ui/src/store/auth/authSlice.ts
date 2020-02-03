@@ -1,45 +1,43 @@
 import { createAction, createSlice } from '@reduxjs/toolkit';
 import { AppThunk } from '..';
-import { User } from '../user/userSlice';
 import {
   postLogout,
   postLogin,
   getToken,
 } from '../../controllers/authController';
 import history from '../../utils/history';
-
-export enum AuthState {
-  LOGGED_IN = 'LOGGED_IN',
-  LOGGED_OUT = 'LOGGED_OUT',
-  LOADING = 'LOADING',
-  LOGIN_FAILURE = 'LOGIN_FAILURE',
-}
+import { User } from '../../types/User';
+import { Auth } from '../../types/Auth';
+import { addSnackbar } from '../alert/alertSlice';
 
 export const loginSuccess = createAction<User>('auth/loginSuccess');
 export const logoutSucess = createAction('auth/logoutSuccess');
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: AuthState.LOGGED_OUT,
+  initialState: Auth.LOGGED_OUT,
   reducers: {
     loading() {
-      return AuthState.LOADING;
+      return Auth.LOADING;
+    },
+    tokenFailure() {
+      return Auth.TOKEN_FAILURE;
     },
     loginFailure() {
-      return AuthState.LOGIN_FAILURE;
+      return Auth.LOGIN_FAILURE;
     },
   },
   extraReducers: {
     [loginSuccess.type]() {
-      return AuthState.LOGGED_IN;
+      return Auth.LOGGED_IN;
     },
     [logoutSucess.type]() {
-      return AuthState.LOGGED_OUT;
+      return Auth.LOGGED_OUT;
     },
   },
 });
 
-export const { loading, loginFailure } = authSlice.actions;
+export const { loading, tokenFailure, loginFailure } = authSlice.actions;
 
 export default authSlice.reducer;
 
@@ -55,6 +53,7 @@ export const login = (
     })
     .catch(e => {
       dispatch(loginFailure());
+      dispatch(addSnackbar('Invalid Credentials', 'error'));
     });
 };
 
@@ -64,7 +63,7 @@ export const logout = (): AppThunk => dispatch => {
       history.push('/login');
       dispatch(logoutSucess());
     })
-    .catch();
+    .catch(e => null);
 };
 
 export const checkToken = (): AppThunk => dispatch => {
@@ -76,6 +75,6 @@ export const checkToken = (): AppThunk => dispatch => {
     })
     .catch(e => {
       history.push('/login');
-      dispatch(loginFailure());
+      dispatch(tokenFailure());
     });
 };

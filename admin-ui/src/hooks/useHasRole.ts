@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/rootReducer';
-import { Role } from '../store/user/userSlice';
+import { Role } from '../types/User';
 
 export const useHasRole = (): ((...requiredRoles: Role[]) => boolean) => {
   const userRoles = useSelector((state: RootState) => state.user.roles);

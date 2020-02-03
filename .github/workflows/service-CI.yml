@@ -1,9 +1,6 @@
-name: service CI
+name: CI
 
-on:
-  pull_request:
-    paths:
-      - 'service/*'
+on: [pull_request]
 
 jobs:
   build:
@@ -23,10 +20,15 @@ jobs:
 
       - name: Service CI lint and test
         run: |
-          echo Running tests on gateway gauntlet service...
-          npm install
+          echo Installing packages...
           cd service
           npm install
-          npm run ci
+          cd ../admin-ui
+          npm install
+          cd ..
+          echo Running tests on gateway gauntlet service...
+          npm run ci:service
+          echo Running tests on gateway gauntlet admin ui...
+          npm run ci:admin-ui
         env:
           CI: true

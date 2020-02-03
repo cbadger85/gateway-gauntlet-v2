@@ -1,16 +1,21 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import store from '../store';
-import { loginFailure } from '../store/auth/authSlice';
+import { tokenFailure } from '../store/auth/authSlice';
 
-axios.interceptors.response.use(
-  response => {
-    return response;
-  },
-  (error: AxiosError) => {
-    store.dispatch(loginFailure());
+export const axiosSuccessInterceptor = (
+  response: AxiosResponse,
+): AxiosResponse => response;
 
-    return Promise.reject(error);
-  },
-);
+export const axiosErrorInterceptor = (
+  error: AxiosError,
+): Promise<AxiosError> => {
+  if (error.response?.status === 401) {
+    store.dispatch(tokenFailure());
+  }
+
+  return Promise.reject(error);
+};
+
+axios.interceptors.response.use(axiosSuccessInterceptor, axiosErrorInterceptor);
 
 export default axios;

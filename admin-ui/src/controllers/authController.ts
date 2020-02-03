@@ -1,13 +1,20 @@
 import axios from './axios';
-import { User } from '../store/user/userSlice';
+import { User } from '../types/User';
 
-export const postLogin = (username: string, password: string) =>
+const BASE_URL = `${process.env.REACT_APP_BASE_URL}/auth`;
+
+export const postLogin = (username: string, password: string): Promise<User> =>
   axios
-    .post<User>('/api/auth/login', { username, password })
+    .post<User>(`${BASE_URL}/login`, { username, password })
     .then(res => res.data);
 
-export const postLogout = () =>
-  axios.post<null>('/api/auth/logout').then(res => res.data);
+export const postLogout = (): Promise<void> =>
+  axios.post<void>(`${BASE_URL}/logout`).then(res => res.data);
 
-export const getToken = () =>
-  axios.get<User>('/api/auth/token').then(res => res.data);
+export const getToken = (): Promise<User> =>
+  axios.get<User>(`${BASE_URL}/token`).then(res => res.data);
+
+export const postRequestResetPassword = (email: string): Promise<void> =>
+  axios
+    .post<void>(`${BASE_URL}/password/reset`, { email })
+    .then(res => res.data);

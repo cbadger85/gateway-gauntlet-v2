@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Route, RouteProps } from 'react-router-dom';
 import { useHasRole } from '../hooks/useHasRole';
 import { useLoaderDelay } from '../hooks/useLoaderDelay';
-import { AuthState, checkToken } from '../store/auth/authSlice';
 import { RootState } from '../store/rootReducer';
-import { Role } from '../store/user/userSlice';
+import { Role } from '../types/User';
+import { Auth } from '../types/Auth';
+import { checkToken } from '../store/auth/authSlice';
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRoles,
@@ -13,22 +14,22 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const hasRoles = useHasRole();
   const dispatch = useDispatch();
-  const authState = useSelector((state: RootState) => state.auth);
-  const showLoader = useLoaderDelay(authState === AuthState.LOADING);
+  const auth = useSelector((state: RootState) => state.auth);
+  const showLoader = useLoaderDelay(auth === Auth.LOADING);
 
   useEffect(() => {
-    if (authState === AuthState.LOGGED_OUT) {
+    if (auth === Auth.LOGGED_OUT) {
       dispatch(checkToken());
     }
-  }, [authState, dispatch]);
+  }, [auth, dispatch]);
 
-  if (authState === AuthState.LOADING) {
+  if (auth === Auth.LOADING) {
     return <>{showLoader && <div>Loading...</div>}</>;
   }
 
   if (
     (!requiredRoles || hasRoles(...requiredRoles)) &&
-    authState === AuthState.LOGGED_IN
+    auth === Auth.LOGGED_IN
   ) {
     return <Route {...props} />;
   }
