@@ -31,6 +31,8 @@ const alertSlice = createSlice({
       }),
     },
     removeSnackbar(state, action: PayloadAction<string>) {
+      state.current =
+        state.current !== action.payload ? state.current : undefined;
       state.snackbars = state.snackbars.filter(
         snackbar => snackbar.id !== action.payload,
       );
@@ -39,6 +41,6 @@ const alertSlice = createSlice({
   },
 });
 
-export const { addSnackbar, removeSnackbar } = alertSlice.actions;
+export const { removeSnackbar, addSnackbar } = alertSlice.actions;
 
 export default alertSlice.reducer;

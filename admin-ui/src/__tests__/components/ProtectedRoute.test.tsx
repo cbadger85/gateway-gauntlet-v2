@@ -35,7 +35,7 @@ describe('<ProtectedRoute />', () => {
     const wrapper = mount(<ProtectedRoute />);
 
     expect(checkToken).toBeCalled();
-    wrapper.unmount;
+    wrapper.unmount();
   });
 
   it('should not dispatch the checkToken action if Auth is in any other state', () => {
@@ -44,7 +44,7 @@ describe('<ProtectedRoute />', () => {
     const wrapper = mount(<ProtectedRoute />);
 
     expect(checkToken).not.toBeCalled();
-    wrapper.unmount;
+    wrapper.unmount();
   });
 
   it('should show nothing if Auth is loading and show loader is false', () => {

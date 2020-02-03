@@ -16,9 +16,10 @@ export const SnackbarAlert: React.FC<SnackBarAlertProps> = ({
   const handleOnClose = (): void => {
     removeSnackbarAlert(id);
   };
+
   return (
     <Snackbar
-      ClickAwayListenerProps={{ onClickAway: undefined }}
+      ClickAwayListenerProps={{ onClickAway: () => null }}
       key={id}
       open={open}
       autoHideDuration={4000}

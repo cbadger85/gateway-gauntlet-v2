@@ -50,7 +50,6 @@ export const login = (
   postLogin(username, password)
     .then(user => {
       dispatch(loginSuccess(user));
-      dispatch(addSnackbar('Welcome!'));
     })
     .catch(e => {
       dispatch(loginFailure());

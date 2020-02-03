@@ -114,10 +114,7 @@ class AuthService {
     const user = await this.repository.findUserByEmail(email);
 
     if (!user) {
-      console.log(
-        getEmojiLog('🚫', 'Refreshing token failed!'),
-        'User does not exist!',
-      );
+      console.log(getEmojiLog('🚫', 'Request failed!'), 'User does not exist!');
       return;
     }
 

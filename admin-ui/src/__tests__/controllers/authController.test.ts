@@ -3,6 +3,7 @@ import {
   postLogin,
   postLogout,
   getToken,
+  postRequestResetPassword,
 } from '../../controllers/authController';
 
 jest.mock('../../controllers/axios', () => ({
@@ -74,6 +75,28 @@ describe('authController', () => {
       const data = await getToken();
 
       expect(data).toBe('user');
+    });
+  });
+
+  describe('postRequestResetPassword', () => {
+    it('should call axios with the url and email', async () => {
+      (axios.post as jest.Mock).mockResolvedValue({ data: undefined });
+      const email = 'email@example.com';
+
+      await postRequestResetPassword(email);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/auth/password/reset`;
+
+      expect(axios.post).toBeCalledWith(url, { email });
+    });
+
+    it('should return nothing', async () => {
+      (axios.post as jest.Mock).mockResolvedValue({ data: undefined });
+      const email = 'email@example.com';
+
+      const data = await postRequestResetPassword(email);
+
+      expect(data).toBeUndefined();
     });
   });
 });

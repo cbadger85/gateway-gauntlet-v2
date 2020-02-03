@@ -1,8 +1,14 @@
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import { makeStyles } from '@material-ui/core/styles';
-import { Form, FormikProps } from 'formik';
+import TextField from '@material-ui/core/TextField';
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import * as Yup from 'yup';
+
+const loginSchema = Yup.object().shape({
+  username: Yup.string().required('Username is required'),
+  password: Yup.string().required('Password is required'),
+});
 
 const useStyles = makeStyles(theme => ({
   inputFields: {
@@ -14,27 +20,25 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-const LoginForm: React.FC<LoginFormProps> = ({
-  values,
-  handleChange,
-  setFieldTouched,
-  touched,
-  errors,
-  isValid,
-  handleBlur,
-}) => {
-  const classes = useStyles();
+type FieldData = {
+  username: string;
+  password: string;
+};
 
-  const changeHandler: React.ChangeEventHandler<HTMLInputElement> = (
-    e,
-  ): void => {
-    e.persist();
-    handleChange(e);
-    setFieldTouched(e.target.name, true, false);
-  };
+const LoginForm: React.FC<LoginFormProps> = ({ login }) => {
+  const classes = useStyles();
+  const { register, errors, handleSubmit } = useForm<FieldData>({
+    mode: 'onBlur',
+    validationSchema: loginSchema,
+  });
 
   return (
-    <Form className={classes.inputFields}>
+    <form
+      className={classes.inputFields}
+      onSubmit={handleSubmit(login)}
+      noValidate
+      data-testid="login-form"
+    >
       <TextField
         variant="outlined"
         margin="normal"
@@ -44,11 +48,10 @@ const LoginForm: React.FC<LoginFormProps> = ({
         name="username"
         autoComplete="username"
         autoFocus
-        onChange={changeHandler}
-        value={values.username}
-        error={touched.username && !!errors.username}
-        helperText={touched.username ? errors.username : ''}
-        onBlur={handleBlur}
+        inputRef={register}
+        error={!!errors.username}
+        helperText={errors.username ? errors.username.message : ''}
+        data-testid="username-input"
       />
       <TextField
         variant="outlined"
@@ -59,29 +62,26 @@ const LoginForm: React.FC<LoginFormProps> = ({
         name="password"
         type="password"
         autoComplete="password"
-        onChange={changeHandler}
-        value={values.password}
-        error={touched.password && !!errors.password}
-        helperText={touched.password ? errors.password : ''}
-        onBlur={handleBlur}
+        inputRef={register}
+        error={!!errors.password}
+        helperText={errors.password ? errors.password.message : ''}
+        data-testid="password-input"
       />
       <Button
         type="submit"
         className={classes.loginButton}
         color="primary"
         variant="contained"
-        disabled={!isValid}
         fullWidth
       >
         Login
       </Button>
-    </Form>
+    </form>
   );
 };
 
 export default LoginForm;
 
-type LoginFormProps = FormikProps<{
-  username: string;
-  password: string;
-}>;
+type LoginFormProps = {
+  login: (values: FieldData) => void;
+};

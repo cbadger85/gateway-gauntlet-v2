@@ -1,22 +1,23 @@
-import authReducer, {
-  loading,
-  tokenFailure,
-  loginSuccess,
-  logoutSucess,
-  login,
-  logout,
-  checkToken,
-  loginFailure,
-} from '../../store/auth/authSlice';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import configureStore from 'redux-mock-store';
 import {
+  getToken,
   postLogin,
   postLogout,
-  getToken,
 } from '../../controllers/authController';
-import history from '../../utils/history';
+import { addSnackbar } from '../../store/alert/alertSlice';
+import authReducer, {
+  checkToken,
+  loading,
+  login,
+  loginFailure,
+  loginSuccess,
+  logout,
+  logoutSucess,
+  tokenFailure,
+} from '../../store/auth/authSlice';
 import { Auth } from '../../types/Auth';
+import history from '../../utils/history';
 
 jest.mock('../../store');
 
@@ -29,6 +30,8 @@ jest.mock('../../controllers/authController.ts', () => ({
 jest.mock('../../utils/history', () => ({
   push: jest.fn(),
 }));
+
+jest.mock('shortid', () => jest.fn().mockReturnValue('1234'));
 
 const mockStore = configureStore([...getDefaultMiddleware()]);
 
@@ -90,20 +93,34 @@ describe('authSlice', () => {
       expect(store.getActions()).toEqual([loadingAction, loginAction]);
     });
 
-    it('should dispatch the loading and the loginFailure action if login failed', async () => {
+    it('should dispatch the loading, loginFailure, and addSnackbar action if login failed', async () => {
+      expect.assertions(1);
       (postLogin as jest.Mock).mockRejectedValue(new Error());
       const username = 'foobar';
       const password = 'password';
 
       const loadingAction = { type: loading.type };
       const loginAction = { type: loginFailure.type };
+      const snackBar = {
+        type: addSnackbar.type,
+        payload: {
+          id: '1234',
+          message: 'Invalid Credentials',
+          severity: 'error',
+        },
+      };
 
       const store = mockStore({ auth: undefined });
-      try {
-        await store.dispatch(login(username, password) as any);
-      } catch {
-        expect(store.getActions()).toEqual([loadingAction, loginAction]);
-      }
+
+      await store.dispatch((async (dispatch: any) => {
+        dispatch(login(username, password) as any);
+      }) as any);
+
+      expect(store.getActions()).toEqual([
+        loadingAction,
+        loginAction,
+        snackBar,
+      ]);
     });
 
     it('should call postLogin with the username and password', async () => {
@@ -131,14 +148,16 @@ describe('authSlice', () => {
     });
 
     it('should dispatch no action if the logout fails', async () => {
+      expect.assertions(1);
       (postLogout as jest.Mock).mockRejectedValue(new Error());
 
       const store = mockStore({ auth: undefined });
-      try {
-        await store.dispatch(logout() as any);
-      } catch {
-        expect(store.getActions()).toEqual([]);
-      }
+
+      await store.dispatch((async (dispatch: any) => {
+        dispatch(logout() as any);
+      }) as any);
+
+      expect(store.getActions()).toEqual([]);
     });
 
     it(`should call history.push with '/login'`, async () => {
@@ -180,11 +199,12 @@ describe('authSlice', () => {
       const loginAction = { type: tokenFailure.type };
 
       const store = mockStore({ auth: undefined });
-      try {
-        await store.dispatch(checkToken() as any);
-      } catch {
-        expect(store.getActions()).toEqual([loadingAction, loginAction]);
-      }
+
+      await store.dispatch((async (dispatch: any) => {
+        dispatch(checkToken() as any);
+      }) as any);
+
+      expect(store.getActions()).toEqual([loadingAction, loginAction]);
     });
 
     it(`should call history.push with '/login'`, async () => {

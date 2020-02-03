@@ -9,7 +9,9 @@ export const axiosSuccessInterceptor = (
 export const axiosErrorInterceptor = (
   error: AxiosError,
 ): Promise<AxiosError> => {
-  store.dispatch(tokenFailure());
+  if (error.response?.status === 401) {
+    store.dispatch(tokenFailure());
+  }
 
   return Promise.reject(error);
 };

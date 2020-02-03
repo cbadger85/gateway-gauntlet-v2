@@ -1,25 +1,20 @@
 import Avatar from '@material-ui/core/Avatar';
+import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
 import Person from '@material-ui/icons/Person';
-import { Formik } from 'formik';
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from 'react-router-dom';
-import * as Yup from 'yup';
-import LoginForm from '../components/LoginForm';
+import { Redirect } from 'react-router-dom';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
+import LoginForm from '../components/LoginForm';
+import { postRequestResetPassword } from '../controllers/authController';
 import { useLoaderDelay } from '../hooks/useLoaderDelay';
+import { addSnackbar } from '../store/alert/alertSlice';
 import { checkToken, login } from '../store/auth/authSlice';
 import { RootState } from '../store/rootReducer';
 import { Auth } from '../types/Auth';
-
-const loginSchema = Yup.object().shape({
-  username: Yup.string().required('Username is required'),
-  password: Yup.string().required('Password is required'),
-});
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -43,7 +38,6 @@ const useStyles = makeStyles(theme => ({
 
 const Login: React.FC = () => {
   const auth = useSelector((state: RootState) => state.auth);
-  const history = useHistory();
   const dispatch = useDispatch();
   const showLoader = useLoaderDelay(auth === Auth.LOADING);
   const classes = useStyles();
@@ -58,19 +52,9 @@ const Login: React.FC = () => {
     }
   }, [auth, dispatch]);
 
-  useEffect(() => {
-    if (auth === Auth.LOGGED_IN) {
-      history.push('/');
-    }
-  }, [auth, history]);
-
-  const loginInitialValues = useMemo(
-    () => ({
-      username: '',
-      password: '',
-    }),
-    [],
-  );
+  if (auth === Auth.LOGGED_IN) {
+    return <Redirect to="/" />;
+  }
 
   if (auth === Auth.LOADING && isCheckingToken) {
     return <>{showLoader && <div>Loading...</div>}</>;
@@ -84,7 +68,13 @@ const Login: React.FC = () => {
     dispatch(login(values.username, values.password));
   };
 
-  const handleSubmitForgotPassword = (values: { email: string }): void => {
+  const handleSubmitForgotPassword = async (values: {
+    email: string;
+  }): Promise<void> => {
+    await postRequestResetPassword(values.email).then(() => {
+      dispatch(addSnackbar('Email sent!', 'info'));
+    });
+
     setIsForgotPasswordModalShown(false);
   };
 
@@ -104,14 +94,7 @@ const Login: React.FC = () => {
           <Avatar className={classes.loginIcon}>
             <Person fontSize="large" />
           </Avatar>
-          <Formik
-            initialValues={loginInitialValues}
-            validationSchema={loginSchema}
-            onSubmit={handleLogin}
-            validateOnMount
-          >
-            {props => <LoginForm {...props} />}
-          </Formik>
+          <LoginForm login={handleLogin} />
           <div className={classes.forgottenPasswordButtonContainer}>
             <Button color="secondary" onClick={openForgotPasswordModal}>
               Forgot Password?
