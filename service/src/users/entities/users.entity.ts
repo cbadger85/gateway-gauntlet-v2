@@ -15,8 +15,8 @@ class User {
   password?: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column({ nullable: true })
-  passwordExpiration: Date;
+  @Column({ nullable: true, type: 'date' })
+  passwordExpiration?: Date | null;
 
   @Exclude({ toPlainOnly: true })
   @Column({ nullable: true })

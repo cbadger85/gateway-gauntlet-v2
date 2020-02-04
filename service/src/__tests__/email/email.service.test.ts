@@ -92,7 +92,7 @@ describe('EmailService', () => {
         passwordExpiration: new Date(Date.now() + 3600000),
         passwordResetId: 'aaa',
       };
-      const passwordResetLink = `${process.env.ROOT_URL}/users/${user.id}/password/${user.passwordResetId}/reset`;
+      const passwordResetLink = `${process.env.ROOT_URL}/users/${user.id}/password/${user.passwordResetId}/reset?new=true`;
 
       const expirationDate = formatDistance(
         user.passwordExpiration,

@@ -86,8 +86,12 @@ class UserService {
     }
 
     user.password = await bcrypt.hash(password, 10);
+    user.passwordExpiration = null;
 
-    this.repository.saveUser(user);
+    await this.repository.saveUser(user);
+
+    console.log(user);
+
     console.log(
       getEmojiLog('🙌', 'password successfully changed!'),
       `ID: ${user.id}`,
