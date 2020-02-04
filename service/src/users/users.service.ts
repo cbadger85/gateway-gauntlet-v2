@@ -4,13 +4,13 @@ import { Service } from 'typedi';
 import uuid from 'uuid/v4';
 import EmailService from '../email/email.service';
 import BadRequest from '../errors/BadRequest';
-import Forbidden from '../errors/Forbidden';
 import NotFound from '../errors/NotFound';
 import User from './entities/users.entity';
 import AddUserRequest from './models/AddUserRequest.dto';
 import UserRepository from './users.repository';
 import shortid from 'shortid';
 import { getEmojiLog } from '../utils/getEmojiLog';
+import NotAuthorized from '../errors/NotAuthorized';
 
 @Service()
 class UserService {
@@ -82,12 +82,16 @@ class UserService {
         getEmojiLog('🚫', 'Resetting password failed!'),
         `User doesn't exist, password expiration doesn't exist or is past, or reset id doesn't exist. ID: ${user?.id}`,
       );
-      throw new Forbidden();
+      throw new NotAuthorized();
     }
 
     user.password = await bcrypt.hash(password, 10);
+    user.passwordExpiration = null;
 
-    this.repository.saveUser(user);
+    await this.repository.saveUser(user);
+
+    console.log(user);
+
     console.log(
       getEmojiLog('🙌', 'password successfully changed!'),
       `ID: ${user.id}`,

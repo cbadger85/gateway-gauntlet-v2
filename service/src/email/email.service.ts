@@ -42,11 +42,11 @@ class EmailService {
     const template = await this.readTemplateFromDisk('new-user');
 
     const expirationDate = formatDistance(
-      passwordExpiration,
+      passwordExpiration || new Date(Date.now()),
       new Date(Date.now()),
     );
 
-    const passwordResetLink = `${process.env.ROOT_URL}/users/${id}/password/${passwordResetId}/reset`;
+    const passwordResetLink = `${process.env.ROOT_URL}/users/${id}/password/${passwordResetId}/reset?new=true`;
 
     const newUserEmail = template
       .replace(this.PASSWORD_LINK, passwordResetLink)
@@ -90,7 +90,7 @@ class EmailService {
     const template = await this.readTemplateFromDisk('reset-password');
 
     const expirationDate = formatDistance(
-      passwordExpiration,
+      passwordExpiration || new Date(Date.now()),
       new Date(Date.now()),
     );
 

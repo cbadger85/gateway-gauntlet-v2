@@ -68,10 +68,8 @@ const Login: React.FC = () => {
     dispatch(login(values.username, values.password));
   };
 
-  const handleSubmitForgotPassword = async (values: {
-    email: string;
-  }): Promise<void> => {
-    await postRequestResetPassword(values.email).then(() => {
+  const handleSubmitForgotPassword = (values: { email: string }): void => {
+    postRequestResetPassword(values.email).then(() => {
       dispatch(addSnackbar('Email sent!', 'info'));
     });
 
@@ -96,9 +94,7 @@ const Login: React.FC = () => {
           </Avatar>
           <LoginForm login={handleLogin} />
           <div className={classes.forgottenPasswordButtonContainer}>
-            <Button color="secondary" onClick={openForgotPasswordModal}>
-              Forgot Password?
-            </Button>
+            <Button onClick={openForgotPasswordModal}>Forgot Password?</Button>
           </div>
           <ForgotPasswordModal
             isOpen={isForgotPasswordModalShown}
