@@ -90,8 +90,6 @@ class UserService {
 
     await this.repository.saveUser(user);
 
-    console.log(user);
-
     console.log(
       getEmojiLog('🙌', 'password successfully changed!'),
       `ID: ${user.id}`,
