@@ -16,6 +16,7 @@ import { requestValidator } from '../handlers/requestValidator';
 import AddUserRequest from './models/AddUserRequest.dto';
 import { verifyAuthorization } from '../auth/auth.handlers';
 import PasswordRequest from './models/PasswordRequest.dto';
+import { uuidParamValidator } from '../handlers/uuidParamValidator';
 
 const userRoutes = express.Router();
 
@@ -31,6 +32,7 @@ userRoutes.post(
 userRoutes.post(
   '/:id/disable',
   asyncHandler(verifyAuthorization),
+  uuidParamValidator(),
   asyncHandler(authorizedToUpdateUser),
   asyncHandler(disableAccount),
 );
@@ -38,6 +40,7 @@ userRoutes.post(
 userRoutes.post(
   '/:id/password/:passwordResetId/reset',
   requestValidator(PasswordRequest),
+  uuidParamValidator({ whitelist: ['passwordResetId'] }),
   asyncHandler(resetPassword),
 );
 
@@ -45,6 +48,7 @@ userRoutes.put(
   '/:id/password',
   asyncHandler(verifyAuthorization),
   requestValidator(PasswordRequest),
+  uuidParamValidator(),
   asyncHandler(authorizedToUpdateUser),
   asyncHandler(changePassword),
 );
@@ -52,6 +56,7 @@ userRoutes.put(
 userRoutes.get(
   '/:id',
   asyncHandler(verifyAuthorization),
+  uuidParamValidator(),
   asyncHandler(authorizedToReadUser),
   asyncHandler(getUser),
 );
@@ -59,6 +64,7 @@ userRoutes.get(
 userRoutes.get(
   '/:id',
   asyncHandler(verifyAuthorization),
+  uuidParamValidator(),
   asyncHandler(authorizedToReadUser),
   asyncHandler(getUser),
 );

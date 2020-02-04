@@ -246,7 +246,12 @@ describe('UserService', () => {
 
       await userService.resetForgottenPassword('1', 'shortid', password);
 
-      const expectedUser = { ...user, password: 'hashedPassword' };
+      const expectedUser = {
+        ...mockUser,
+        passwordExpiration: null,
+        passwordResetId: 'shortid',
+        password: 'hashedPassword',
+      };
 
       expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
     });
