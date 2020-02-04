@@ -10,6 +10,8 @@ const loginSchema = Yup.object().shape({
   password: Yup.string().required('Password is required'),
 });
 
+type FieldData = Yup.InferType<typeof loginSchema>;
+
 const useStyles = makeStyles(theme => ({
   inputFields: {
     margin: theme.spacing(1),
@@ -19,11 +21,6 @@ const useStyles = makeStyles(theme => ({
     margin: theme.spacing(3, 0, 2),
   },
 }));
-
-type FieldData = {
-  username: string;
-  password: string;
-};
 
 const LoginForm: React.FC<LoginFormProps> = ({ login }) => {
   const classes = useStyles();
