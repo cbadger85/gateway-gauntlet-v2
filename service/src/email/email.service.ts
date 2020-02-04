@@ -29,7 +29,10 @@ class EmailService {
   readTemplateFromDisk = async (template: EmailTemplate): Promise<string> => {
     const readFile = util.promisify(fs.readFile);
 
-    return await readFile(`${__dirname}/templates/${template}.mjml`, 'utf8');
+    return await readFile(
+      `${process.cwd()}/templates/${template}.mjml`,
+      'utf8',
+    );
   };
 
   sendNewUserEmail = async ({
