@@ -15,6 +15,7 @@ class AddUserRequest {
 
   @IsNotEmpty()
   @IsEmail()
+  @MaxLength(24)
   email: string;
 
   @ArrayNotEmpty()

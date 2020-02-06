@@ -54,8 +54,10 @@ export const rbacConfig: RbacConfig = {
         name: 'users::create-role',
         where: canUpsertRole,
       },
+      'game:delete',
+      'player:delete',
     ],
-    inherits: [Role.USER],
+    inherits: [Role.USER, Role.ORGANIZER],
   },
   [Role.SUPER_ADMIN]: {
     can: [
@@ -68,5 +70,15 @@ export const rbacConfig: RbacConfig = {
       },
     ],
     inherits: [Role.ADMIN],
+  },
+  [Role.ORGANIZER]: {
+    can: [
+      'game::create',
+      'game::read',
+      'game::update',
+      'game::addPlayer',
+      'game::addOrganizer',
+      'player::update',
+    ],
   },
 };

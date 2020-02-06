@@ -15,6 +15,7 @@ jest.mock('util', () => ({
           '%FIRST_NAME% %PASSWORD_EXPIRATION% %PASSWORD_LINK%',
         ),
     ),
+  inspect: jest.fn(),
 }));
 
 jest.mock('mjml', () => jest.fn());
@@ -69,6 +70,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 
@@ -89,6 +91,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
         passwordResetId: 'aaa',
       };
@@ -118,6 +121,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 
@@ -146,6 +150,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 
@@ -174,6 +179,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 
@@ -199,6 +205,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 
@@ -221,6 +228,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
         passwordResetId: 'aaa',
       };
@@ -250,6 +258,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 
@@ -278,6 +287,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 
@@ -306,6 +316,7 @@ describe('EmailService', () => {
         roles: [Role.USER],
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
       };
 

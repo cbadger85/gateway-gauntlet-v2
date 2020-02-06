@@ -22,6 +22,7 @@ mockUser.password = 'bar';
 mockUser.firstName = 'foo';
 mockUser.lastName = 'bar';
 mockUser.sessionId = '1234';
+mockUser.email = 'foo@example.com';
 mockUser.roles = [Role.USER];
 
 class MockRepository {
@@ -88,12 +89,15 @@ describe('AuthService', () => {
 
       expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(bcrypt.compare).toBeCalledWith('bar', 'bar');
-      expect(authService.getAccessToken).toBeCalledWith(expectedUser);
+      expect(authService.getAccessToken).toBeCalledWith({
+        name: 'foo bar',
+        ...expectedUser,
+      });
       expect(authService.getRefreshToken).toBeCalledWith({
         id: '1',
         sessionId: '1234',
       });
-      expect(user).toEqual(expectedUser);
+      expect(user).toEqual({ name: 'foo bar', ...expectedUser });
       expect(accessToken).toBe('access token');
       expect(refreshToken).toBe('refresh token');
     });
@@ -345,6 +349,7 @@ describe('AuthService', () => {
         id: '1234',
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         roles: [Role.USER],
         sessionId: '5678',
         username: 'foobar',
@@ -393,7 +398,7 @@ describe('AuthService', () => {
       expect(authService.getRefreshToken).toBeCalledTimes(1);
       expect(accessToken).toBe('access token');
       expect(refreshToken).toBe('refresh token');
-      // expect(user).toEqual(accessTokenPayload);
+      expect(user).toEqual(accessTokenPayload);
     });
 
     it('should throw a NotAuthorized if the refresh token is bad and the access token is bad', async () => {

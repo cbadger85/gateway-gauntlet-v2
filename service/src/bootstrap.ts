@@ -32,7 +32,6 @@ export const bootstrap = async (): Promise<void> => {
   });
 
   if (exists) {
-    console.log('test');
     console.log('User already exists... Exiting bootstrap...');
     await connection.close();
     console.log(getEmojiLog('⬇️', 'Connection closed'));

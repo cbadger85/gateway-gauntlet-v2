@@ -5,4 +5,5 @@ module.exports = {
   testPathIgnorePatterns: ['/__data__/'],
   collectCoverage: true,
   collectCoverageFrom: ['src/**/*.{ts,tsx}'],
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
 };

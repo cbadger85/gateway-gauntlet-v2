@@ -26,7 +26,7 @@ class MockAuthService {
 
 beforeEach(jest.clearAllMocks);
 
-describe('user.routes', () => {
+describe('users.routes', () => {
   let userService: MockService;
   let authService: MockAuthService;
 

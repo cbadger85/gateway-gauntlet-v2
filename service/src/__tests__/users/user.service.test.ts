@@ -18,6 +18,8 @@ mockUser.username = 'foo';
 mockUser.password = 'bar';
 mockUser.roles = [Role.USER];
 mockUser.email = 'email@example.com';
+mockUser.firstName = 'foo';
+mockUser.lastName = 'bar';
 
 class MockRepository {
   private repository: Repository<User>;
@@ -144,6 +146,9 @@ describe('UserService', () => {
         username: 'foo',
         email: 'email@example.com',
         roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
+        name: 'foo bar',
       };
 
       expect(savedUser).toEqual(expectedUser);

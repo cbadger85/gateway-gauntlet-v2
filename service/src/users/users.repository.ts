@@ -30,6 +30,9 @@ class UserRepository {
 
     return usersAndCount[1];
   };
+
+  findUsersByIds = (Ids: string[]): Promise<User[]> =>
+    this.repository.findByIds(Ids);
 }
 
 export default UserRepository;
