@@ -91,13 +91,18 @@ describe('AuthService', () => {
       expect(bcrypt.compare).toBeCalledWith('bar', 'bar');
       expect(authService.getAccessToken).toBeCalledWith({
         name: 'foo bar',
+        gravatar: expect.any(String),
         ...expectedUser,
       });
       expect(authService.getRefreshToken).toBeCalledWith({
         id: '1',
         sessionId: '1234',
       });
-      expect(user).toEqual({ name: 'foo bar', ...expectedUser });
+      expect(user).toEqual({
+        name: 'foo bar',
+        gravatar: expect.any(String),
+        ...expectedUser,
+      });
       expect(accessToken).toBe('access token');
       expect(refreshToken).toBe('refresh token');
     });
@@ -354,6 +359,7 @@ describe('AuthService', () => {
         sessionId: '5678',
         username: 'foobar',
         email: 'foo@example.com',
+        gravatar: expect.any(String),
       };
       const refreshTokenPayload = { id: '1234', sessionId: '5678' };
 

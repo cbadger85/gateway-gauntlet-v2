@@ -149,6 +149,7 @@ describe('UserService', () => {
         firstName: 'foo',
         lastName: 'bar',
         name: 'foo bar',
+        gravatar: expect.any(String),
       };
 
       expect(savedUser).toEqual(expectedUser);

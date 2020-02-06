@@ -2,6 +2,7 @@ import { PrimaryGeneratedColumn, Column, Entity, ManyToMany } from 'typeorm';
 import { Role } from '../../auth/models/Role';
 import { Exclude, Expose } from 'class-transformer';
 import Game from '../../games/games.entity';
+import crypto from 'crypto';
 
 @Entity()
 class User {
@@ -50,6 +51,16 @@ class User {
     game => game.users,
   )
   games?: Game[];
+
+  @Expose()
+  get gravatar(): string {
+    const hash = crypto
+      .createHash('md5')
+      .update(this.email.trim().toLowerCase())
+      .digest('hex');
+
+    return `https://www.gravatar.com/avatar/${hash}?s=200&d=retro`;
+  }
 }
 
 export default User;
