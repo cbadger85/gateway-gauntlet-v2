@@ -70,8 +70,8 @@ const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
       />
       <Button
         type="submit"
-        color="primary"
-        variant="contained"
+        color="secondary"
+        variant="outlined"
         fullWidth
         className={classes.submitButton}
       >

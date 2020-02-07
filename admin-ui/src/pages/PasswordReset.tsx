@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { postResetPassword } from '../controllers/usersController';
 import { addSnackbar } from '../store/alert/alertSlice';
 import { useQuery } from '../hooks/useQuery';
+import colors from '../colors';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -30,7 +31,7 @@ const useStyles = makeStyles(theme => ({
   loginIcon: {
     margin: theme.spacing(-6, 0, 0, 0),
     padding: theme.spacing(3),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: colors.pink[6],
     boxShadow: theme.shadows[3],
   },
   form: {
@@ -50,10 +51,10 @@ const PasswordReset: React.FC = () => {
 
   const isNewUser = query.get('new') === 'true';
 
-  const handleSubmitPasswordReset = (values: {
+  const handleSubmitPasswordReset = async (values: {
     password: string;
     confirmPassword: string;
-  }): void => {
+  }): Promise<void> => {
     postResetPassword(userId, passwordResetId, values.password)
       .then(() => {
         dispatch(addSnackbar('Password changed!'));
@@ -71,7 +72,7 @@ const PasswordReset: React.FC = () => {
 
   return (
     <Container component="main" className={classes.root}>
-      <Box width="300">
+      <Box width="500px">
         <Paper elevation={3} className={classes.form}>
           <Box className={classes.iconContainer}>
             <Avatar className={classes.loginIcon}>

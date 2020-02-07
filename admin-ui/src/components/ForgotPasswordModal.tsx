@@ -67,16 +67,16 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             data-testid="email-input"
           />
           <DialogActions>
-            <Button
-              type="submit"
-              color="primary"
-              variant="contained"
-              data-testid="email-submit-button"
-            >
-              Submit
-            </Button>
             <Button onClick={closeModal} data-testid="email-cancel-button">
               Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="outlined"
+              data-testid="email-submit-button"
+              color="secondary"
+            >
+              Submit
             </Button>
           </DialogActions>
         </form>

@@ -67,8 +67,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ login }) => {
       <Button
         type="submit"
         className={classes.loginButton}
-        color="primary"
-        variant="contained"
+        variant="outlined"
+        color="secondary"
         fullWidth
       >
         Login
