@@ -7,13 +7,12 @@ import authReducer, {
   loading,
   login,
   loginFailure,
-  loginSuccess,
   logout,
-  logoutSucess,
   tokenFailure,
 } from '../../store/auth/authSlice';
 import { Auth } from '../../types/Auth';
 import history from '../../utils/history';
+import { loginSuccess, logoutSucess } from '../../store/actions';
 
 jest.mock('../../store');
 

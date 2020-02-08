@@ -1,14 +1,12 @@
-import React from 'react';
-import { Router, Route, Switch, Redirect } from 'react-router-dom';
-import Login from './pages/Login';
-import ProtectedRoute from './components/ProtectedRoute';
-import Homepage from './pages/Homepage';
-import ResetPassword from './pages/PasswordReset';
-import history from './utils/history';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import SnackbarManager from './components/SnackbarAlert';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import React from 'react';
+import { Redirect, Route, Router, Switch } from 'react-router-dom';
 import colors from './colors';
+import ProtectedRoute from './components/ProtectedRoute';
+import SnackbarManager from './components/SnackbarAlert';
+import routesConfig from './routesConfig';
+import history from './utils/history';
 
 const theme = createMuiTheme({
   palette: {
@@ -63,23 +61,33 @@ const theme = createMuiTheme({
 });
 
 const App: React.FC = () => {
+  const routes = Object.values(routesConfig()).filter(
+    route => route.menuType !== 'leftPanel',
+  );
+
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
         <CssBaseline />
         <Router history={history}>
           <Switch>
-            <Route exact path="/login">
-              <Login />
-            </Route>
-            <ProtectedRoute exact path="/">
-              <Homepage />
-            </ProtectedRoute>
-            <Route exact path="/users/:userId/password/:passwordResetId/reset">
-              <ResetPassword />
-            </Route>
+            {routes.map(route =>
+              route.protected ? (
+                <ProtectedRoute
+                  key={route.path}
+                  exact={route.exact}
+                  path={route.path}
+                >
+                  <route.component />
+                </ProtectedRoute>
+              ) : (
+                <Route key={route.path} exact={route.exact} path={route.path}>
+                  <route.component />
+                </Route>
+              ),
+            )}
             <Route>
-              <Redirect to="/login" />
+              <Redirect to="/tournament-manager" />
             </Route>
           </Switch>
         </Router>

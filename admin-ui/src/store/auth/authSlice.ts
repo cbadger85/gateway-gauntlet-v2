@@ -1,13 +1,10 @@
-import { createAction, createSlice } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 import { AppThunk } from '..';
 import { getToken, postLogin } from '../../controllers/authController';
 import { Auth } from '../../types/Auth';
-import { User } from '../../types/User';
 import history from '../../utils/history';
+import { loginSuccess, logoutSucess } from '../actions';
 import { addSnackbar } from '../alert/alertSlice';
-
-export const loginSuccess = createAction<User>('auth/loginSuccess');
-export const logoutSucess = createAction('auth/logoutSuccess');
 
 const authSlice = createSlice({
   name: 'auth',

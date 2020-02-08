@@ -9,7 +9,7 @@ describe('useHasRole', () => {
   it('should return true if the user has the required roles', () => {
     jest
       .spyOn(reactRedux, 'useSelector')
-      .mockImplementation(() => [Role.USER, Role.ADMIN]);
+      .mockImplementation(() => [Role.ADMIN]);
 
     const { result } = renderHook(() => useHasRole());
 
@@ -18,7 +18,7 @@ describe('useHasRole', () => {
     act(() => {
       const hasRole = result.current;
 
-      const isAuth = hasRole(Role.USER, Role.ADMIN);
+      const isAuth = hasRole(Role.ADMIN);
       expect(isAuth).toBe(true);
     });
   });
@@ -37,6 +37,44 @@ describe('useHasRole', () => {
 
       isAuth = hasRole(Role.ADMIN);
       expect(isAuth).toBe(false);
+    });
+  });
+
+  it('should have inherited roles', () => {
+    jest
+      .spyOn(reactRedux, 'useSelector')
+      .mockImplementation(() => [Role.SUPER_ADMIN]);
+
+    const { result } = renderHook(() => useHasRole());
+
+    let isAuth: boolean;
+
+    expect.assertions(1);
+
+    act(() => {
+      const hasRole = result.current;
+
+      isAuth = hasRole(Role.ADMIN);
+      expect(isAuth).toBe(true);
+    });
+  });
+
+  it('should have inherited roles recursively', () => {
+    jest
+      .spyOn(reactRedux, 'useSelector')
+      .mockImplementation(() => [Role.SUPER_ADMIN]);
+
+    const { result } = renderHook(() => useHasRole());
+
+    let isAuth: boolean;
+
+    expect.assertions(1);
+
+    act(() => {
+      const hasRole = result.current;
+
+      isAuth = hasRole(Role.ORGANIZER);
+      expect(isAuth).toBe(true);
     });
   });
 });
