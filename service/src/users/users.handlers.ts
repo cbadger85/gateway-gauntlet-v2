@@ -93,6 +93,12 @@ export const authorizedToReadUser = AuthenticateUser.of<
   .when(async params => await Container.get(UserService).getUser(params.id))
   .done();
 
+export const authorizedToReadAllUsers = AuthenticateUser.of<never, never, User>(
+  rbacConfig,
+)
+  .can('users::read')
+  .done();
+
 export const authorizedToCreateUser = AuthenticateUser.of<
   { id: string },
   User,

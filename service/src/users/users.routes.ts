@@ -10,6 +10,7 @@ import {
   authorizedToReadUser,
   getAllUsers,
   authorizedToUpsertUserRole,
+  authorizedToReadAllUsers,
 } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
@@ -72,7 +73,7 @@ userRoutes.get(
 userRoutes.get(
   '/',
   asyncHandler(verifyAuthorization),
-  asyncHandler(authorizedToReadUser),
+  asyncHandler(authorizedToReadAllUsers),
   asyncHandler(getAllUsers),
 );
 
