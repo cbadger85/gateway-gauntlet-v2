@@ -1,7 +1,7 @@
 import { Container } from 'typedi';
 import { getRepository, Repository } from 'typeorm';
-import { Role } from '../../auth/models/Role';
-import User from '../../users/entities/users.entity';
+import { Role } from '../../auth/Role.model';
+import User from '../../users/users.entity';
 import UserRepository from '../../users/users.repository';
 
 describe('UserRepository', () => {
@@ -123,16 +123,17 @@ describe('UserRepository', () => {
 
     const repo = getRepository(User);
 
-    await repo.save(user1);
-    await repo.save(user2);
-    await repo.save(user3);
+    const savedUser1 = await repo.save(user1);
+    const savedUser2 = await repo.save(user2);
+    const savedUser3 = await repo.save(user3);
 
-    const number = await userRepository.countUsersByUsernameOrEmail(
+    const [users, number] = await userRepository.countUsersByUsernameOrEmail(
       'foo1',
       'foo2@example.com',
     );
 
     expect(number).toEqual(2);
+    expect(users).toEqual([savedUser1, savedUser2]);
   });
 
   it('should find a list of all users', async () => {

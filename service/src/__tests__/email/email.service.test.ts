@@ -2,7 +2,7 @@ import mjml2html from 'mjml';
 import { createTransport } from 'nodemailer';
 import EmailService from '../../email/email.service';
 import Container from 'typedi';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../../auth/Role.model';
 import formatDistance from 'date-fns/formatDistance';
 
 jest.mock('util', () => ({
@@ -72,6 +72,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       await emailService.sendNewUserEmail(user);
@@ -94,6 +95,7 @@ describe('EmailService', () => {
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
         passwordResetId: 'aaa',
+        gravatar: 'gravatar url',
       };
       const passwordResetLink = `${process.env.ROOT_URL}/users/${user.id}/password/${user.passwordResetId}/reset?new=true`;
 
@@ -123,6 +125,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       const sendMailOptions = {
@@ -152,6 +155,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       const sendMailOptions = {
@@ -181,6 +185,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       await emailService.sendNewUserEmail(user);
@@ -207,6 +212,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       await emailService.sendResetPasswordEmail(user);
@@ -231,6 +237,7 @@ describe('EmailService', () => {
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
         passwordResetId: 'aaa',
+        gravatar: 'gravatar url',
       };
       const passwordResetLink = `${process.env.ROOT_URL}/users/${user.id}/password/${user.passwordResetId}/reset`;
 
@@ -260,6 +267,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       const sendMailOptions = {
@@ -289,6 +297,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       const sendMailOptions = {
@@ -318,6 +327,7 @@ describe('EmailService', () => {
         lastName: 'bar',
         name: 'foo bar',
         passwordExpiration: new Date(Date.now() + 3600000),
+        gravatar: 'gravatar url',
       };
 
       await emailService.sendResetPasswordEmail(user);

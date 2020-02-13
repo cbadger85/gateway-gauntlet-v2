@@ -1,8 +1,8 @@
 import Container from 'typedi';
 import GameService from '../../games/games.service';
 import Player from '../../players/players.entity';
-import User from '../../users/entities/users.entity';
-import { Role } from '../../auth/models/Role';
+import User from '../../users/users.entity';
+import { Role } from '../../auth/Role.model';
 import Game from '../../games/games.entity';
 import Organizer from '../../games/organizer.dto';
 import NotFound from '../../errors/NotFound';

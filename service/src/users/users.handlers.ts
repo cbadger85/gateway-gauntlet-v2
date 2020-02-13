@@ -1,19 +1,31 @@
 import { RequestHandler } from 'express-serve-static-core';
 import { Container } from 'typedi';
-import AuthenticateUser from '../auth/AuthenticateUser';
-import { rbacConfig } from '../auth/rbacConfig';
-import User from './entities/users.entity';
-import AddUserRequest from './models/AddUserRequest.dto';
-import PasswordRequest from './models/PasswordRequest.dto';
+import { authorizeUser } from '../handlers/authorizeUser';
+import { Role } from '../auth/Role.model';
+import PasswordRequest from './PasswordRequest.dto';
+import UpsertUserRequest from './UpsertUserRequest.dto';
+import User from './users.entity';
 import UserService from './users.service';
 
-export const addUser: RequestHandler<never, User, AddUserRequest> = async (
+export const addUser: RequestHandler<never, User, UpsertUserRequest> = async (
   req,
   res,
 ) => {
   const userService = Container.get(UserService);
 
   const user = await userService.addUser(req.body);
+
+  return res.json(user);
+};
+
+export const updateUser: RequestHandler<
+  { id: string },
+  User,
+  UpsertUserRequest
+> = async (req, res) => {
+  const userService = Container.get(UserService);
+
+  const user = await userService.updateUser(req.params.id, req.body);
 
   return res.json(user);
 };
@@ -75,39 +87,85 @@ export const changePassword: RequestHandler<
   return res.sendStatus(204);
 };
 
-export const authorizedToUpdateUser = AuthenticateUser.of<
+export const authorizedToUpdateUserPassword = authorizeUser<
+  { id: string },
+  void,
+  PasswordRequest
+>('users::updatePassword', (userRoles, req) => {
+  return req.user?.id === req.params.id;
+});
+
+export const authorizedToUpdateUser = authorizeUser<
   { id: string },
   User,
-  User
->(rbacConfig)
-  .can('users::update')
-  .when(async params => await Container.get(UserService).getUser(params.id))
-  .done();
+  UpsertUserRequest
+>('users::update', async (userRoles, req) => {
+  const user = await Container.get(UserService).getUser(req.params.id);
 
-export const authorizedToReadUser = AuthenticateUser.of<
+  if (userRoles.includes(Role.SUPER_ADMIN)) {
+    return true;
+  }
+
+  if (
+    user.roles.includes(Role.ADMIN) ||
+    user.roles.includes(Role.SUPER_ADMIN) ||
+    req.body.roles.includes(Role.ADMIN) ||
+    req.body.roles.includes(Role.SUPER_ADMIN)
+  ) {
+    return false;
+  }
+
+  return true;
+});
+
+export const authorizedToDisableUser = authorizeUser<
+  { id: string },
+  void,
+  never
+>('users::update', async (userRoles, req) => {
+  const user = await Container.get(UserService).getUser(req.params.id);
+
+  if (userRoles.includes(Role.SUPER_ADMIN)) {
+    return true;
+  }
+
+  if (
+    user.roles.includes(Role.ADMIN) ||
+    user.roles.includes(Role.SUPER_ADMIN)
+  ) {
+    return false;
+  }
+
+  return true;
+});
+
+export const authorizedToReadUser = authorizeUser<{ id: string }, User, never>(
+  'users::read',
+  (userRoles, req) => {
+    return req.user?.id === req.params.id || userRoles.includes(Role.ADMIN);
+  },
+);
+
+export const authorizedToReadAllUsers = authorizeUser<never, User[], never>(
+  'users::read',
+  userRoles => userRoles.includes(Role.ADMIN),
+);
+
+export const authorizedToCreateUser = authorizeUser<
   { id: string },
   User,
-  User
->(rbacConfig)
-  .can('users::read')
-  .when(async params => await Container.get(UserService).getUser(params.id))
-  .done();
+  UpsertUserRequest
+>('users::create', (userRoles, req) => {
+  if (userRoles.includes(Role.SUPER_ADMIN)) {
+    return true;
+  }
 
-export const authorizedToReadAllUsers = AuthenticateUser.of<never, never, User>(
-  rbacConfig,
-)
-  .can('users::read')
-  .done();
+  if (
+    req.body.roles.includes(Role.ADMIN) ||
+    req.body.roles.includes(Role.SUPER_ADMIN)
+  ) {
+    return false;
+  }
 
-export const authorizedToCreateUser = AuthenticateUser.of<
-  { id: string },
-  User,
-  User
->(rbacConfig)
-  .can('users::create')
-  .when(async params => await Container.get(UserService).getUser(params.id))
-  .done();
-
-export const authorizedToUpsertUserRole = AuthenticateUser.of(rbacConfig)
-  .can('users::create-role')
-  .done();
+  return true;
+});

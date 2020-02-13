@@ -9,32 +9,42 @@ import {
   authorizedToCreateUser,
   authorizedToReadUser,
   getAllUsers,
-  authorizedToUpsertUserRole,
   authorizedToReadAllUsers,
+  updateUser,
+  authorizedToUpdateUserPassword,
+  authorizedToDisableUser,
 } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
-import AddUserRequest from './models/AddUserRequest.dto';
-import { verifyAuthorization } from '../auth/auth.handlers';
-import PasswordRequest from './models/PasswordRequest.dto';
+import UpsertUserRequest from './UpsertUserRequest.dto';
+import { authenticateUser } from '../auth/auth.handlers';
+import PasswordRequest from './PasswordRequest.dto';
 import { uuidParamValidator } from '../handlers/uuidParamValidator';
 
 const userRoutes = express.Router();
 
 userRoutes.post(
   '/',
-  asyncHandler(verifyAuthorization),
-  requestValidator(AddUserRequest),
-  asyncHandler(authorizedToCreateUser),
-  asyncHandler(authorizedToUpsertUserRole),
+  asyncHandler(authenticateUser),
+  requestValidator(UpsertUserRequest),
+  authorizedToCreateUser,
   asyncHandler(addUser),
+);
+
+userRoutes.put(
+  '/:id',
+  asyncHandler(authenticateUser),
+  requestValidator(UpsertUserRequest),
+  uuidParamValidator(),
+  asyncHandler(authorizedToUpdateUser),
+  asyncHandler(updateUser),
 );
 
 userRoutes.post(
   '/:id/disable',
-  asyncHandler(verifyAuthorization),
+  asyncHandler(authenticateUser),
   uuidParamValidator(),
-  asyncHandler(authorizedToUpdateUser),
+  asyncHandler(authorizedToDisableUser),
   asyncHandler(disableAccount),
 );
 
@@ -47,24 +57,16 @@ userRoutes.post(
 
 userRoutes.put(
   '/:id/password',
-  asyncHandler(verifyAuthorization),
+  asyncHandler(authenticateUser),
   requestValidator(PasswordRequest),
   uuidParamValidator(),
-  asyncHandler(authorizedToUpdateUser),
+  asyncHandler(authorizedToUpdateUserPassword),
   asyncHandler(changePassword),
 );
 
 userRoutes.get(
   '/:id',
-  asyncHandler(verifyAuthorization),
-  uuidParamValidator(),
-  asyncHandler(authorizedToReadUser),
-  asyncHandler(getUser),
-);
-
-userRoutes.get(
-  '/:id',
-  asyncHandler(verifyAuthorization),
+  asyncHandler(authenticateUser),
   uuidParamValidator(),
   asyncHandler(authorizedToReadUser),
   asyncHandler(getUser),
@@ -72,8 +74,8 @@ userRoutes.get(
 
 userRoutes.get(
   '/',
-  asyncHandler(verifyAuthorization),
-  asyncHandler(authorizedToReadAllUsers),
+  asyncHandler(authenticateUser),
+  authorizedToReadAllUsers,
   asyncHandler(getAllUsers),
 );
 

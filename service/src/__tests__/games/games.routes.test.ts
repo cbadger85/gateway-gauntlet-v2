@@ -2,7 +2,7 @@ import request from 'supertest';
 import { Container } from 'typedi';
 import uuid from 'uuid/v4';
 import AuthService from '../../auth/auth.service';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../../auth/Role.model';
 import GameService from '../../games/games.service';
 import server from '../../server';
 

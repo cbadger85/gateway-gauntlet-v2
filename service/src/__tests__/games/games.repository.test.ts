@@ -3,8 +3,8 @@ import GameRepository from '../../games/games.repository';
 import Game from '../../games/games.entity';
 import { getRepository } from 'typeorm';
 import Container from 'typedi';
-import User from '../../users/entities/users.entity';
-import { Role } from '../../auth/models/Role';
+import User from '../../users/users.entity';
+import { Role } from '../../auth/Role.model';
 
 const player1 = new Player();
 player1.name = 'foo';

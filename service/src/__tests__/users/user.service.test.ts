@@ -2,12 +2,12 @@ import bcrypt from 'bcryptjs';
 import Container from 'typedi';
 import { Repository } from 'typeorm';
 import uuid from 'uuid/v4';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../../auth/Role.model';
 import EmailService from '../../email/email.service';
 import BadRequest from '../../errors/BadRequest';
 import NotAuthorized from '../../errors/NotAuthorized';
 import NotFound from '../../errors/NotFound';
-import User from '../../users/entities/users.entity';
+import User from '../../users/users.entity';
 import UserRepository from '../../users/users.repository';
 import UserService from '../../users/users.service';
 
@@ -66,6 +66,8 @@ describe('UserService', () => {
   describe('addUser', () => {
     it('should check to see if the user already exists', async () => {
       mockRepository.saveUser.mockResolvedValue(mockUser);
+      mockRepository.countUsersByUsernameOrEmail.mockResolvedValue([[], 0]);
+
       await userService.addUser({
         username: 'foo',
         email: 'email@example.com',
@@ -156,7 +158,7 @@ describe('UserService', () => {
     });
 
     it('should throw a BadRequest if the user already exists', async () => {
-      mockRepository.countUsersByUsernameOrEmail.mockResolvedValueOnce(1);
+      mockRepository.countUsersByUsernameOrEmail.mockResolvedValue([[], 1]);
 
       const error = await userService
         .addUser({
@@ -166,6 +168,121 @@ describe('UserService', () => {
           firstName: 'foo',
           lastName: 'bar',
         })
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(BadRequest);
+    });
+  });
+
+  describe('updateUser', () => {
+    it('should return an updated user', async () => {
+      mockRepository.findUser.mockResolvedValue(mockUser);
+      mockRepository.countUsersByUsernameOrEmail.mockResolvedValue([
+        [mockUser],
+        1,
+      ]);
+
+      const updatedUser = {
+        username: 'foobar',
+        firstName: 'foo',
+        lastName: 'bar',
+        roles: [Role.USER],
+        email: 'email@example.com',
+      };
+
+      mockRepository.saveUser.mockResolvedValue({
+        ...mockUser,
+        username: updatedUser.username,
+      });
+
+      const user = await userService.updateUser('1', updatedUser);
+
+      expect(user).toEqual({
+        ...mockUser,
+        username: updatedUser.username,
+      });
+    });
+
+    it('should should call repository.saveUser', async () => {
+      mockRepository.findUser.mockResolvedValue(mockUser);
+      mockRepository.countUsersByUsernameOrEmail.mockResolvedValue([
+        [mockUser],
+        1,
+      ]);
+
+      const updatedUser = {
+        username: 'foobar',
+        firstName: 'foo',
+        lastName: 'bar',
+        roles: [Role.USER],
+        email: 'email@example.com',
+      };
+
+      await userService.updateUser('1', updatedUser);
+
+      expect(mockRepository.saveUser).toBeCalledWith({
+        ...mockUser,
+        username: updatedUser.username,
+      });
+    });
+
+    it('should throw a NotFound if the user cannot be found', async () => {
+      mockRepository.findUser.mockResolvedValue(undefined);
+      const updatedUser = {
+        username: 'foobar',
+        firstName: 'foo',
+        lastName: 'bar',
+        roles: [Role.USER],
+        email: 'email@example.com',
+      };
+
+      const error = await userService
+        .updateUser('1', updatedUser)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+
+    it('should should call repository.saveUser', async () => {
+      mockRepository.findUser.mockResolvedValue(mockUser);
+      mockRepository.countUsersByUsernameOrEmail.mockResolvedValue([
+        [mockUser],
+        1,
+      ]);
+
+      const updatedUser = {
+        username: 'foobar',
+        firstName: 'foo',
+        lastName: 'bar',
+        roles: [Role.USER],
+        email: 'email@example.com',
+      };
+
+      await userService.updateUser('1', updatedUser);
+
+      expect(mockRepository.saveUser).toBeCalledWith({
+        ...mockUser,
+        username: updatedUser.username,
+      });
+    });
+
+    it('should throw a BadRequest if a unique constraint is violated', async () => {
+      mockRepository.findUser.mockResolvedValue(mockUser);
+      mockRepository.countUsersByUsernameOrEmail.mockResolvedValue([
+        [{ ...mockUser, id: '2' }],
+        1,
+      ]);
+
+      const updatedUser = {
+        username: 'foobar',
+        firstName: 'foo',
+        lastName: 'bar',
+        roles: [Role.USER],
+        email: 'email@example.com',
+      };
+
+      const error = await userService
+        .updateUser('1', updatedUser)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(BadRequest);
@@ -349,9 +466,29 @@ describe('UserService', () => {
 
   describe('getAllUsers', () => {
     it('should call repository.findAllUsers', async () => {
+      mockRepository.findAllUsers.mockResolvedValue([]);
+
       await userService.getAllUsers();
 
       expect(mockRepository.findAllUsers).toBeCalledWith();
+    });
+
+    it('should transform the array of users', async () => {
+      mockRepository.findAllUsers.mockResolvedValue([mockUser]);
+
+      const users = await userService.getAllUsers();
+
+      expect(users).toHaveLength(1);
+      expect(users[0]).toEqual({
+        id: mockUser.id,
+        username: mockUser.username,
+        firstName: mockUser.firstName,
+        lastName: mockUser.lastName,
+        name: `${mockUser.firstName} ${mockUser.lastName}`,
+        gravatar: expect.any(String),
+        email: mockUser.email,
+        roles: mockUser.roles,
+      });
     });
   });
 

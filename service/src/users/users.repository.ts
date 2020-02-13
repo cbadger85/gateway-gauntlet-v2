@@ -1,7 +1,7 @@
 import { Service } from 'typedi';
 import { Repository } from 'typeorm';
 import { InjectRepository } from 'typeorm-typedi-extensions';
-import User from './entities/users.entity';
+import User from './users.entity';
 
 @Service()
 class UserRepository {
@@ -23,12 +23,12 @@ class UserRepository {
   countUsersByUsernameOrEmail = async (
     username: string,
     email: string,
-  ): Promise<number> => {
+  ): Promise<[User[], number]> => {
     const usersAndCount = await this.repository.findAndCount({
       where: [{ username }, { email }],
     });
 
-    return usersAndCount[1];
+    return usersAndCount;
   };
 
   findUsersByIds = (Ids: string[]): Promise<User[]> =>

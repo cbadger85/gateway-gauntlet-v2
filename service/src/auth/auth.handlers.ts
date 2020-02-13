@@ -1,9 +1,9 @@
 import { RequestHandler, Response } from 'express-serve-static-core';
 import Container from 'typedi';
-import User from '../users/entities/users.entity';
+import User from '../users/users.entity';
 import AuthService from './auth.service';
-import LoginRequest from './models/LoginRequest.dto';
-import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dto';
+import LoginRequest from './LoginRequest.dto';
+import RequestResetPasswordRequest from './RequestResetPasswordRequest.dto';
 
 export const login: RequestHandler<never, User, LoginRequest> = async (
   req,
@@ -36,7 +36,7 @@ export const getToken: RequestHandler<never, User, never> = async (
   res.json(req.user);
 };
 
-export const verifyAuthorization: RequestHandler<never, never, never> = async (
+export const authenticateUser: RequestHandler<never, never, never> = async (
   req,
   res,
   next,

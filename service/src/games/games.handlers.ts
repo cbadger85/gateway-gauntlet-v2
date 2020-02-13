@@ -1,11 +1,10 @@
 import { RequestHandler } from 'express-serve-static-core';
 import Container from 'typedi';
+import { authorizeUser } from '../handlers/authorizeUser';
 import CreateGameRequest from './createGameRequest.dto';
 import AddPlayerRequest from './games.addPlayerRequest.dto';
 import Game from './games.entity';
 import GameService from './games.service';
-import AuthenticateUser from '../auth/AuthenticateUser';
-import { rbacConfig } from '../auth/rbacConfig';
 
 export const createGame: RequestHandler<
   never,
@@ -31,10 +30,6 @@ export const addPlayer: RequestHandler<
   return res.json(game);
 };
 
-export const authorizedToCreateGame = AuthenticateUser.of(rbacConfig)
-  .can('game::create')
-  .done();
+export const authorizedToCreateGame = authorizeUser('game::create');
 
-export const authorizedToAddPlayer = AuthenticateUser.of(rbacConfig)
-  .can('game::addPlayer')
-  .done();
+export const authorizedToAddPlayer = authorizeUser('game::addPlayer');

@@ -4,7 +4,7 @@ import mjml2html from 'mjml';
 import { createTransport, Transporter } from 'nodemailer';
 import { Service } from 'typedi';
 import util from 'util';
-import User from '../users/entities/users.entity';
+import User from '../users/users.entity';
 import { getEmojiLog } from '../utils/getEmojiLog';
 
 @Service()

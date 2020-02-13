@@ -1,7 +1,7 @@
 import { PrimaryGeneratedColumn, Column, Entity, ManyToMany } from 'typeorm';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../auth/Role.model';
 import { Exclude, Expose } from 'class-transformer';
-import Game from '../../games/games.entity';
+import Game from '../games/games.entity';
 import crypto from 'crypto';
 
 @Entity()

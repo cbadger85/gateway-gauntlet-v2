@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import Player from '../players/players.entity';
-import User from '../users/entities/users.entity';
+import User from '../users/users.entity';
 import Organizer from './organizer.dto';
 
 @Entity()

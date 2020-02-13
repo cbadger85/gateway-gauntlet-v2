@@ -3,7 +3,7 @@ import { Container } from 'typedi';
 import server from '../../server';
 import UserService from '../../users/users.service';
 import NotFound from '../../errors/NotFound';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../../auth/Role.model';
 import BadRequest from '../../errors/BadRequest';
 import AuthService from '../../auth/auth.service';
 import Forbidden from '../../errors/Forbidden';
@@ -11,6 +11,7 @@ import uuid from 'uuid/v4';
 
 class MockService {
   addUser = jest.fn();
+  updateUser = jest.fn();
   requestResetPassword = jest.fn();
   disableAccount = jest.fn();
   resetForgottenPassword = jest.fn();
@@ -180,6 +181,133 @@ describe('users.routes', () => {
         .expect(400);
 
       expect(response.body).toEqual(responseBody);
+    });
+  });
+
+  describe('PUT /users/:id', () => {
+    it('should call updateUser', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '2', roles: [Role.ADMIN] },
+      });
+
+      const userId = uuid();
+
+      const savedUser = {
+        id: userId,
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      const sentUser = {
+        username: 'foo',
+        email: 'email@example.com',
+        roles: ['USER'],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      userService.getUser.mockResolvedValue(savedUser);
+
+      userService.updateUser.mockResolvedValue(savedUser);
+
+      const response = await request(await server())
+        .put(`/users/${userId}`)
+        .send(sentUser)
+        .expect(200);
+
+      expect(userService.updateUser).toBeCalledWith(userId, sentUser);
+
+      expect(response.body).toEqual(savedUser);
+    });
+
+    it('should send a 403 if the user is unauthorized to add a user', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '2', roles: [Role.USER] },
+      });
+
+      const userId = uuid();
+
+      const savedUser = {
+        id: userId,
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      const sentUser = {
+        username: 'foo',
+        email: 'email@example.com',
+        roles: ['USER'],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      userService.getUser.mockResolvedValue(savedUser);
+
+      await request(await server())
+        .put(`/users/${userId}`)
+        .send(sentUser)
+        .expect(403);
+    });
+
+    it('should send a 403 if the user is trying to add a higher role than their own', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '2', roles: [Role.ADMIN] },
+      });
+
+      const sentUser = {
+        username: 'foo',
+        email: 'email@example.com',
+        roles: ['ADMIN'],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      const userId = uuid();
+
+      const savedUser = {
+        id: userId,
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      userService.getUser.mockResolvedValue(savedUser);
+
+      await request(await server())
+        .put(`/users/${userId}`)
+        .send(sentUser)
+        .expect(403);
+    });
+
+    it('should send a BadRequest if the request body is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '2', roles: [Role.ADMIN] },
+      });
+
+      const userId = uuid();
+
+      const response = await request(await server())
+        .put(`/users/${userId}`)
+        .send({ username: 'foo', password: 'bar' })
+        .expect(400);
+
+      expect(response.body.errors).toHaveLength(4);
     });
   });
 
@@ -357,14 +485,6 @@ describe('users.routes', () => {
     });
 
     it('should return a forbidden error if the user is not the same as the requested user', async () => {
-      const forbidden = new Forbidden();
-
-      const responseBody = {
-        name: forbidden.name,
-        message: forbidden.message,
-        statusCode: forbidden.statusCode,
-      };
-
       const userId = uuid();
 
       const retrievedUser = {
@@ -383,38 +503,9 @@ describe('users.routes', () => {
       });
 
       userService.getUser.mockResolvedValue(retrievedUser);
-      const response = await request(await server())
+      await request(await server())
         .get(`/users/${userId}`)
         .expect(403);
-
-      expect(userService.getUser).toBeCalledWith(userId);
-
-      expect(response.body).toEqual(responseBody);
-    });
-
-    it('should return an error if it failed to find the user', async () => {
-      const userId = uuid();
-
-      const notFound = new NotFound('user not found');
-
-      const responseBody = {
-        name: notFound.name,
-        message: notFound.message,
-        statusCode: notFound.statusCode,
-      };
-
-      userService.getUser.mockRejectedValue(notFound);
-      authService.refresh.mockResolvedValue({
-        accessToken: 'access token',
-        refreshToken: 'refresh token',
-        user: { id: '1', roles: [Role.USER] },
-      });
-
-      const response = await request(await server())
-        .get(`/users/${userId}`)
-        .expect(404);
-
-      expect(response.body).toEqual(responseBody);
     });
 
     it('should return BadRequest if the uuid is invalid', async () => {
@@ -469,7 +560,7 @@ describe('users.routes', () => {
       expect(response.body).toEqual([retrievedUser1, retrievedUser2]);
     });
 
-    it('should should send a 403 if the user is not authorized', async () => {
+    it('should send a 403 if the user is not authorized', async () => {
       const retrievedUser1 = {
         id: '1',
         username: 'foo',
@@ -533,7 +624,7 @@ describe('users.routes', () => {
       expect(userService.changePassword).toBeCalledWith(userId, 'foobarbaz');
     });
 
-    it('should send a 204 if the admin is trying to change a users password', async () => {
+    it('should send a 403 if the admin is trying to change a users password', async () => {
       const userId = uuid();
       userService.changePassword.mockResolvedValue(undefined);
       const retrievedUser = {
@@ -554,7 +645,7 @@ describe('users.routes', () => {
       await request(await server())
         .put(`/users/${userId}/password`)
         .send({ password: 'foobarbaz' })
-        .expect(204);
+        .expect(403);
     });
 
     it('should send a 403 if the admin is trying to change a admin password', async () => {
