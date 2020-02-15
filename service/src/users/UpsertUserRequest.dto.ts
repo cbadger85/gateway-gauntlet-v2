@@ -6,15 +6,16 @@ import {
   IsNotEmpty,
   MaxLength,
 } from 'class-validator';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../auth/Role.model';
 
-class AddUserRequest {
+class UpsertUserRequest {
   @MaxLength(16)
   @IsNotEmpty()
   username: string;
 
   @IsNotEmpty()
   @IsEmail()
+  @MaxLength(24)
   email: string;
 
   @ArrayNotEmpty()
@@ -31,4 +32,4 @@ class AddUserRequest {
   lastName: string;
 }
 
-export default AddUserRequest;
+export default UpsertUserRequest;

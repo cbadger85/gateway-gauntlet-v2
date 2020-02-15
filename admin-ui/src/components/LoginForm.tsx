@@ -1,13 +1,17 @@
 import Button from '@material-ui/core/Button';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
 const loginSchema = Yup.object().shape({
-  username: Yup.string().required('Username is required'),
-  password: Yup.string().required('Password is required'),
+  username: Yup.string()
+    .trim()
+    .required('Username is required'),
+  password: Yup.string()
+    .trim()
+    .required('Password is required'),
 });
 
 type FieldData = Yup.InferType<typeof loginSchema>;
@@ -67,8 +71,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ login }) => {
       <Button
         type="submit"
         className={classes.loginButton}
-        color="primary"
-        variant="contained"
+        variant="outlined"
+        color="secondary"
         fullWidth
       >
         Login

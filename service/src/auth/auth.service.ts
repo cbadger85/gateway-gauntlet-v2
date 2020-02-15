@@ -5,10 +5,10 @@ import shortid from 'shortid';
 import { Service } from 'typedi';
 import EmailService from '../email/email.service';
 import NotAuthorized from '../errors/NotAuthorized';
-import User from '../users/entities/users.entity';
+import User from '../users/users.entity';
 import UserRepository from '../users/users.repository';
 import { getEmojiLog } from '../utils/getEmojiLog';
-import LoginRequest from './models/LoginRequest.dto';
+import LoginRequest from './LoginRequest.dto';
 
 @Service()
 class AuthService {
@@ -126,10 +126,35 @@ class AuthService {
     this.repository.saveUser(user);
   };
 
-  getAccessToken = (user: User): string =>
-    jwt.sign(user, process.env.JWT_ACCESS_SECRET as string, {
-      expiresIn: '10m',
-    });
+  getAccessToken = ({
+    id,
+    username,
+    email,
+    roles,
+    sessionId,
+    firstName,
+    lastName,
+    name,
+    gravatar,
+  }: User): string => {
+    return jwt.sign(
+      {
+        id,
+        username,
+        email,
+        roles,
+        sessionId,
+        firstName,
+        lastName,
+        name,
+        gravatar,
+      },
+      process.env.JWT_ACCESS_SECRET as string,
+      {
+        expiresIn: '10m',
+      },
+    );
+  };
 
   getRefreshToken = ({ id, sessionId }: RefreshTokenPayload): string =>
     jwt.sign({ id, sessionId }, process.env.JWT_REFRESH_SECRET as string, {

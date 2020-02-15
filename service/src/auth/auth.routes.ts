@@ -4,17 +4,17 @@ import { requestValidator } from '../handlers/requestValidator';
 import {
   login,
   requestResetPassword,
-  verifyAuthorization,
+  authenticateUser,
   getToken,
 } from './auth.handlers';
-import LoginRequest from './models/LoginRequest.dto';
-import RequestResetPasswordRequest from './models/RequestResetPasswordRequest.dto';
+import LoginRequest from './LoginRequest.dto';
+import RequestResetPasswordRequest from './RequestResetPasswordRequest.dto';
 
 const authRoutes = express.Router();
 
 authRoutes.post('/login', requestValidator(LoginRequest), asyncHandler(login));
 
-authRoutes.get('/token', asyncHandler(verifyAuthorization), getToken);
+authRoutes.get('/token', asyncHandler(authenticateUser), getToken);
 
 authRoutes.post(
   '/password/reset',

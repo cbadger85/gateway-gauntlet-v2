@@ -5,8 +5,8 @@ import uuid from 'uuid/v4';
 import EmailService from '../email/email.service';
 import BadRequest from '../errors/BadRequest';
 import NotFound from '../errors/NotFound';
-import User from './entities/users.entity';
-import AddUserRequest from './models/AddUserRequest.dto';
+import User from './users.entity';
+import UpsertUserRequest from './UpsertUserRequest.dto';
 import UserRepository from './users.repository';
 import shortid from 'shortid';
 import { getEmojiLog } from '../utils/getEmojiLog';
@@ -19,16 +19,16 @@ class UserService {
     private emailService: EmailService,
   ) {}
 
-  addUser = async (newUser: AddUserRequest): Promise<User> => {
+  addUser = async (newUser: UpsertUserRequest): Promise<User> => {
     console.log(getEmojiLog('👤', 'Creating new user...'));
-    const existingUsers = await this.repository.countUsersByUsernameOrEmail(
+    const [, existingUsers] = await this.repository.countUsersByUsernameOrEmail(
       newUser.username,
       newUser.email,
     );
 
     if (existingUsers) {
       console.log(getEmojiLog('🚫', 'User creation failed!'));
-      throw new BadRequest('User already exists');
+      throw new BadRequest('Username or email already exists');
     }
 
     const sessionId = uuid();
@@ -50,6 +50,39 @@ class UserService {
     return classToPlain(savedUser) as User;
   };
 
+  updateUser = async (
+    userId: string,
+    updatedUser: UpsertUserRequest,
+  ): Promise<User> => {
+    console.log(getEmojiLog('👤', 'Updating user...'));
+
+    const user = await this.repository.findUser(userId);
+
+    if (!user) {
+      console.log(getEmojiLog('🚫', 'User updating failed!'));
+      throw new NotFound('User does not exist');
+    }
+
+    const [existingUsers] = await this.repository.countUsersByUsernameOrEmail(
+      updatedUser.username,
+      updatedUser.email,
+    );
+
+    const isExistingUser = existingUsers.every(user => userId === user.id);
+
+    if (!isExistingUser) {
+      console.log(getEmojiLog('🚫', 'User creation failed!'));
+      throw new BadRequest('Username or email already exists');
+    }
+
+    const savedUser = await this.repository.saveUser(
+      plainToClass(User, { ...user, ...updatedUser }),
+    );
+
+    console.log(getEmojiLog('🙌', 'User updated!'), `ID: ${savedUser.id}`);
+    return classToPlain(savedUser) as User;
+  };
+
   disableAccount = async (id: string): Promise<void> => {
     console.log(getEmojiLog('🔐', 'Disabling user account...'), `ID: ${id}`);
     const user = await this.repository.findUser(id);
@@ -59,10 +92,24 @@ class UserService {
       throw new NotFound('user not found');
     }
 
-    user.sessionId = undefined;
+    user.sessionId = null;
 
     console.log(getEmojiLog('🙌', 'User account disabled!'), `ID: ${user.id}`);
-    this.repository.saveUser(user);
+    await this.repository.saveUser(user);
+  };
+
+  enableAccount = async (id: string): Promise<void> => {
+    console.log(getEmojiLog('🔓', 'Enabling user account...'), `ID: ${id}`);
+    const user = await this.repository.findUser(id);
+
+    if (!user) {
+      console.log(getEmojiLog('🚫', 'Enabling account failed!'));
+      throw new NotFound('user not found');
+    }
+
+    user.sessionId = uuid();
+
+    await this.repository.saveUser(user);
   };
 
   resetForgottenPassword = async (
@@ -111,7 +158,9 @@ class UserService {
 
   getAllUsers = async (): Promise<User[]> => {
     console.log(getEmojiLog('👤👤👤', 'Retrieving user list...'));
-    return await this.repository.findAllUsers();
+    return (await this.repository.findAllUsers()).map<User>(
+      user => classToPlain(user) as User,
+    );
   };
 
   changePassword = async (id: string, password: string): Promise<void> => {

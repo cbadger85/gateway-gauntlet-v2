@@ -1,6 +1,6 @@
 import Container from 'typedi';
 import AuthService from '../../auth/auth.service';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../../auth/Role.model';
 import request from 'supertest';
 import server from '../../server';
 import NotAuthorized from '../../errors/NotAuthorized';

@@ -1,9 +1,9 @@
-import { Role } from '../../auth/models/Role';
+import { Role } from '../../auth/Role.model';
 import Container from 'typedi';
 import AuthService from '../../auth/auth.service';
 import {
   login,
-  verifyAuthorization,
+  authenticateUser,
   requestResetPassword,
   getToken,
 } from '../../auth/auth.handlers';
@@ -100,7 +100,7 @@ describe('auth.handlers', () => {
     });
   });
 
-  describe('verifyAuthorization', () => {
+  describe('authenticateUser', () => {
     it('should call authService.refresh with the old access token and old refresh token', async () => {
       const userAuth = {
         id: '1234',
@@ -121,7 +121,7 @@ describe('auth.handlers', () => {
         },
       };
 
-      await verifyAuthorization(mockReq as any, mockRes as any, jest.fn());
+      await authenticateUser(mockReq as any, mockRes as any, jest.fn());
 
       expect(authService.refresh).toBeCalledWith(
         mockReq.headers['x-access-token'],
@@ -149,7 +149,7 @@ describe('auth.handlers', () => {
         },
       };
 
-      await verifyAuthorization(mockReq as any, mockRes as any, jest.fn());
+      await authenticateUser(mockReq as any, mockRes as any, jest.fn());
 
       expect(mockRes.setHeader).toHaveBeenNthCalledWith(
         1,
@@ -185,7 +185,7 @@ describe('auth.handlers', () => {
       };
 
       const next = jest.fn();
-      await verifyAuthorization(mockReq as any, mockRes as any, next);
+      await authenticateUser(mockReq as any, mockRes as any, next);
 
       expect(mockReq.user).toEqual(user);
     });
@@ -211,7 +211,7 @@ describe('auth.handlers', () => {
       };
 
       const next = jest.fn();
-      await verifyAuthorization(mockReq as any, mockRes as any, next);
+      await authenticateUser(mockReq as any, mockRes as any, next);
 
       expect(next).toBeCalledWith();
     });

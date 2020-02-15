@@ -3,13 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Route, RouteProps } from 'react-router-dom';
 import { useHasRole } from '../hooks/useHasRole';
 import { useLoaderDelay } from '../hooks/useLoaderDelay';
-import { RootState } from '../store/rootReducer';
-import { Role } from '../types/User';
-import { Auth } from '../types/Auth';
 import { checkToken } from '../store/auth/authSlice';
+import { RootState } from '../store/rootReducer';
+import { Auth } from '../types/Auth';
+import { Role } from '../types/User';
+import Navigation from './Navigation';
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRoles,
+  children,
   ...props
 }) => {
   const hasRoles = useHasRole();
@@ -31,7 +33,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     (!requiredRoles || hasRoles(...requiredRoles)) &&
     auth === Auth.LOGGED_IN
   ) {
-    return <Route {...props} />;
+    return (
+      <Route {...props}>
+        <Navigation />
+        {children}
+      </Route>
+    );
   }
 
   return <div>Not Authorized</div>;

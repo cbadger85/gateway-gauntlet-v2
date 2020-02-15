@@ -1,7 +1,7 @@
-import { Role } from '../auth/models/Role';
+import { Role } from '../auth/Role.model';
 import { bootstrap } from '../bootstrap';
 import dbSetup from '../dbSetup';
-import User from '../users/entities/users.entity';
+import User from '../users/users.entity';
 import bcrypt from 'bcryptjs';
 
 jest.mock('../dbSetup.ts', () => ({

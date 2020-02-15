@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { loginSuccess, logoutSucess } from '../auth/authSlice';
 import { User } from '../../types/User';
+import { loginSuccess, logoutSucess } from '../actions';
 
 const initialState: User = {
   firstName: '',
@@ -9,6 +9,9 @@ const initialState: User = {
   id: '',
   username: '',
   roles: [],
+  name: '',
+  sessionId: '',
+  gravatar: 'https://www.gravatar.com/avatar?s=200&d=mp&f=y',
 };
 
 const userSlice = createSlice({

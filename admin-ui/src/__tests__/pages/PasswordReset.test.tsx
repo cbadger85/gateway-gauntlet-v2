@@ -105,16 +105,17 @@ describe('<PasswordReset />', () => {
     (useQuery as jest.Mock).mockReturnValueOnce({ get: () => 'true' });
     (postResetPassword as jest.Mock).mockRejectedValue(undefined);
 
+    expect.assertions(1);
+
     const wrapper = shallow(<PasswordReset />);
     const handleSubmitPasswordReset = wrapper
       .find(PasswordResetForm)
       .invoke('submitPasswordReset');
 
-    try {
-      await handleSubmitPasswordReset({ password: '1111' } as any);
-    } catch {
-      expect(addSnackbar).toBeCalledWith('Failed to set password', 'error');
-    }
+    await handleSubmitPasswordReset({
+      password: '1111',
+    } as any);
+    expect(addSnackbar).toBeCalledWith('Failed to set password', 'error');
   });
 
   it('should dispatch addSnackbar if the reset password form is not submitted successfully', async () => {

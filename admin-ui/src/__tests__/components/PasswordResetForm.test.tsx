@@ -2,6 +2,8 @@ import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import PasswordResetForm from '../../components/PasswordResetForm';
+import { shallow } from 'enzyme';
+import Button from '@material-ui/core/Button';
 
 describe('<LoginForm />', () => {
   it('should call login when the form is submitted', async () => {
@@ -45,5 +47,21 @@ describe('<LoginForm />', () => {
     });
 
     expect(submitPasswordReset).not.toBeCalled();
+  });
+
+  it('should show the reset button on the profile page', async () => {
+    const submitPasswordReset = jest.fn();
+    const wrapper = shallow(
+      <PasswordResetForm
+        submitPasswordReset={submitPasswordReset}
+        profilePage
+      />,
+    );
+
+    const cancelButton = wrapper
+      .find(Button)
+      .findWhere(btn => btn.text() === 'Cancel');
+
+    expect(cancelButton.exists()).toBeTruthy();
   });
 });

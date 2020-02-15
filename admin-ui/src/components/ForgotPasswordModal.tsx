@@ -4,7 +4,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -12,8 +12,9 @@ import * as Yup from 'yup';
 
 const forgotPasswordSchema = Yup.object().shape({
   email: Yup.string()
-    .email('Must be a valid email')
-    .required('Email is required'),
+    .trim()
+    .required('Email is required')
+    .email('Must be a valid email'),
 });
 
 const useStyles = makeStyles(theme => ({
@@ -58,7 +59,6 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             fullWidth
             label="Email"
             name="email"
-            autoComplete="off"
             type="email"
             autoFocus
             inputRef={register}
@@ -67,16 +67,16 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             data-testid="email-input"
           />
           <DialogActions>
-            <Button
-              type="submit"
-              color="primary"
-              variant="contained"
-              data-testid="email-submit-button"
-            >
-              Submit
-            </Button>
             <Button onClick={closeModal} data-testid="email-cancel-button">
               Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="outlined"
+              data-testid="email-submit-button"
+              color="secondary"
+            >
+              Submit
             </Button>
           </DialogActions>
         </form>

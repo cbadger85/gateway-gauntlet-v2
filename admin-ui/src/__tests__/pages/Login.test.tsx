@@ -35,7 +35,7 @@ jest.mock('../../store/alert/alertSlice.ts', () => ({
 }));
 
 jest.mock('../../controllers/authController.ts', () => ({
-  postRequestResetPassword: jest.fn().mockResolvedValue(undefined),
+  postRequestResetPassword: jest.fn(),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -91,6 +91,23 @@ describe('<ProtectedRoute />', () => {
   });
 
   it('should call postRequestResetPassword and dispatch addSnackbar when the password change request is sent', async () => {
+    (postRequestResetPassword as jest.Mock).mockResolvedValue(undefined);
+    (useSelector as jest.Mock).mockReturnValue(Auth.LOGIN_FAILURE);
+
+    const wrapper = shallow(<Login />);
+
+    const handleSubmitForgotPassword = wrapper
+      .find(ForgotPasswordModal)
+      .invoke('submitForgotPassword');
+
+    await handleSubmitForgotPassword({ email: 'foo@example.com' });
+
+    expect(postRequestResetPassword).toBeCalledWith('foo@example.com');
+    expect(addSnackbar).toBeCalled();
+  });
+
+  it('should call postRequestResetPassword and dispatch addSnackbar if the email failed to send', async () => {
+    (postRequestResetPassword as jest.Mock).mockRejectedValue(undefined);
     (useSelector as jest.Mock).mockReturnValue(Auth.LOGIN_FAILURE);
 
     const wrapper = shallow(<Login />);

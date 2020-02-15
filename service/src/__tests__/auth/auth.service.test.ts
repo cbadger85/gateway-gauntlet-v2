@@ -2,9 +2,9 @@ import AuthService from '../../auth/auth.service';
 import Container from 'typedi';
 import bcrypt from 'bcryptjs';
 import { Repository } from 'typeorm';
-import User from '../../users/entities/users.entity';
+import User from '../../users/users.entity';
 import UserRepository from '../../users/users.repository';
-import { Role } from '../../auth/models/Role';
+import { Role } from '../../auth/Role.model';
 import NotAuthorized from '../../errors/NotAuthorized';
 import jwt from 'jsonwebtoken';
 import EmailService from '../../email/email.service';
@@ -22,6 +22,7 @@ mockUser.password = 'bar';
 mockUser.firstName = 'foo';
 mockUser.lastName = 'bar';
 mockUser.sessionId = '1234';
+mockUser.email = 'foo@example.com';
 mockUser.roles = [Role.USER];
 
 class MockRepository {
@@ -88,12 +89,20 @@ describe('AuthService', () => {
 
       expect(mockRepository.findUserByUsername).toBeCalledWith('foo');
       expect(bcrypt.compare).toBeCalledWith('bar', 'bar');
-      expect(authService.getAccessToken).toBeCalledWith(expectedUser);
+      expect(authService.getAccessToken).toBeCalledWith({
+        name: 'foo bar',
+        gravatar: expect.any(String),
+        ...expectedUser,
+      });
       expect(authService.getRefreshToken).toBeCalledWith({
         id: '1',
         sessionId: '1234',
       });
-      expect(user).toEqual(expectedUser);
+      expect(user).toEqual({
+        name: 'foo bar',
+        gravatar: expect.any(String),
+        ...expectedUser,
+      });
       expect(accessToken).toBe('access token');
       expect(refreshToken).toBe('refresh token');
     });
@@ -345,10 +354,12 @@ describe('AuthService', () => {
         id: '1234',
         firstName: 'foo',
         lastName: 'bar',
+        name: 'foo bar',
         roles: [Role.USER],
         sessionId: '5678',
         username: 'foobar',
         email: 'foo@example.com',
+        gravatar: expect.any(String),
       };
       const refreshTokenPayload = { id: '1234', sessionId: '5678' };
 
@@ -393,7 +404,7 @@ describe('AuthService', () => {
       expect(authService.getRefreshToken).toBeCalledTimes(1);
       expect(accessToken).toBe('access token');
       expect(refreshToken).toBe('refresh token');
-      // expect(user).toEqual(accessTokenPayload);
+      expect(user).toEqual(accessTokenPayload);
     });
 
     it('should throw a NotAuthorized if the refresh token is bad and the access token is bad', async () => {

@@ -1,12 +1,12 @@
-import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
-import Person from '@material-ui/icons/Person';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+import Typography from '@material-ui/core/Typography';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect } from 'react-router-dom';
+import colors from '../colors';
 import ForgotPasswordModal from '../components/ForgotPasswordModal';
 import LoginForm from '../components/LoginForm';
 import { postRequestResetPassword } from '../controllers/authController';
@@ -15,6 +15,7 @@ import { addSnackbar } from '../store/alert/alertSlice';
 import { checkToken, login } from '../store/auth/authSlice';
 import { RootState } from '../store/rootReducer';
 import { Auth } from '../types/Auth';
+import patch from '../images/grayscale-gauntlet.svg';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -24,15 +25,29 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    margin: theme.spacing(8, 5),
+    margin: theme.spacing(25, 5),
   },
-  loginIcon: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+  logText: {
+    color: colors.cyan[5],
+  },
+  inText: {
+    color: theme.palette.primary.dark,
   },
   forgottenPasswordButtonContainer: {
     textAlign: 'right',
     width: '100%',
+  },
+  colorBar: {
+    backgroundColor: colors.pink[5],
+    height: '5px',
+  },
+  gradientBackground: {
+    background: `linear-gradient(135deg, ${colors.blueGray[0]}, ${colors.blueGray[2]})`,
+    textAlign: 'center',
+  },
+  image: {
+    width: '50%',
+    marginTop: theme.spacing(5),
   },
 }));
 
@@ -68,10 +83,16 @@ const Login: React.FC = () => {
     dispatch(login(values.username, values.password));
   };
 
-  const handleSubmitForgotPassword = (values: { email: string }): void => {
-    postRequestResetPassword(values.email).then(() => {
-      dispatch(addSnackbar('Email sent!', 'info'));
-    });
+  const handleSubmitForgotPassword = async (values: {
+    email: string;
+  }): Promise<void> => {
+    postRequestResetPassword(values.email)
+      .then(() => {
+        dispatch(addSnackbar('Email sent!', 'info'));
+      })
+      .catch(() => {
+        dispatch(addSnackbar('Something went wrong', 'error'));
+      });
 
     setIsForgotPasswordModalShown(false);
   };
@@ -86,12 +107,27 @@ const Login: React.FC = () => {
 
   return (
     <Grid container className={classes.root} component="main">
-      <Grid item xs={false} sm={false} md={7} />
+      <Grid
+        item
+        xs={false}
+        sm={false}
+        md={7}
+        className={classes.gradientBackground}
+      >
+        <img
+          src={patch}
+          alt="gateway gauntlet patch"
+          className={classes.image}
+        />
+      </Grid>
       <Grid item xs={12} sm={12} md={5} component={Paper} elevation={5} square>
+        <div className={classes.colorBar} />
         <div className={classes.loginContainer}>
-          <Avatar className={classes.loginIcon}>
-            <Person fontSize="large" />
-          </Avatar>
+          <div style={{ textAlign: 'left', width: '100%' }}>
+            <Typography variant="h6" component="h1">
+              <span className={classes.logText}>Login</span> to your account
+            </Typography>
+          </div>
           <LoginForm login={handleLogin} />
           <div className={classes.forgottenPasswordButtonContainer}>
             <Button onClick={openForgotPasswordModal}>Forgot Password?</Button>
