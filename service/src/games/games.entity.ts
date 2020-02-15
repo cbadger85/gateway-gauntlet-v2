@@ -18,6 +18,15 @@ class Game {
   @Column({ unique: true })
   name!: string;
 
+  @Column('simple-array')
+  missions: string[];
+
+  @Column()
+  date: Date;
+
+  @Column({ default: 1 })
+  length: number;
+
   @ManyToMany(
     type => User,
     user => user.games,

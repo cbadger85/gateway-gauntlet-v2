@@ -71,7 +71,12 @@ describe('GameService', () => {
 
   describe('createGame', () => {
     it('should call userRepository.findUsersByIds', async () => {
-      const createGameRequest = { name: 'foo game', organizerIds: ['67890'] };
+      const createGameRequest = {
+        name: 'foo game',
+        organizerIds: ['67890'],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
       await gameService.createGame(createGameRequest);
 
       expect(mockUserRepository.findUsersByIds).toBeCalledWith(
@@ -88,7 +93,12 @@ describe('GameService', () => {
 
       mockUserRepository.findUsersByIds.mockResolvedValue([user]);
 
-      const createGameRequest = { name: game.name, organizerIds: [user.id] };
+      const createGameRequest = {
+        name: game.name,
+        organizerIds: [user.id],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
       await gameService.createGame(createGameRequest);
 
       const newGame = { name: game.name, users: [user] };
@@ -104,7 +114,13 @@ describe('GameService', () => {
       game.users = [user];
       mockGameRepository.saveGame.mockResolvedValue(game);
 
-      const createGameRequest = { name: game.name, organizerIds: [user.id] };
+      const createGameRequest = {
+        name: game.name,
+        organizerIds: [user.id],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
+
       const createdGame = await gameService.createGame(createGameRequest);
 
       const organizer = new Organizer(user);

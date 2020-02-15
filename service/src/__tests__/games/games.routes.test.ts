@@ -38,7 +38,12 @@ describe('games.routes', () => {
         user: { id: '1', roles: [Role.ORGANIZER] },
       });
 
-      const gameRequest = { name: 'fooGame', organizerIds: [uuid()] };
+      const gameRequest = {
+        name: 'fooGame',
+        organizerIds: [uuid()],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
 
       const game = { game: 'game' };
 
@@ -79,7 +84,12 @@ describe('games.routes', () => {
         user: { id: '1', roles: [Role.USER] },
       });
 
-      const gameRequest = { name: 'foo game', organizerIds: [uuid()] };
+      const gameRequest = {
+        name: 'foo game',
+        organizerIds: [uuid()],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
 
       const game = { game: 'game' };
 

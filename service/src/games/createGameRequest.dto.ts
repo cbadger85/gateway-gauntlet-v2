@@ -1,4 +1,13 @@
-import { IsNotEmpty, IsUUID, IsArray, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsUUID,
+  IsArray,
+  MaxLength,
+  IsDate,
+  IsInt,
+  IsOptional,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 
 class CreateGameRequest {
   @IsNotEmpty()
@@ -8,6 +17,18 @@ class CreateGameRequest {
   @IsArray()
   @IsUUID(undefined, { each: true })
   organizerIds: string[];
+
+  @IsDate()
+  @Type(() => Date)
+  date: Date;
+
+  @IsOptional()
+  @IsInt()
+  length?: number;
+
+  @IsArray()
+  @IsNotEmpty({ each: true })
+  missions: string[];
 }
 
 export default CreateGameRequest;

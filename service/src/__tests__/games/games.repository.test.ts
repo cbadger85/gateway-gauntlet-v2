@@ -31,6 +31,8 @@ const game = new Game();
 game.name = 'foo game';
 game.users = [user];
 game.players = [player1];
+game.date = new Date(Date.now());
+game.missions = ['mission 1', 'mission 2'];
 
 describe('UserRepository', () => {
   let gameRepository: GameRepository;
