@@ -5,6 +5,9 @@ export interface User {
   roles: Role[];
   firstName: string;
   lastName: string;
+  name: string;
+  gravatar: string;
+  sessionId?: string;
 }
 
 export enum Role {

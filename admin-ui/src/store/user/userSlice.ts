@@ -9,6 +9,9 @@ const initialState: User = {
   id: '',
   username: '',
   roles: [],
+  name: '',
+  sessionId: '',
+  gravatar: 'https://www.gravatar.com/avatar?s=200&d=mp&f=y',
 };
 
 const userSlice = createSlice({

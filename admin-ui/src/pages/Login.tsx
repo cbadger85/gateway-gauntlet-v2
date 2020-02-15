@@ -1,7 +1,7 @@
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid';
 import Paper from '@material-ui/core/Paper';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 import Typography from '@material-ui/core/Typography';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -83,10 +83,16 @@ const Login: React.FC = () => {
     dispatch(login(values.username, values.password));
   };
 
-  const handleSubmitForgotPassword = (values: { email: string }): void => {
-    postRequestResetPassword(values.email).then(() => {
-      dispatch(addSnackbar('Email sent!', 'info'));
-    });
+  const handleSubmitForgotPassword = async (values: {
+    email: string;
+  }): Promise<void> => {
+    postRequestResetPassword(values.email)
+      .then(() => {
+        dispatch(addSnackbar('Email sent!', 'info'));
+      })
+      .catch(() => {
+        dispatch(addSnackbar('Something went wrong', 'error'));
+      });
 
     setIsForgotPasswordModalShown(false);
   };

@@ -3,6 +3,7 @@ import React from 'react';
 import ResetPassword from './pages/PasswordReset';
 import Login from './pages/Login';
 import { Redirect } from 'react-router-dom';
+import Users from './pages/Users';
 
 const routesConfig = (
   options?: Partial<RouteConfigOptions>,
@@ -36,7 +37,7 @@ const routesConfig = (
     name: 'users',
     protected: true,
     requiredRoles: [Role.ADMIN],
-    component: () => <div>Users</div>,
+    component: Users,
     menuType: 'navbar',
   },
   profile: {

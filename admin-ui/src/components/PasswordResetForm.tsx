@@ -1,5 +1,5 @@
 import Button from '@material-ui/core/Button';
-import { makeStyles } from '@material-ui/core/styles';
+import makeStyles from '@material-ui/core/styles/makeStyles';
 import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import { useForm } from 'react-hook-form';
@@ -7,11 +7,12 @@ import * as Yup from 'yup';
 
 const passwordSchema = Yup.object().shape({
   password: Yup.string()
+    .trim()
     .required('Please enter a password')
     .min(8, 'Password must be at least 8 characters'),
   confirmPassword: Yup.string()
+    .trim()
     .required('Please confirm your password')
-
     .oneOf([Yup.ref('password'), null], 'Passwords need to match'),
 });
 
