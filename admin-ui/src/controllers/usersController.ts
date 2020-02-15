@@ -29,3 +29,13 @@ export const postDisableUser = async (userId: string): Promise<void> =>
 
 export const postEnableUser = async (userId: string): Promise<void> =>
   axios.post<void>(`${BASE_URL}/${userId}/enable`).then(res => res.data);
+
+export const putChangePassword = (
+  userId: string,
+  password: string,
+): Promise<void> =>
+  axios
+    .put<void>(`${BASE_URL}/${userId}/password`, {
+      password,
+    })
+    .then(res => res.data);

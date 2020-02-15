@@ -10,7 +10,7 @@ import { act } from 'react-dom/test-utils';
 import AddUserDrawer from '../../components/AddUserDrawer';
 
 jest.mock('react-redux', () => ({
-  useDispatch: jest.fn(),
+  useDispatch: jest.fn().mockReturnValue(jest.fn()),
 }));
 
 jest.mock('../../controllers/usersController', () => ({

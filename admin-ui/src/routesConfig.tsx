@@ -4,6 +4,7 @@ import ResetPassword from './pages/PasswordReset';
 import Login from './pages/Login';
 import { Redirect } from 'react-router-dom';
 import Users from './pages/Users';
+import Profile from './pages/Profile';
 
 const routesConfig = (
   options?: Partial<RouteConfigOptions>,
@@ -45,7 +46,7 @@ const routesConfig = (
     name: 'profile',
     exact: true,
     protected: true,
-    component: () => <div>Profile</div>,
+    component: Profile,
     menuType: 'navbar',
   },
 });

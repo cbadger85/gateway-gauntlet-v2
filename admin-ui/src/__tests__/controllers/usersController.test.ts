@@ -6,6 +6,7 @@ import {
   putUser,
   postDisableUser,
   postEnableUser,
+  putChangePassword,
 } from '../../controllers/usersController';
 import { Role } from '../../types/User';
 
@@ -20,7 +21,7 @@ beforeEach(jest.clearAllMocks);
 describe('userController', () => {
   describe('getAllUsers', () => {
     it('should call axios with the url and password', async () => {
-      (axios.post as jest.Mock).mockResolvedValue({ data: 'user' });
+      (axios.post as jest.Mock).mockResolvedValue({ data: undefined });
 
       const userId = 'aaa';
       const passwordResetId = 'bbb';
@@ -106,6 +107,20 @@ describe('userController', () => {
       const url = `${process.env.REACT_APP_BASE_URL}/users/1/enable`;
 
       expect(axios.post).toBeCalledWith(url);
+    });
+  });
+
+  describe('putChangePassword', () => {
+    it('should call axios with the url and password', async () => {
+      (axios.post as jest.Mock).mockResolvedValue({ data: undefined });
+
+      const userId = 'aaa';
+      const password = 'bar';
+      await putChangePassword(userId, password);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/users/${userId}/password`;
+
+      expect(axios.put).toBeCalledWith(url, { password });
     });
   });
 });
