@@ -32,8 +32,8 @@ class User {
   @Column('simple-array')
   roles!: Role[];
 
-  @Column({ nullable: true })
-  sessionId?: string;
+  @Column({ nullable: true, type: 'varchar' })
+  sessionId?: string | null;
 
   @Column()
   firstName: string;

@@ -13,6 +13,7 @@ import {
   updateUser,
   authorizedToUpdateUserPassword,
   authorizedToDisableUser,
+  enableAccount,
 } from './users.handlers';
 import { asyncHandler } from '../handlers/errorHandlers';
 import { requestValidator } from '../handlers/requestValidator';
@@ -46,6 +47,14 @@ userRoutes.post(
   uuidParamValidator(),
   asyncHandler(authorizedToDisableUser),
   asyncHandler(disableAccount),
+);
+
+userRoutes.post(
+  '/:id/enable',
+  asyncHandler(authenticateUser),
+  uuidParamValidator(),
+  asyncHandler(authorizedToDisableUser),
+  asyncHandler(enableAccount),
 );
 
 userRoutes.post(

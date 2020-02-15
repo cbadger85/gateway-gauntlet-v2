@@ -14,6 +14,7 @@ class MockService {
   updateUser = jest.fn();
   requestResetPassword = jest.fn();
   disableAccount = jest.fn();
+  enableAccount = jest.fn();
   resetForgottenPassword = jest.fn();
   getUser = jest.fn();
   changePassword = jest.fn();
@@ -405,6 +406,104 @@ describe('users.routes', () => {
 
       await request(await server())
         .post(`/users/111/disable`)
+        .expect(400);
+    });
+  });
+
+  describe('POST /users/:id/enable', () => {
+    it('should call enableAccount', async () => {
+      const userId = uuid();
+
+      const retrievedUser = {
+        id: userId,
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '2', roles: [Role.ADMIN] },
+      });
+
+      userService.getUser.mockResolvedValue(retrievedUser);
+
+      userService.enableAccount.mockResolvedValue(undefined);
+
+      await request(await server())
+        .post(`/users/${userId}/enable`)
+        .expect(204);
+
+      expect(userService.enableAccount).toBeCalledWith(userId);
+    });
+
+    it('should return a 403 if the user is not authorized', async () => {
+      const userId = uuid();
+
+      const retrievedUser = {
+        id: userId,
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.ADMIN],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '2', roles: [Role.ADMIN] },
+      });
+
+      userService.getUser.mockResolvedValue(retrievedUser);
+
+      userService.enableAccount.mockResolvedValue(undefined);
+
+      await request(await server())
+        .post(`/users/${userId}/enable`)
+        .expect(403);
+
+      expect(userService.enableAccount).not.toBeCalled();
+    });
+
+    it('should return a 404 if the user cannot be found', async () => {
+      const retrievedUser = {
+        id: '1',
+        username: 'foo',
+        email: 'email@example.com',
+        roles: [Role.USER],
+        firstName: 'foo',
+        lastName: 'bar',
+      };
+
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '2', roles: [Role.ADMIN] },
+      });
+
+      userService.getUser.mockResolvedValueOnce(retrievedUser);
+      userService.enableAccount.mockRejectedValue(new NotFound('not found'));
+
+      const userId = uuid();
+
+      await request(await server())
+        .post(`/users/${userId}/enable`)
+        .expect(404);
+    });
+
+    it('should return BadRequest if the uuid is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '222', roles: [Role.ADMIN] },
+      });
+
+      await request(await server())
+        .post(`/users/111/enable`)
         .expect(400);
     });
   });

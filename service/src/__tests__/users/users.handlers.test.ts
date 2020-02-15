@@ -14,6 +14,7 @@ import {
   authorizedToReadUser,
   authorizedToReadAllUsers,
   authorizedToCreateUser,
+  enableAccount,
 } from '../../users/users.handlers';
 import { Role } from '../../auth/Role.model';
 import Forbidden from '../../errors/Forbidden';
@@ -37,6 +38,7 @@ class MockService {
   getUser = jest.fn();
   getAllUsers = jest.fn();
   disableAccount = jest.fn();
+  enableAccount = jest.fn();
   resetForgottenPassword = jest.fn();
   changePassword = jest.fn();
 }
@@ -128,6 +130,28 @@ describe('users.handlers', () => {
       };
 
       await disableAccount(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.sendStatus).toBeCalledWith(204);
+    });
+  });
+
+  describe('disableAccount', () => {
+    it('should call userService.enableAccount with the user id', async () => {
+      const mockReq = {
+        params: { id: '1' },
+      };
+
+      await enableAccount(mockReq as any, mockRes as any, jest.fn());
+
+      expect(userService.enableAccount).toBeCalledWith(mockReq.params.id);
+    });
+
+    it('should call res.sendStatus with 204', async () => {
+      const mockReq = {
+        params: { id: '1' },
+      };
+
+      await enableAccount(mockReq as any, mockRes as any, jest.fn());
 
       expect(mockRes.sendStatus).toBeCalledWith(204);
     });

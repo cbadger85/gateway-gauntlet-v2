@@ -92,10 +92,24 @@ class UserService {
       throw new NotFound('user not found');
     }
 
-    user.sessionId = undefined;
+    user.sessionId = null;
 
     console.log(getEmojiLog('🙌', 'User account disabled!'), `ID: ${user.id}`);
-    this.repository.saveUser(user);
+    await this.repository.saveUser(user);
+  };
+
+  enableAccount = async (id: string): Promise<void> => {
+    console.log(getEmojiLog('🔓', 'Enabling user account...'), `ID: ${id}`);
+    const user = await this.repository.findUser(id);
+
+    if (!user) {
+      console.log(getEmojiLog('🚫', 'Enabling account failed!'));
+      throw new NotFound('user not found');
+    }
+
+    user.sessionId = uuid();
+
+    await this.repository.saveUser(user);
   };
 
   resetForgottenPassword = async (

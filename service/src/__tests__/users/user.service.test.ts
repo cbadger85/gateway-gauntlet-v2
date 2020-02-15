@@ -311,7 +311,7 @@ describe('UserService', () => {
       const expectedUser = {
         ...mockUser,
         id: '1',
-        sessionId: undefined,
+        sessionId: null,
       };
 
       expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
@@ -320,6 +320,42 @@ describe('UserService', () => {
     it('should throw a NotFound if the user cannot be found', async () => {
       mockRepository.findUser.mockResolvedValue(undefined);
       const error = await userService.disableAccount('1').catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('enableAccount', () => {
+    it('should call repository.findUser with the user id', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+
+      await userService.enableAccount('1');
+
+      expect(mockRepository.findUser).toBeCalledWith('1');
+    });
+
+    it('should call repository.save with the updated user', async () => {
+      mockRepository.findUser.mockResolvedValue({
+        id: '1',
+        ...mockUser,
+      });
+      await userService.enableAccount('1');
+
+      const expectedUser = {
+        ...mockUser,
+        id: '1',
+        sessionId: '5678',
+      };
+
+      expect(mockRepository.saveUser).toBeCalledWith(expectedUser);
+    });
+
+    it('should throw a NotFound if the user cannot be found', async () => {
+      mockRepository.findUser.mockResolvedValue(undefined);
+      const error = await userService.enableAccount('1').catch(e => e);
 
       expect(error).toBeInstanceOf(NotFound);
     });

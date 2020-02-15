@@ -41,6 +41,17 @@ export const disableAccount: RequestHandler<
   return res.sendStatus(204);
 };
 
+export const enableAccount: RequestHandler<
+  { id: string },
+  void,
+  never
+> = async (req, res) => {
+  const userService = Container.get(UserService);
+  await userService.enableAccount(req.params.id);
+
+  return res.sendStatus(204);
+};
+
 export const resetPassword: RequestHandler<
   { id: string; passwordResetId: string },
   void,
