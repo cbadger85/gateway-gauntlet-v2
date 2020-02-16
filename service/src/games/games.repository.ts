@@ -15,6 +15,9 @@ class GameRepository {
   findGameById = (id: string): Promise<Game | undefined> =>
     this.repository.findOne(id);
 
+  findGameByName = (name: string): Promise<Game | undefined> =>
+    this.repository.findOne({ name });
+
   saveGame = (game: Game): Promise<Game> => this.repository.save(game);
 }
 

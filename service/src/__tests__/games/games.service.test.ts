@@ -1,4 +1,3 @@
-import Container from 'typedi';
 import GameService from '../../games/games.service';
 import Player from '../../players/players.entity';
 import User from '../../users/users.entity';
@@ -10,6 +9,7 @@ import BadRequest from '../../errors/BadRequest';
 
 class MockGameRepository {
   findAllGames = jest.fn();
+  findGameByName = jest.fn();
   findGameById = jest.fn();
   saveGame = jest.fn();
 }
@@ -71,6 +71,8 @@ describe('GameService', () => {
 
   describe('createGame', () => {
     it('should call userRepository.findUsersByIds', async () => {
+      mockGameRepository.findGameByName.mockResolvedValue(undefined);
+
       const createGameRequest = {
         name: 'foo game',
         organizerIds: ['67890'],
@@ -85,6 +87,8 @@ describe('GameService', () => {
     });
 
     it('should call gameRepository.saveGame', async () => {
+      mockGameRepository.findGameByName.mockResolvedValue(undefined);
+
       const game = new Game();
       game.name = 'foo game';
       game.id = '34567';
@@ -107,6 +111,8 @@ describe('GameService', () => {
     });
 
     it('should return a game', async () => {
+      mockGameRepository.findGameByName.mockResolvedValue(undefined);
+
       mockUserRepository.findUsersByIds.mockResolvedValue([user]);
       const game = new Game();
       game.id = '12345';
@@ -130,6 +136,22 @@ describe('GameService', () => {
         name: game.name,
         organizers: [organizer],
       });
+    });
+
+    it('should throw a BadRequest if the game name is already in use', async () => {
+      mockGameRepository.findGameByName.mockResolvedValue(true);
+
+      const createGameRequest = {
+        name: 'foo game',
+        organizerIds: ['67890'],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
+      const error = await gameService
+        .createGame(createGameRequest)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(BadRequest);
     });
   });
 

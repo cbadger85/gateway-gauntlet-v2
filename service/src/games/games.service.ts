@@ -20,6 +20,12 @@ class GameService {
   ) {}
 
   createGame = async (game: CreateGameRequest): Promise<Game> => {
+    const existingGame = await this.gameRepository.findGameByName(game.name);
+
+    if (existingGame) {
+      throw new BadRequest('Game already exists');
+    }
+
     const users = await this.userRepository.findUsersByIds(game.organizerIds);
 
     const savedGame = await this.gameRepository.saveGame(

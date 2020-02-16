@@ -70,4 +70,12 @@ describe('UserRepository', () => {
 
     expect(foundGame).toEqual(savedGame);
   });
+
+  it('should find a game by name', async () => {
+    await gameRepository.saveGame(game);
+
+    const fooGame = await gameRepository.findGameByName(game.name);
+
+    expect(fooGame).toBeTruthy();
+  });
 });
