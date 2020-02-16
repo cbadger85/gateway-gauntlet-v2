@@ -8,7 +8,9 @@ class GameRepository {
   constructor(@InjectRepository(Game) private repository: Repository<Game>) {}
 
   findAllGames = (): Promise<Game[]> =>
-    this.repository.find({ select: ['id', 'name'] });
+    this.repository.find({
+      select: ['id', 'name', 'date', 'length', 'missions'],
+    });
 
   findGameById = (id: string): Promise<Game | undefined> =>
     this.repository.findOne(id);

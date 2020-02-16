@@ -220,4 +220,66 @@ describe('UserRepository', () => {
 
     expect(foundUsers).toEqual(expect.arrayContaining([users[0], users[1]]));
   });
+
+  it('should find all organizers', async () => {
+    const user1 = {
+      username: 'foo1',
+      password: 'bar',
+      roles: [Role.USER],
+      sessionId: '1234',
+      email: 'foo1@example.com',
+      firstName: 'foo1',
+      lastName: 'bar',
+    };
+
+    const user2 = {
+      username: 'foo2',
+      password: 'bar',
+      roles: [Role.ORGANIZER],
+      sessionId: '5678',
+      email: 'foo2@example.com',
+      firstName: 'foo2',
+      lastName: 'bar',
+    };
+
+    const user3 = {
+      username: 'foo3',
+      password: 'bar',
+      roles: [Role.ORGANIZER],
+      sessionId: null,
+      email: 'foo3@example.com',
+      firstName: 'foo3',
+      lastName: 'bar',
+    };
+
+    const user4 = {
+      username: 'foo4',
+      password: 'bar',
+      roles: [Role.ADMIN],
+      sessionId: '9999',
+      email: 'foo4@example.com',
+      firstName: 'foo4',
+      lastName: 'bar',
+    };
+
+    const repo = getRepository(User);
+    const users = await repo.save([user1, user2, user3, user4]);
+
+    const foundUsers = await userRepository.findOrganizers();
+
+    const expectedUsers = [
+      {
+        id: expect.any(String),
+        firstName: user2.firstName,
+        lastName: user2.lastName,
+      },
+      {
+        id: expect.any(String),
+        firstName: user4.firstName,
+        lastName: user4.lastName,
+      },
+    ];
+
+    expect(foundUsers).toEqual(expectedUsers);
+  });
 });

@@ -53,7 +53,15 @@ describe('UserRepository', () => {
 
     const games = await gameRepository.findAllGames();
 
-    expect(games).toEqual([{ id: expect.any(String), name: 'foo game' }]);
+    expect(games).toEqual([
+      {
+        id: expect.any(String),
+        name: 'foo game',
+        date: expect.any(Date),
+        length: 1,
+        missions: ['mission 1', 'mission 2'],
+      },
+    ]);
   });
 
   it('should find a game by id', async () => {
