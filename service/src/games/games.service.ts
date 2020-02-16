@@ -26,11 +26,13 @@ class GameService {
       throw new BadRequest('Game already exists');
     }
 
-    const users = await this.userRepository.findUsersByIds(game.organizerIds);
+    const { organizerIds, ...gameData } = game;
+
+    const users = await this.userRepository.findUsersByIds(organizerIds);
 
     const savedGame = await this.gameRepository.saveGame(
       plainToClass(Game, {
-        name: game.name,
+        ...gameData,
         users,
       }),
     );
