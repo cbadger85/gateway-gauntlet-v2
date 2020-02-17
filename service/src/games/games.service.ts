@@ -8,7 +8,6 @@ import Player from '../players/players.entity';
 import NotFound from '../errors/NotFound';
 import AddPlayerRequest from './games.addPlayerRequest.dto';
 import shortid from 'shortid';
-import PlayerRepository from '../players/players.repository';
 import BadRequest from '../errors/BadRequest';
 
 @Service()
@@ -16,8 +15,10 @@ class GameService {
   constructor(
     private gameRepository: GameRepository,
     private userRepository: UserRepository,
-    private playerRepository: PlayerRepository,
   ) {}
+
+  getGames = async (): Promise<Game[]> =>
+    await this.gameRepository.findAllGames();
 
   createGame = async (game: CreateGameRequest): Promise<Game> => {
     const existingGame = await this.gameRepository.findGameByName(game.name);
@@ -78,17 +79,9 @@ class GameService {
       throw new BadRequest('Player has already registered');
     }
 
-    const existingPlayer = await this.playerRepository.findPlayerByItsPin(
-      newPlayer.itsPin,
-    );
-
-    const player = existingPlayer
-      ? { ...existingPlayer, ...newPlayer }
-      : newPlayer;
-
     const shortCode = shortid();
 
-    game.players.push(plainToClass(Player, { ...player, shortCode }));
+    game.players.push(plainToClass(Player, { ...newPlayer, shortCode }));
 
     const savedGame = await this.gameRepository.saveGame(game);
 

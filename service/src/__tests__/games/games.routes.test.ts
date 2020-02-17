@@ -5,9 +5,11 @@ import AuthService from '../../auth/auth.service';
 import { Role } from '../../auth/Role.model';
 import GameService from '../../games/games.service';
 import server from '../../server';
+import NotAuthorized from '../../errors/NotAuthorized';
 
 class MockGameService {
   createGame = jest.fn();
+  getGames = jest.fn();
   addOrganizer = jest.fn();
   addPlayer = jest.fn();
 }
@@ -30,8 +32,49 @@ describe('games.routes', () => {
     authService = (Container.get(AuthService) as unknown) as MockAuthService;
   });
 
-  describe('Post /games', () => {
-    it('should call create a game', async () => {
+  describe('GET /games', () => {
+    it('should call getGames', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const games = [{ game: 'game' }];
+
+      gameService.getGames.mockResolvedValue(games);
+
+      const response = await request(await server())
+        .get('/games')
+        .expect(200);
+
+      expect(gameService.getGames).toBeCalledWith();
+      expect(response.body).toEqual(games);
+    });
+
+    it('should send a 401 if the user is not logged in', async () => {
+      authService.refresh.mockRejectedValue(new NotAuthorized());
+
+      await request(await server())
+        .get('/games')
+        .expect(401);
+    });
+
+    it('should send a 401 if the user is not logged in', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      await request(await server())
+        .get('/games')
+        .expect(403);
+    });
+  });
+
+  describe('POST /games', () => {
+    it('should call createGame', async () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',

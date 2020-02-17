@@ -61,13 +61,31 @@ beforeEach(jest.clearAllMocks);
 
 describe('GameService', () => {
   const mockGameRepository = new MockGameRepository();
-  const mockPlayerRepository = new MockPlayerRepository();
   const mockUserRepository = new MockUserRepository();
   let gameService = new GameService(
     mockGameRepository as any,
     mockUserRepository as any,
-    mockPlayerRepository as any,
   );
+
+  describe('getGames', () => {
+    it('should call gameRepository.findAllGames', async () => {
+      await gameService.getGames();
+
+      expect(mockGameRepository.findAllGames).toBeCalledWith();
+    });
+
+    it('should return a list of all game', async () => {
+      const game = new Game();
+      game.id = '12345';
+      game.name = 'foo game';
+      game.users = [user];
+      mockGameRepository.findAllGames.mockReturnValue([game]);
+
+      const foundGames = await gameService.getGames();
+
+      expect(foundGames).toEqual([game]);
+    });
+  });
 
   describe('createGame', () => {
     it('should call userRepository.findUsersByIds', async () => {
@@ -303,39 +321,10 @@ describe('GameService', () => {
       game.players = [player1];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
 
       await gameService.addPlayer(game.id, player2);
 
       expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
-    });
-
-    it('should call playerRepository.findPlayerByItsPin', async () => {
-      const player2 = new Player();
-      player2.name = 'foo bar';
-      player1.attending = true;
-      player2.paid = true;
-      player2.city = 'fooville';
-      player2.state = 'FL';
-      player2.email = 'foo@example.com';
-      player2.itsName = 'foobar';
-      player2.itsPin = 'qwerty';
-      player2.id = '09876';
-
-      const game = new Game();
-      game.name = 'foo game';
-      game.id = '34567';
-      game.users = [user];
-      game.players = [player1];
-
-      mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
-
-      await gameService.addPlayer(game.id, player2);
-
-      expect(mockPlayerRepository.findPlayerByItsPin).toBeCalledWith(
-        player2.itsPin,
-      );
     });
 
     it('should call repository.save', async () => {
@@ -357,7 +346,6 @@ describe('GameService', () => {
       game.players = [player1];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
 
       await gameService.addPlayer(game.id, player2);
 
@@ -384,7 +372,6 @@ describe('GameService', () => {
       game.players = [];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
       mockGameRepository.saveGame.mockResolvedValue(game);
 
       await gameService.addPlayer(game.id, player2);
@@ -415,7 +402,6 @@ describe('GameService', () => {
       game.players = [];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(player2);
       mockGameRepository.saveGame.mockResolvedValue(game);
 
       const player2Updated = { ...player2, name: 'bar baz' };
@@ -446,7 +432,6 @@ describe('GameService', () => {
       player2.shortCode = '12212';
 
       mockGameRepository.findGameById.mockResolvedValue(undefined);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(player2);
       mockGameRepository.saveGame.mockResolvedValue(game);
 
       const error = await gameService.addPlayer(game.id, player2).catch(e => e);
@@ -462,7 +447,6 @@ describe('GameService', () => {
       game.players = [player1];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(player1);
 
       const error = await gameService.addPlayer(game.id, player1).catch(e => e);
 

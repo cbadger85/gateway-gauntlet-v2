@@ -34,7 +34,7 @@ game.players = [player1];
 game.date = new Date(Date.now());
 game.missions = ['mission 1', 'mission 2'];
 
-describe('UserRepository', () => {
+describe('GameRepository', () => {
   let gameRepository: GameRepository;
 
   beforeEach(() => {

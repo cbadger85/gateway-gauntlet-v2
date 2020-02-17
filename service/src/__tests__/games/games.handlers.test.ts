@@ -1,6 +1,6 @@
 import Container from 'typedi';
 import GameService from '../../games/games.service';
-import { createGame, addPlayer } from '../../games/games.handlers';
+import { createGame, addPlayer, getGames } from '../../games/games.handlers';
 
 const mockRes = {
   json: jest.fn().mockReturnThis(),
@@ -9,6 +9,7 @@ const mockRes = {
 
 class MockGameService {
   createGame = jest.fn();
+  getGames = jest.fn();
   addOrganizer = jest.fn();
   addPlayer = jest.fn();
 }
@@ -39,6 +40,28 @@ describe('games.handlers', () => {
   beforeAll(() => {
     Container.set(GameService, new MockGameService());
     gameService = (Container.get(GameService) as unknown) as MockGameService;
+  });
+
+  describe('getGames', () => {
+    it('should call gameService.getGames', async () => {
+      const mockReq = {
+        body: mockGameRequest,
+      };
+
+      await getGames(mockReq as any, mockRes as any, jest.fn());
+
+      expect(gameService.getGames).toBeCalledWith();
+    });
+
+    it('should call res.json', async () => {
+      const game = ['game'];
+
+      gameService.getGames.mockResolvedValue(game);
+
+      await getGames({} as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(game);
+    });
   });
 
   describe('createGame', () => {

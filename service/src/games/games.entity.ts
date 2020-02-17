@@ -5,6 +5,7 @@ import {
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import Player from '../players/players.entity';
 import User from '../users/users.entity';
@@ -36,9 +37,9 @@ class Game {
   @Exclude({ toPlainOnly: true })
   users: User[];
 
-  @ManyToMany(
+  @OneToMany(
     type => Player,
-    player => player.email,
+    player => player.game,
     { cascade: true, eager: true },
   )
   @JoinTable()

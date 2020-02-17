@@ -6,6 +6,17 @@ import AddPlayerRequest from './games.addPlayerRequest.dto';
 import Game from './games.entity';
 import GameService from './games.service';
 
+export const getGames: RequestHandler<never, Game[], never> = async (
+  req,
+  res,
+) => {
+  const gameService = Container.get(GameService);
+
+  const games = await gameService.getGames();
+
+  return res.json(games);
+};
+
 export const createGame: RequestHandler<
   never,
   Game,
@@ -31,5 +42,7 @@ export const addPlayer: RequestHandler<
 };
 
 export const authorizedToCreateGame = authorizeUser('game::create');
+
+export const authorizedToReadGames = authorizeUser('game::read');
 
 export const authorizedToAddPlayer = authorizeUser('game::addPlayer');

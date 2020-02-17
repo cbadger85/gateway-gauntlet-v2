@@ -15,7 +15,7 @@ class UpsertUserRequest {
 
   @IsNotEmpty()
   @IsEmail()
-  @MaxLength(24)
+  @MaxLength(32)
   email: string;
 
   @ArrayNotEmpty()

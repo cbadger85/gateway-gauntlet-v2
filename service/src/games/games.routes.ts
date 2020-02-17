@@ -7,6 +7,8 @@ import {
   addPlayer,
   authorizedToCreateGame,
   authorizedToAddPlayer,
+  authorizedToReadGames,
+  getGames,
 } from './games.handlers';
 import { authenticateUser } from '../auth/auth.handlers';
 import AddPlayerRequest from './games.addPlayerRequest.dto';
@@ -14,11 +16,18 @@ import { uuidParamValidator } from '../handlers/uuidParamValidator';
 
 const gameRoutes = express.Router();
 
+gameRoutes.get(
+  '/',
+  asyncHandler(authenticateUser),
+  authorizedToReadGames,
+  asyncHandler(getGames),
+);
+
 gameRoutes.post(
   '/',
   asyncHandler(authenticateUser),
   requestValidator(CreateGameRequest),
-  asyncHandler(authorizedToCreateGame),
+  authorizedToCreateGame,
   asyncHandler(createGame),
 );
 
@@ -26,7 +35,7 @@ gameRoutes.post(
   '/:id',
   asyncHandler(authenticateUser),
   requestValidator(AddPlayerRequest),
-  asyncHandler(authorizedToAddPlayer),
+  authorizedToAddPlayer,
   uuidParamValidator(),
   asyncHandler(addPlayer),
 );

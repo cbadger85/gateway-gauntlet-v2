@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Column, Entity, ManyToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import Game from '../games/games.entity';
 
 @Entity()
@@ -12,7 +12,7 @@ class Player {
   @Column()
   itsName: string;
 
-  @Column({ unique: true })
+  @Column()
   itsPin: string;
 
   @Column()
@@ -30,11 +30,11 @@ class Player {
   @Column()
   attending: boolean;
 
-  @ManyToMany(
+  @ManyToOne(
     type => Game,
     game => game.players,
   )
-  games?: Game[];
+  game: Game;
 
   @Column()
   shortCode: string;
