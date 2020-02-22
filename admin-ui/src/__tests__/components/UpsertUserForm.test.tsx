@@ -1,12 +1,12 @@
-import { fireEvent, render, waitForElement } from '@testing-library/react';
+import MenuItem from '@material-ui/core/MenuItem';
+import { fireEvent, render } from '@testing-library/react';
+import { shallow } from 'enzyme';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
+import DisableUser from '../../components/DisableUser';
 import UpsertUserForm from '../../components/UpsertUserForm';
 import { useHasRole } from '../../hooks/useHasRole';
 import { Role, User } from '../../types/User';
-import { shallow } from 'enzyme';
-import MenuItem from '@material-ui/core/MenuItem';
-import DisableUser from '../../components/DisableUser';
 
 jest.mock('../../hooks/useHasRole', () => ({
   useHasRole: jest.fn(),
@@ -31,7 +31,7 @@ describe('<UpsertUserForm />', () => {
     const closeForm = jest.fn();
     const save = jest.fn();
     const clearErrorMessage = jest.fn();
-    const { getByTestId, debug, getByText, queryAllByRole } = render(
+    const { getByTestId, getByText } = render(
       <UpsertUserForm
         closeForm={closeForm}
         save={save}

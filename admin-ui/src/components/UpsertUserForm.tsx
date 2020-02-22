@@ -33,7 +33,7 @@ const upsertUserSchema = Yup.object().shape({
   email: Yup.string()
     .trim()
     .required('Please enter an email')
-    .max(24, 'Email must be less than 16 characters')
+    .max(32, 'Email must be less than 32 characters')
     .email('Must be a valid email'),
   roles: Yup.array()
     .required('At least one role is required')

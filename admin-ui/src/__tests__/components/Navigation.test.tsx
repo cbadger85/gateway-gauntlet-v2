@@ -8,7 +8,7 @@ import { Button } from '@material-ui/core';
 jest.mock('react-router-dom', () => ({
   useHistory: jest
     .fn()
-    .mockReturnValue({ location: { pathname: '/tournament-manager' } }),
+    .mockReturnValue({ location: { pathname: '/tournaments' } }),
 }));
 
 jest.mock('react-redux', () => ({
@@ -54,7 +54,7 @@ describe('Navigation', () => {
 
       const activeLink = wrapper
         .find(NavLink)
-        .findWhere(component => component.props().to === '/tournament-manager');
+        .findWhere(component => component.props().to === '/tournaments');
 
       expect(activeLink.props().isActive).toBeTruthy();
     });

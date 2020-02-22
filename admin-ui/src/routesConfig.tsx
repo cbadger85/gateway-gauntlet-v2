@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import { Redirect } from 'react-router-dom';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
+import Tournaments from './pages/Tournaments';
 
 const routesConfig = (
   options?: Partial<RouteConfigOptions>,
@@ -25,13 +26,23 @@ const routesConfig = (
     exact: true,
     component: ResetPassword,
   },
-  tournamentManager: {
-    path: '/tournament-manager',
-    name: 'tournament manager',
+  tournaments: {
+    path: '/tournaments',
+    name: 'tournaments',
     protected: true,
     requiredRoles: [Role.ORGANIZER],
-    component: () => <div>Tournament Manager</div>,
+    component: Tournaments,
     menuType: 'navbar',
+    exact: true,
+  },
+  tournamentPage: {
+    path: options?.tournamentId
+      ? `/tournament-manager/${options.tournamentId}`
+      : '/tournament-manager/:tournamentId',
+    name: 'tournament',
+    protected: true,
+    requiredRoles: [Role.ORGANIZER],
+    component: () => <div>Tournament</div>,
   },
   users: {
     path: '/users',
@@ -55,7 +66,8 @@ export default routesConfig;
 
 type RouteKeys =
   | 'users'
-  | 'tournamentManager'
+  | 'tournaments'
+  | 'tournamentPage'
   | 'profile'
   | 'login'
   | 'home'

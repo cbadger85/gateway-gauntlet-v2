@@ -28,12 +28,7 @@ const useStyles = makeStyles(theme => ({
     height: '100%',
     padding: theme.spacing(2),
     marginBottom: theme.spacing(5),
-  },
-  profilePaperWidth: {
-    width: '800px',
-  },
-  profilePaperMinWidth: {
-    width: '400px',
+    maxWidth: '800px',
   },
   lightText: {
     color: colors.blueGray[7],
@@ -74,19 +69,15 @@ const Profile: React.FC = () => {
 
   return (
     <div className={classes.pageContainer}>
-      <Box height="auto">
+      <Box height="auto" width="800px">
         <Typography
           variant="h4"
           component="h1"
           className={classes.headerContainer}
         >
-          Profile
+          PROFILE
         </Typography>
-        <Paper
-          className={`${classes.profilePaper} ${
-            matches ? classes.profilePaperWidth : classes.profilePaperMinWidth
-          }`}
-        >
+        <Paper className={classes.profilePaper}>
           <div>
             <Typography variant="h5" component="h2">
               {user.name}

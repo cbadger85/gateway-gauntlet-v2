@@ -18,7 +18,7 @@ jest.mock('../../controllers/axios', () => ({
 
 beforeEach(jest.clearAllMocks);
 
-describe('userController', () => {
+describe('usersController', () => {
   describe('getAllUsers', () => {
     it('should call axios with the url and password', async () => {
       (axios.post as jest.Mock).mockResolvedValue({ data: undefined });

@@ -32,12 +32,17 @@ const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
     setAddUserError(undefined);
   };
 
+  const handleCloseDrawer = (): void => {
+    clearErrorMessage();
+    closeDrawer();
+  };
+
   const handleAddUser = async (user: FieldData): Promise<void> => {
     postUser(user)
       .then(user => {
         onAddUser(user);
         clearErrorMessage();
-        closeDrawer();
+        handleCloseDrawer();
         dispatch(addSnackbar(`${user.name} added`));
       })
       .catch((e: AxiosError) => {
@@ -57,7 +62,7 @@ const AddUserDrawer: React.FC<AddUserDrawerProps> = ({
         </Typography>
         <UpsertUserForm
           save={handleAddUser}
-          closeForm={closeDrawer}
+          closeForm={handleCloseDrawer}
           errorMessage={addUserError}
           clearErrorMessage={clearErrorMessage}
           isSideDrawer

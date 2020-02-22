@@ -39,7 +39,7 @@ const fieldData = {
 };
 
 describe('<AddUserDrawer />', () => {
-  it('should call handleAddUser', async () => {
+  it('should call handleAddUser and call snackbar if successful', async () => {
     (postUser as jest.Mock).mockResolvedValue(user);
 
     const closeDrawer = jest.fn();
@@ -58,7 +58,7 @@ describe('<AddUserDrawer />', () => {
     expect(addSnackbar).toBeCalled();
   });
 
-  it('should call handleAddUser', async () => {
+  it('should call handleAddUser and set an error message if unsuccessful', async () => {
     (postUser as jest.Mock).mockRejectedValue(new Error());
 
     const closeDrawer = jest.fn();

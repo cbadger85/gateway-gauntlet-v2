@@ -77,6 +77,7 @@ const App: React.FC = () => {
                   key={route.path}
                   exact={route.exact}
                   path={route.path}
+                  requiredRoles={route.requiredRoles}
                 >
                   <route.component />
                 </ProtectedRoute>
