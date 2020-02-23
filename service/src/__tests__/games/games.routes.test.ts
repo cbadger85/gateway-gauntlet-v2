@@ -10,7 +10,9 @@ import NotAuthorized from '../../errors/NotAuthorized';
 class MockGameService {
   createGame = jest.fn();
   getGames = jest.fn();
+  getGame = jest.fn();
   addOrganizer = jest.fn();
+  removeOrganizer = jest.fn();
   addPlayer = jest.fn();
 }
 
@@ -60,7 +62,7 @@ describe('games.routes', () => {
         .expect(401);
     });
 
-    it('should send a 401 if the user is not logged in', async () => {
+    it('should send a 403 if the user does not have the right role', async () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
         refreshToken: 'refresh token',
@@ -70,6 +72,65 @@ describe('games.routes', () => {
       await request(await server())
         .get('/games')
         .expect(403);
+    });
+  });
+
+  describe('GET /game/:gameId', () => {
+    it('should call getGame', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const games = { game: 'game' };
+
+      gameService.getGame.mockResolvedValue(games);
+
+      const gameId = uuid();
+
+      const response = await request(await server())
+        .get(`/games/${gameId}`)
+        .expect(200);
+
+      expect(gameService.getGame).toBeCalledWith(gameId);
+      expect(response.body).toEqual(games);
+    });
+
+    it('should send a 401 if the user is not logged in', async () => {
+      authService.refresh.mockRejectedValue(new NotAuthorized());
+
+      const gameId = uuid();
+
+      await request(await server())
+        .get(`/games/${gameId}`)
+        .expect(401);
+    });
+
+    it('should send a 403 if the user does not have the right role', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      const gameId = uuid();
+
+      await request(await server())
+        .get(`/games/${gameId}`)
+        .expect(403);
+    });
+
+    it('should send a 400 if the uuid is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      await request(await server())
+        .get(`/games/1234`)
+        .expect(400);
     });
   });
 
@@ -145,7 +206,7 @@ describe('games.routes', () => {
     });
   });
 
-  describe('POST games/:id', () => {
+  describe('PUT games/:gameId/players', () => {
     it('should add a player to a game', async () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
@@ -170,7 +231,7 @@ describe('games.routes', () => {
       gameService.addPlayer.mockResolvedValue(game);
 
       const response = await request(await server())
-        .post(`/games/${gameId}`)
+        .put(`/games/${gameId}/players`)
         .send(addPlayerRequest)
         .expect(200);
 
@@ -201,7 +262,7 @@ describe('games.routes', () => {
       gameService.addPlayer.mockResolvedValue(game);
 
       await request(await server())
-        .post(`/games/${gameId}`)
+        .put(`/games/${gameId}/players`)
         .send(addPlayerRequest)
         .expect(400);
     });
@@ -229,7 +290,7 @@ describe('games.routes', () => {
       gameService.addPlayer.mockResolvedValue(game);
 
       await request(await server())
-        .post(`/games/111`)
+        .put(`/games/111/players`)
         .send(addPlayerRequest)
         .expect(400);
     });
@@ -258,8 +319,154 @@ describe('games.routes', () => {
       gameService.addPlayer.mockResolvedValue(game);
 
       await request(await server())
-        .post(`/games/${gameId}`)
+        .put(`/games/${gameId}/players`)
         .send(addPlayerRequest)
+        .expect(403);
+    });
+  });
+
+  describe('PUT games/:gameId/organizers', () => {
+    it('should add an organizer to a game', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const organizerId = uuid();
+      const organizerRequest = { organizerId };
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+
+      gameService.addOrganizer.mockResolvedValue(game);
+
+      const response = await request(await server())
+        .put(`/games/${gameId}/organizers`)
+        .send(organizerRequest)
+        .expect(200);
+
+      expect(gameService.addOrganizer).toBeCalledWith(gameId, organizerId);
+      expect(response.body).toEqual(game);
+    });
+
+    it('should send a 400 if the request is bad', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const organizerRequest = { organizerId: '1111' };
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+
+      gameService.addOrganizer.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/organizers`)
+        .send(organizerRequest)
+        .expect(400);
+    });
+
+    it('should send a 400 if the url has a bad uuid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const organizerId = uuid();
+      const organizerRequest = { organizerId };
+
+      const game = { game: 'game' };
+
+      gameService.addOrganizer.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/111/organizers`)
+        .send(organizerRequest)
+        .expect(400);
+    });
+
+    it('should send a 403 if the user does not have the right role', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      const organizerId = uuid();
+      const organizerRequest = { organizerId };
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+
+      gameService.addOrganizer.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/organizers`)
+        .send(organizerRequest)
+        .expect(403);
+    });
+  });
+
+  describe('DELETE games/:gameId/organizers/:organizerId', () => {
+    it('should add an organizer to a game', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const organizerId = uuid();
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+
+      gameService.removeOrganizer.mockResolvedValue(game);
+
+      const response = await request(await server())
+        .delete(`/games/${gameId}/organizers/${organizerId}`)
+        .expect(200);
+
+      expect(gameService.removeOrganizer).toBeCalledWith(gameId, organizerId);
+      expect(response.body).toEqual(game);
+    });
+
+    it('should send a 400 if the url has a bad uuid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+
+      gameService.removeOrganizer.mockResolvedValue(game);
+
+      await request(await server())
+        .delete(`/games/111/organizers/222`)
+        .expect(400);
+    });
+
+    it('should send a 403 if the user does not have the right role', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      const organizerId = uuid();
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+
+      gameService.removeOrganizer.mockResolvedValue(game);
+
+      await request(await server())
+        .delete(`/games/${gameId}/organizers/${organizerId}`)
         .expect(403);
     });
   });

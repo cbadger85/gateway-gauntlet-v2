@@ -41,6 +41,16 @@ class GameService {
     return classToPlain(savedGame) as Game;
   };
 
+  getGame = async (gameId: string): Promise<Game> => {
+    const foundGame = await this.gameRepository.findGameById(gameId);
+
+    if (!foundGame) {
+      throw new NotFound('Tournament not found');
+    }
+
+    return classToPlain(foundGame) as Game;
+  };
+
   addOrganizer = async (gameId: string, organizerId: string): Promise<Game> => {
     const game = await this.gameRepository.findGameById(gameId);
 
@@ -59,6 +69,35 @@ class GameService {
     }
 
     game.users.push(user);
+
+    const savedGame = await this.gameRepository.saveGame(game);
+
+    return classToPlain(savedGame) as Game;
+  };
+
+  removeOrganizer = async (
+    gameId: string,
+    organizerId: string,
+  ): Promise<Game> => {
+    const game = await this.gameRepository.findGameById(gameId);
+
+    if (!game) {
+      throw new NotFound('Game cannot be found');
+    }
+
+    const user = await this.userRepository.findUser(organizerId);
+
+    if (!user) {
+      throw new NotFound('User cannot be found');
+    }
+
+    if (game.organizers.length <= 1) {
+      throw new BadRequest('Cannot have less than one organizer');
+    }
+
+    const updatedUsers = game.users.filter(user => user.id !== organizerId);
+
+    game.users = updatedUsers;
 
     const savedGame = await this.gameRepository.saveGame(game);
 

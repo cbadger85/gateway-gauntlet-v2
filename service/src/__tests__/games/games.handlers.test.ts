@@ -1,6 +1,13 @@
 import Container from 'typedi';
 import GameService from '../../games/games.service';
-import { createGame, addPlayer, getGames } from '../../games/games.handlers';
+import {
+  createGame,
+  addPlayer,
+  getGames,
+  getGame,
+  addOrganizer,
+  removeOrganizer,
+} from '../../games/games.handlers';
 
 const mockRes = {
   json: jest.fn().mockReturnThis(),
@@ -10,7 +17,9 @@ const mockRes = {
 class MockGameService {
   createGame = jest.fn();
   getGames = jest.fn();
+  getGame = jest.fn();
   addOrganizer = jest.fn();
+  removeOrganizer = jest.fn();
   addPlayer = jest.fn();
 }
 
@@ -44,11 +53,7 @@ describe('games.handlers', () => {
 
   describe('getGames', () => {
     it('should call gameService.getGames', async () => {
-      const mockReq = {
-        body: mockGameRequest,
-      };
-
-      await getGames(mockReq as any, mockRes as any, jest.fn());
+      await getGames({} as any, mockRes as any, jest.fn());
 
       expect(gameService.getGames).toBeCalledWith();
     });
@@ -59,6 +64,36 @@ describe('games.handlers', () => {
       gameService.getGames.mockResolvedValue(game);
 
       await getGames({} as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(game);
+    });
+  });
+
+  describe('getGame', () => {
+    it('should call gameService.getGame', async () => {
+      const mockReq = {
+        params: {
+          gameId: '1234',
+        },
+      };
+
+      await getGame(mockReq as any, mockRes as any, jest.fn());
+
+      expect(gameService.getGame).toBeCalledWith('1234');
+    });
+
+    it('should call res.json', async () => {
+      const mockReq = {
+        params: {
+          gameId: '1234',
+        },
+      };
+
+      const game = 'game';
+
+      gameService.getGames.mockResolvedValue(game);
+
+      await getGames(mockReq as any, mockRes as any, jest.fn());
 
       expect(mockRes.json).toBeCalledWith(game);
     });
@@ -95,14 +130,14 @@ describe('games.handlers', () => {
       const mockReq = {
         body: mockAddPlayerRequest,
         params: {
-          id: 'asdfg',
+          gameId: 'asdfg',
         },
       };
 
       await addPlayer(mockReq as any, mockRes as any, jest.fn());
 
       expect(gameService.addPlayer).toBeCalledWith(
-        mockReq.params.id,
+        mockReq.params.gameId,
         mockAddPlayerRequest,
       );
     });
@@ -111,7 +146,7 @@ describe('games.handlers', () => {
       const mockReq = {
         body: mockAddPlayerRequest,
         params: {
-          id: 'asdfg',
+          gameId: 'asdfg',
         },
       };
 
@@ -119,7 +154,77 @@ describe('games.handlers', () => {
 
       gameService.addPlayer.mockResolvedValue(game);
 
-      await createGame(mockReq as any, mockRes as any, jest.fn());
+      await addPlayer(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(game);
+    });
+  });
+
+  describe('addOrganizer', () => {
+    it('should call gameService.addOrganizer', async () => {
+      const mockReq = {
+        body: { organizerId: '1234' },
+        params: {
+          gameId: 'asdfg',
+        },
+      };
+
+      await addOrganizer(mockReq as any, mockRes as any, jest.fn());
+
+      expect(gameService.addOrganizer).toBeCalledWith(
+        mockReq.params.gameId,
+        mockReq.body.organizerId,
+      );
+    });
+
+    it('should call res.json', async () => {
+      const mockReq = {
+        body: { organizerId: '1234' },
+        params: {
+          gameId: 'asdfg',
+        },
+      };
+
+      const game = 'game';
+
+      gameService.addOrganizer.mockResolvedValue(game);
+
+      await addOrganizer(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(game);
+    });
+  });
+
+  describe('removeOrganizer', () => {
+    it('should call gameService.removeOrganizer', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+          organizerId: '1234',
+        },
+      };
+
+      await removeOrganizer(mockReq as any, mockRes as any, jest.fn());
+
+      expect(gameService.removeOrganizer).toBeCalledWith(
+        mockReq.params.gameId,
+        mockReq.params.organizerId,
+      );
+    });
+
+    it('should call res.json', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+          organizerId: '1234',
+        },
+      };
+
+      const game = 'game';
+
+      gameService.removeOrganizer.mockResolvedValue(game);
+
+      await removeOrganizer(mockReq as any, mockRes as any, jest.fn());
 
       expect(mockRes.json).toBeCalledWith(game);
     });

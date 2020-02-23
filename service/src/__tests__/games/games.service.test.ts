@@ -19,10 +19,6 @@ class MockUserRepository {
   findUsersByIds = jest.fn();
 }
 
-class MockPlayerRepository {
-  findPlayerByItsPin = jest.fn();
-}
-
 const player1 = new Player();
 player1.name = 'foo';
 player1.attending = true;
@@ -84,6 +80,46 @@ describe('GameService', () => {
       const foundGames = await gameService.getGames();
 
       expect(foundGames).toEqual([game]);
+    });
+  });
+
+  describe('getGame', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.id = '12345';
+      game.name = 'foo game';
+      game.users = [user];
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.getGame('1234');
+
+      expect(mockGameRepository.findGameById).toBeCalledWith('1234');
+    });
+
+    it('should return a game', async () => {
+      const game = new Game();
+      game.id = '12345';
+      game.name = 'foo game';
+      game.users = [user];
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      const foundGame = await gameService.getGame('1234');
+
+      const expectedGame = {
+        id: game.id,
+        name: game.name,
+        organizers: [{ id: user.id, email: user.email, name: user.name }],
+      };
+
+      expect(foundGame).toEqual(expectedGame);
+    });
+
+    it('should throw a not found if no game is found', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService.getGame('1234').catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
     });
   });
 
@@ -294,6 +330,133 @@ describe('GameService', () => {
 
       const error = await gameService
         .addOrganizer(game.id, user.id)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(BadRequest);
+    });
+  });
+
+  describe('removeOrganizer', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+
+      await gameService.removeOrganizer(game.id, user.id);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call userRepository.findUser', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+
+      await gameService.removeOrganizer(game.id, user.id);
+
+      expect(mockUserRepository.findUser).toBeCalledWith(user.id);
+    });
+
+    it('should call gameRepository.saveGame', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user2);
+
+      await gameService.removeOrganizer(game.id, user.id);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.users).toHaveLength(1);
+    });
+
+    it('should call return a game with the organizer removed', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      const game2 = new Game();
+      game2.name = 'foo game';
+      game2.id = '34567';
+      game2.users = [user2];
+      game2.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+      mockGameRepository.saveGame.mockResolvedValue(game2);
+
+      const savedGame = await gameService.removeOrganizer(game.id, user.id);
+
+      const organizer2 = new Organizer(user2);
+
+      expect(savedGame).toEqual({
+        id: game.id,
+        name: game.name,
+        players: game.players,
+        organizers: [organizer2],
+      });
+    });
+
+    it('should throw a NotFound if the game cannot be found', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .removeOrganizer(game.id, user2.id)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+
+    it('should throw a NotFound if the user cannot be found', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .removeOrganizer(game.id, user2.id)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+
+    it('should throw a bad request if removing the last organizer', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+
+      const error = await gameService
+        .removeOrganizer(game.id, user.id)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(BadRequest);
