@@ -31,7 +31,7 @@ const StyledTableCell = withStyles(theme =>
 const StyledTableRow = withStyles(theme =>
   createStyles({
     root: {
-      '&:nth-of-type(odd)': {
+      '&:nth-of-type(even)': {
         backgroundColor: theme.palette.background.default,
       },
     },
