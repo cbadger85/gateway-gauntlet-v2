@@ -88,7 +88,7 @@ const App: React.FC = () => {
               ),
             )}
             <Route>
-              <Redirect to="/tournament-manager" />
+              <Redirect to={routesConfig().tournaments.path} />
             </Route>
           </Switch>
         </Router>

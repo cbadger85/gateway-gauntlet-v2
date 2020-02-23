@@ -1,11 +1,18 @@
 import { AddTournamentFieldData } from '../../components/AddTournamentForm';
 import axios from '../../controllers/axios';
-import { getGames, postGame } from '../../controllers/gamesController';
+import {
+  getGames,
+  postGame,
+  getGameById,
+  putOrganizer,
+  deleteOrganizer,
+} from '../../controllers/gamesController';
 
 jest.mock('../../controllers/axios', () => ({
   get: jest.fn(),
   post: jest.fn(),
   put: jest.fn(),
+  delete: jest.fn(),
 }));
 
 beforeEach(jest.clearAllMocks);
@@ -39,6 +46,47 @@ describe('gamesController', () => {
       const url = `${process.env.REACT_APP_BASE_URL}/games`;
 
       expect(axios.get).toBeCalledWith(url);
+    });
+  });
+
+  describe('getGameById', () => {
+    it('should call axios with the url', async () => {
+      (axios.get as jest.Mock).mockResolvedValue({ data: 'game' });
+      const gameId = '1234';
+
+      await getGameById(gameId);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}`;
+
+      expect(axios.get).toBeCalledWith(url);
+    });
+  });
+
+  describe('putOrganizer', () => {
+    it('should call axios with the url and organizerId', async () => {
+      (axios.put as jest.Mock).mockResolvedValue({ data: 'game' });
+      const gameId = '1234';
+      const organizerId = '5678';
+
+      await putOrganizer(gameId, organizerId);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}/organizers`;
+
+      expect(axios.put).toBeCalledWith(url, { organizerId });
+    });
+  });
+
+  describe('deleteOrganizer', () => {
+    it('should call axios with the url', async () => {
+      (axios.delete as jest.Mock).mockResolvedValue({ data: 'game' });
+      const gameId = '1234';
+      const organizerId = '5678';
+
+      await deleteOrganizer(gameId, organizerId);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}/organizers/${organizerId}`;
+
+      expect(axios.delete).toBeCalledWith(url);
     });
   });
 });

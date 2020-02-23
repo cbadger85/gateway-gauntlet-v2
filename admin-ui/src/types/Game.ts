@@ -17,6 +17,12 @@ export interface Player {
   shortCode: string;
 }
 
+export enum GameStatus {
+  NEW = 'NEW',
+  REGISTRATION_OPEN = 'REGISTRATION_OPEN',
+  REGISTRATION_CLOSED = 'REGISTRATON_CLOSED',
+}
+
 export interface Game {
   id: string;
   name: string;
@@ -25,4 +31,6 @@ export interface Game {
   organizers: Organizer[];
   players: Player[];
   missions: string[];
+  status: GameStatus;
+  price: number;
 }

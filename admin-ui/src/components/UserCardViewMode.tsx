@@ -69,6 +69,7 @@ const UserCardViewMode: React.FC<UserCardViewDetailsProps> = ({
             variant="outlined"
             color="primary"
             onClick={handleSetIsEditMode}
+            size="small"
           >
             Edit
           </Button>

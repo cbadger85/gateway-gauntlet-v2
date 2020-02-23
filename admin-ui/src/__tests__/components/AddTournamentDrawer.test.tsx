@@ -1,22 +1,26 @@
+import { mount, shallow } from 'enzyme';
 import React from 'react';
-import { User, Role } from '../../types/User';
-import { getOrganizers } from '../../controllers/organizersController';
-import { postGame } from '../../controllers/gamesController';
-import { addSnackbar } from '../../store/alert/alertSlice';
+import { act } from 'react-dom/test-utils';
+import { useSelector } from 'react-redux';
+import AddTournamentDrawer from '../../components/AddTournamentDrawer';
 import AddTournamentForm, {
   AddTournamentFieldData,
 } from '../../components/AddTournamentForm';
-import { mount, shallow } from 'enzyme';
-import AddTournamentDrawer from '../../components/AddTournamentDrawer';
+import { postGame } from '../../controllers/gamesController';
+import { addSnackbar } from '../../store/alert/alertSlice';
+import { getOrganizerList } from '../../store/organizer/organizerSlice';
 import { Game } from '../../types/Game';
-import { act } from 'react-dom/test-utils';
+import { Role, User } from '../../types/User';
+
+jest.mock('../../store');
 
 jest.mock('react-redux', () => ({
   useDispatch: jest.fn().mockReturnValue(jest.fn()),
+  useSelector: jest.fn(),
 }));
 
-jest.mock('../../controllers/organizersController', () => ({
-  getOrganizers: jest.fn(),
+jest.mock('../../store/organizer/organizerSlice', () => ({
+  getOrganizerList: jest.fn(),
 }));
 
 jest.mock('../../controllers/gamesController', () => ({
@@ -57,7 +61,7 @@ const addTournamentFieldData: AddTournamentFieldData = {
 };
 
 beforeAll(() => {
-  (getOrganizers as jest.Mock).mockResolvedValue([organizer]);
+  (useSelector as jest.Mock).mockReturnValue([organizer]);
 });
 
 beforeEach(jest.clearAllMocks);
@@ -77,7 +81,7 @@ describe('<AddTournamentDrawer />', () => {
       );
     });
 
-    expect(getOrganizers).toBeCalledWith();
+    expect(getOrganizerList).toBeCalledWith();
   });
 
   it('should call createTournament and call snackbar if successful', async () => {

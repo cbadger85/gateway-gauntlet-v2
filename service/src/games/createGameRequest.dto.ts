@@ -26,6 +26,10 @@ class CreateGameRequest {
   @IsInt()
   length?: number;
 
+  @IsOptional()
+  @IsInt()
+  price?: string;
+
   @IsArray()
   @IsNotEmpty({ each: true })
   missions: string[];

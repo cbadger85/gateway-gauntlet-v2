@@ -10,7 +10,6 @@ import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import colors from '../colors';
 import { useHasRole } from '../hooks/useHasRole';
 import { Role, User } from '../types/User';
 import { enumToCapitalcase } from '../utils/enumToCapitalcase';
@@ -61,14 +60,6 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     height: 'calc(100% - 56px)',
-  },
-  redButton: {
-    borderColor: colors.red[5],
-    color: colors.red[5],
-    '&:hover': {
-      backgroundColor: `${colors.red[3]}22`,
-      borderColor: colors.red[4],
-    },
   },
   badRequestAlert: {
     margin: theme.spacing(2, 0),

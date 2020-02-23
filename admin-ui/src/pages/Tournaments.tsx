@@ -9,6 +9,8 @@ import AddTournamentDrawer from '../components/AddTournamentDrawer';
 import { Game } from '../types/Game';
 import { getGames } from '../controllers/gamesController';
 import TournamentTable from '../components/TournamentTable';
+import { useDispatch } from 'react-redux';
+import { clearTournament } from '../store/tournament/tournamentSlice';
 
 const useStyles = makeStyles(theme => ({
   pageContainer: {
@@ -23,6 +25,7 @@ const useStyles = makeStyles(theme => ({
 const TournamentManager: React.FC = () => {
   const classes = useStyles();
   const hasRole = useHasRole();
+  const dispatch = useDispatch();
   const [isDrawerOpen, toggleDrawer] = useState(false);
   const [tournaments, setTournaments] = useState<Game[]>([]);
 
@@ -31,6 +34,10 @@ const TournamentManager: React.FC = () => {
       setTournaments(games);
     });
   }, []);
+
+  useEffect(() => {
+    dispatch(clearTournament());
+  }, [dispatch]);
 
   const addTournament = (newTournament: Game): void => {
     setTournaments(tournaments => [...tournaments, newTournament]);

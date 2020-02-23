@@ -1,14 +1,15 @@
 import Drawer from '@material-ui/core/Drawer';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import Typography from '@material-ui/core/Typography';
-import React, { useState, useEffect } from 'react';
-import AddTournamentForm, { AddTournamentFieldData } from './AddTournamentForm';
-import { getOrganizers } from '../controllers/organizersController';
-import { postGame } from '../controllers/gamesController';
 import { AxiosError } from 'axios';
-import { useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { postGame } from '../controllers/gamesController';
 import { addSnackbar } from '../store/alert/alertSlice';
+import { getOrganizerList } from '../store/organizer/organizerSlice';
+import { RootState } from '../store/rootReducer';
 import { Game } from '../types/Game';
+import AddTournamentForm, { AddTournamentFieldData } from './AddTournamentForm';
 
 const useStyles = makeStyles(theme => ({
   bottomMargin: {
@@ -28,9 +29,7 @@ const AddTournamentDrawer: React.FC<AddTournamentDrawerProps> = ({
 }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const [organizers, setOrganizers] = useState<{ id: string; name: string }[]>(
-    [],
-  );
+  const organizers = useSelector((state: RootState) => state.organizers);
   const [addTournamentError, setAddTournamentError] = useState<string>();
 
   const clearAddTournamentError = (): void => {
@@ -43,10 +42,8 @@ const AddTournamentDrawer: React.FC<AddTournamentDrawerProps> = ({
   };
 
   useEffect(() => {
-    getOrganizers().then(organizers => {
-      setOrganizers(organizers);
-    });
-  }, []);
+    dispatch(getOrganizerList());
+  }, [dispatch]);
 
   const createTournament = async (
     data: AddTournamentFieldData,

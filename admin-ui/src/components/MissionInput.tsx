@@ -79,12 +79,12 @@ export const MissionItem: React.FC<MissionItemProps> = ({
 
   return (
     <div>
-      <p className={classes.missionContainer}>
+      <div className={classes.missionContainer}>
         <p>{mission}</p>
         <IconButton size="small" onClick={handleRemoveMission}>
           <DeleteIcon />
         </IconButton>
-      </p>
+      </div>
       {!isLast && <Divider />}
     </div>
   );

@@ -4,8 +4,6 @@ import alertReducer, {
 } from '../../store/alert/alertSlice';
 import { SnackbarMessage } from '../../types/SnackbarMessage';
 
-// jest.mock('shortid', () => jest.fn().mockReturnValue('1234'));
-
 describe('alertSlice', () => {
   describe('alertReducer', () => {
     it('should add a snackbar when addSnackbar is called', () => {
