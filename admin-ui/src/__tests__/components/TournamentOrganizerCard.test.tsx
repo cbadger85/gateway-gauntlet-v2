@@ -18,6 +18,8 @@ jest.mock('react-redux', () => ({
   ]),
 }));
 
+jest.mock('../../store');
+
 describe('<TournamentOrganizerCard />', () => {
   it('should show a list of TournamentOrganizerTableRows', () => {
     const wrapper = shallow(<TournamentOrganizersCard />);
