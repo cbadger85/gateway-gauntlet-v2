@@ -29,6 +29,7 @@ const addTournamentSchema = Yup.object().shape({
     .typeError('Number of days must be a number')
     .transform((current, initial) => (!initial ? 1 : current))
     .integer('Number of days must be an integer')
+    .positive('Number of days must be a positive number')
     .notRequired(),
   missions: Yup.array()
     .required('At least one mission is required')
@@ -36,6 +37,11 @@ const addTournamentSchema = Yup.object().shape({
   organizerIds: Yup.array()
     .required('At least one TO is required')
     .ensure(),
+  price: Yup.number()
+    .typeError('Price must be a number')
+    .transform((current, initial) => (!initial ? 0 : current))
+    .min(0, 'Price must be a positive number')
+    .notRequired(),
 });
 
 export type AddTournamentFieldData = Yup.InferType<typeof addTournamentSchema>;
@@ -83,7 +89,8 @@ const AddTournamentForm: React.FC<AddTournamentFormProps> = ({
   });
 
   const handleAddTournament = (game: AddTournamentFieldData): void => {
-    save(game);
+    const price = game.price ? game.price * 100 : 0;
+    save({ ...game, price });
   };
 
   return (
@@ -134,6 +141,17 @@ const AddTournamentForm: React.FC<AddTournamentFormProps> = ({
           error={!!errors.length}
           helperText={errors.length ? errors.length.message : ''}
           data-testid="tournament-length-input"
+          inputRef={register}
+        />
+        <TextField
+          className={classes.bottomMargin}
+          fullWidth
+          label="Price of the tournament in USD"
+          name="price"
+          autoComplete="off"
+          error={!!errors.price}
+          helperText={errors.price ? errors.price.message : ''}
+          data-testid="tournament-price-input"
           inputRef={register}
         />
         <FormControl required error={!!errors.organizerIds} fullWidth>
