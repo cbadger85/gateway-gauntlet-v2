@@ -7,7 +7,7 @@ import TournamentTable from '../../components/TournamentTable';
 import { getGames } from '../../controllers/gamesController';
 import { useHasRole } from '../../hooks/useHasRole';
 import Tournaments from '../../pages/Tournaments';
-import { Game } from '../../types/Game';
+import { Game, GameStatus } from '../../types/Game';
 import { Role, User } from '../../types/User';
 import { MemoryRouter as Router } from 'react-router-dom';
 
@@ -46,6 +46,8 @@ const tournament: Game = {
   organizers: [user1],
   players: [],
   length: 1,
+  status: GameStatus.NEW,
+  price: 1000,
 };
 
 beforeEach(jest.clearAllMocks);
@@ -109,6 +111,8 @@ describe('<Tournaments />', () => {
       organizers: [user1],
       players: [],
       length: 1,
+      status: GameStatus.NEW,
+      price: 1000,
     };
 
     handleAddTournament(addedTournament);
