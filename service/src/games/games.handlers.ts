@@ -2,6 +2,7 @@ import { RequestHandler } from 'express-serve-static-core';
 import Container from 'typedi';
 import { authorizeUser } from '../handlers/authorizeUser';
 import CreateGameRequest from './createGameRequest.dto';
+import UpdatePriceRequest from './updatePriceRequest.dto';
 import AddPlayerRequest from './games.addPlayerRequest.dto';
 import Game from './games.entity';
 import GameService from './games.service';
@@ -79,6 +80,18 @@ export const removeOrganizer: RequestHandler<
     req.params.gameId,
     req.params.organizerId,
   );
+
+  return res.json(game);
+};
+
+export const updatePrice: RequestHandler<
+  { gameId: string },
+  Game,
+  UpdatePriceRequest
+> = async (req, res) => {
+  const gameService = Container.get(GameService);
+
+  const game = await gameService.updatePrice(req.params.gameId, req.body.price);
 
   return res.json(game);
 };

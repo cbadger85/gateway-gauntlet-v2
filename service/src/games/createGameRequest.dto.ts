@@ -28,7 +28,7 @@ class CreateGameRequest {
 
   @IsOptional()
   @IsInt()
-  price?: string;
+  price?: number;
 
   @IsArray()
   @IsNotEmpty({ each: true })

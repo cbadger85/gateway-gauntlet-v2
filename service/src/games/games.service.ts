@@ -126,6 +126,20 @@ class GameService {
 
     return classToPlain(savedGame) as Game;
   };
+
+  updatePrice = async (gameId: string, price: number): Promise<Game> => {
+    const game = await this.gameRepository.findGameById(gameId);
+
+    if (!game) {
+      throw new NotFound('Game does not exist');
+    }
+
+    game.price = price;
+
+    const savedGame = await this.gameRepository.saveGame(game);
+
+    return classToPlain(savedGame) as Game;
+  };
 }
 
 export default GameService;

@@ -14,6 +14,7 @@ class MockGameService {
   addOrganizer = jest.fn();
   removeOrganizer = jest.fn();
   addPlayer = jest.fn();
+  updatePrice = jest.fn();
 }
 
 class MockAuthService {
@@ -467,6 +468,70 @@ describe('games.routes', () => {
 
       await request(await server())
         .delete(`/games/${gameId}/organizers/${organizerId}`)
+        .expect(403);
+    });
+  });
+
+  describe('PUT games/:gameId/price', () => {
+    it('should update the game price', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updatePriceRequest = { price: 4000 };
+
+      gameService.updatePrice.mockResolvedValue(game);
+
+      const response = await request(await server())
+        .put(`/games/${gameId}/price`)
+        .send(updatePriceRequest)
+        .expect(200);
+
+      expect(gameService.updatePrice).toBeCalledWith(
+        gameId,
+        updatePriceRequest.price,
+      );
+      expect(response.body).toEqual(game);
+    });
+
+    it('should send a 400 if the url has a bad uuid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const updatePriceRequest = { price: 4000 };
+
+      gameService.updatePrice.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/111/price`)
+        .send(updatePriceRequest)
+        .expect(400);
+    });
+
+    it('should send a 403 if the user does not have the right role', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updatePriceRequest = { price: 4000 };
+
+      gameService.updatePrice.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/price`)
+        .send(updatePriceRequest)
         .expect(403);
     });
   });

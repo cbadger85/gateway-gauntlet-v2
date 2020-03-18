@@ -616,4 +616,58 @@ describe('GameService', () => {
       expect(error).toBeInstanceOf(BadRequest);
     });
   });
+
+  describe('updatePrice', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.price = 2000;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updatePrice(game.id, 4000);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.price = 2000;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updatePrice(game.id, 4000);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.price).toBe(4000);
+    });
+
+    it('should return a game', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.price = 2000;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockGameRepository.saveGame.mockResolvedValue(game);
+
+      const savedGame = await gameService.updatePrice(game.id, 4000);
+
+      expect(savedGame.price).toBe(4000);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService.updatePrice('1111', 4000).catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
 });

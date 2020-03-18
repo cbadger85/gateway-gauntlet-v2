@@ -13,11 +13,13 @@ import {
   authorizedToUpdateGame,
   addOrganizer,
   removeOrganizer,
+  updatePrice,
 } from './games.handlers';
 import { authenticateUser } from '../auth/auth.handlers';
 import AddPlayerRequest from './games.addPlayerRequest.dto';
 import { uuidParamValidator } from '../handlers/uuidParamValidator';
 import OrganizerRequest from './organizerRequest.dto';
+import UpdatePriceRequest from './updatePriceRequest.dto';
 
 const gameRoutes = express.Router();
 
@@ -51,6 +53,15 @@ gameRoutes.put(
   authorizedToAddPlayer,
   uuidParamValidator(),
   asyncHandler(addPlayer),
+);
+
+gameRoutes.put(
+  '/:gameId/price',
+  asyncHandler(authenticateUser),
+  requestValidator(UpdatePriceRequest),
+  authorizedToUpdateGame,
+  uuidParamValidator(),
+  asyncHandler(updatePrice),
 );
 
 gameRoutes.put(
