@@ -1,11 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Game, GameStatus } from '../../types/Game';
+import { AppThunk } from '..';
 import {
+  deleteOrganizer,
   getGameById,
   putOrganizer,
-  deleteOrganizer,
 } from '../../controllers/gamesController';
-import { AppThunk } from '..';
+import { Game, GameStatus } from '../../types/Game';
 import { addSnackbar } from '../alert/alertSlice';
 
 const initialState: Game = {

@@ -11,7 +11,7 @@ const organizer = {
   name: 'organizer',
 };
 
-describe('AddTournamentForm', () => {
+describe('<AddTournamentForm />', () => {
   it('should call save when the form is submitted', async () => {
     const save = jest.fn();
     const closeForm = jest.fn();

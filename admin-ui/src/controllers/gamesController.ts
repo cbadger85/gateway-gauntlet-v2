@@ -13,6 +13,11 @@ export const getGames = (): Promise<Game[]> =>
 export const getGameById = (gameId: string): Promise<Game> =>
   axios.get<Game>(`${BASE_URL}/${gameId}`).then(res => res.data);
 
+export const putPrice = (gameId: string, price: number): Promise<Game> =>
+  axios
+    .put<Game>(`${BASE_URL}/${gameId}/price`, { price })
+    .then(res => res.data);
+
 export const putOrganizer = (
   gameId: string,
   organizerId: string,
