@@ -1,0 +1,29 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  build:
+    name: Test and lint service
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Service CI lint and test
+        run: |
+          echo Installing packages...
+          cd admin-ui
+          npm install
+          echo Running tests on gateway gauntlet admin ui...
+          npm run ci
+        env:
+          CI: true
