@@ -20,13 +20,6 @@ describe('dbSetup', () => {
     expect(useContainer).toBeCalledWith(Container);
   });
 
-  it('should return the connection', async () => {
-    (createConnection as jest.Mock).mockResolvedValue('connection');
-    await dbSetup();
-
-    expect(createConnection).toBeCalledWith(expect.any(Object));
-  });
-
   it('should return a connection', async () => {
     (createConnection as jest.Mock).mockRejectedValue(new Error());
     const error = await dbSetup().catch(e => e);
