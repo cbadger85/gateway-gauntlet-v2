@@ -15,6 +15,7 @@ class MockGameService {
   removeOrganizer = jest.fn();
   addPlayer = jest.fn();
   updatePrice = jest.fn();
+  updateDate = jest.fn();
 }
 
 class MockAuthService {
@@ -516,6 +517,25 @@ describe('games.routes', () => {
         .expect(400);
     });
 
+    it('should send a 400 if the request is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updatePriceRequest = { price: -1 };
+
+      gameService.updatePrice.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/price`)
+        .send(updatePriceRequest)
+        .expect(400);
+    });
+
     it('should send a 403 if the user does not have the right role', async () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
@@ -532,6 +552,102 @@ describe('games.routes', () => {
       await request(await server())
         .put(`/games/${gameId}/price`)
         .send(updatePriceRequest)
+        .expect(403);
+    });
+  });
+
+  describe('PUT games/:gameId/date', () => {
+    it('should update the game date', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateDateRequest = {
+        date: new Date(2020, 0, 1),
+        length: 1,
+      };
+
+      gameService.updateDate.mockResolvedValue(game);
+
+      const response = await request(await server())
+        .put(`/games/${gameId}/date`)
+        .send(updateDateRequest)
+        .expect(200);
+
+      expect(gameService.updateDate).toBeCalledWith(
+        gameId,
+        updateDateRequest.date,
+        updateDateRequest.length,
+      );
+      expect(response.body).toEqual(game);
+    });
+
+    it('should send a 400 if the url has a bad uuid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const updateDateRequest = {
+        date: new Date(2020, 0, 1),
+        length: 1,
+      };
+
+      gameService.updateDate.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/111/date`)
+        .send(updateDateRequest)
+        .expect(400);
+    });
+
+    it('should send a 400 request is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateDateRequest = {
+        date: 'aaa',
+        length: -1,
+      };
+
+      gameService.updateDate.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/price`)
+        .send(updateDateRequest)
+        .expect(400);
+    });
+
+    it('should send a 403 if the user does not have the right role', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateDateRequest = {
+        date: new Date(2020, 0, 1),
+        length: 1,
+      };
+
+      gameService.updateDate.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/date`)
+        .send(updateDateRequest)
         .expect(403);
     });
   });

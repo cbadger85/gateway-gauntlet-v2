@@ -670,4 +670,95 @@ describe('GameService', () => {
       expect(error).toBeInstanceOf(NotFound);
     });
   });
+
+  describe('updateDate', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(0);
+      date.setFullYear(2020);
+
+      const game = new Game();
+      game.name = 'foo game';
+      game.date = date;
+      game.length = 2;
+      game.id = '34567';
+      game.users = [user];
+
+      const newDate = new Date();
+      newDate.setDate(2);
+      newDate.setMonth(0);
+      newDate.setFullYear(2020);
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateDate(game.id, newDate);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(0);
+      date.setFullYear(2020);
+
+      const game = new Game();
+      game.name = 'foo game';
+      game.date = date;
+      game.length = 2;
+      game.id = '34567';
+      game.users = [user];
+
+      const newDate = new Date();
+      newDate.setDate(2);
+      newDate.setMonth(0);
+      newDate.setFullYear(2020);
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateDate(game.id, newDate);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.date).toEqual(newDate);
+      expect(game.length).toBe(1);
+    });
+
+    it('should return a game', async () => {
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(0);
+      date.setFullYear(2020);
+
+      const game = new Game();
+      game.name = 'foo game';
+      game.date = date;
+      game.length = 2;
+      game.id = '34567';
+      game.users = [user];
+
+      const newDate = new Date();
+      newDate.setDate(2);
+      newDate.setMonth(0);
+      newDate.setFullYear(2020);
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockGameRepository.saveGame.mockResolvedValue(game);
+
+      const savedGame = await gameService.updateDate(game.id, newDate);
+
+      expect(savedGame.date).toEqual(newDate);
+      expect(savedGame.length).toBe(1);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .updateDate('111', new Date())
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
 });

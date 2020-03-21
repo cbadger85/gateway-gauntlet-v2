@@ -8,6 +8,7 @@ import {
   addOrganizer,
   removeOrganizer,
   updatePrice,
+  updateDate,
 } from '../../games/games.handlers';
 
 const mockRes = {
@@ -23,6 +24,7 @@ class MockGameService {
   removeOrganizer = jest.fn();
   addPlayer = jest.fn();
   updatePrice = jest.fn();
+  updateDate = jest.fn();
 }
 
 const mockGameRequest = {
@@ -43,6 +45,11 @@ const mockAddPlayerRequest = {
 
 const mockUpdatePriceRequest = {
   price: 4000,
+};
+
+const mockUpdateDateRequest = {
+  date: new Date(2020, 0, 1),
+  length: 1,
 };
 
 beforeEach(() => {
@@ -236,7 +243,7 @@ describe('games.handlers', () => {
     });
   });
 
-  describe('removeOrganizer', () => {
+  describe('updatePrice', () => {
     it('should call gameService.updatePrice', async () => {
       const mockReq = {
         params: {
@@ -266,6 +273,42 @@ describe('games.handlers', () => {
       gameService.updatePrice.mockResolvedValue(game);
 
       await updatePrice(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(game);
+    });
+  });
+
+  describe('updateDate', () => {
+    it('should call gameService.updatePrice', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+        },
+        body: mockUpdateDateRequest,
+      };
+
+      await updateDate(mockReq as any, mockRes as any, jest.fn());
+
+      expect(gameService.updateDate).toBeCalledWith(
+        mockReq.params.gameId,
+        mockReq.body.date,
+        mockReq.body.length,
+      );
+    });
+
+    it('should call res.json', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+        },
+        body: mockUpdateDateRequest,
+      };
+
+      const game = 'game';
+
+      gameService.updateDate.mockResolvedValue(game);
+
+      await updateDate(mockReq as any, mockRes as any, jest.fn());
 
       expect(mockRes.json).toBeCalledWith(game);
     });

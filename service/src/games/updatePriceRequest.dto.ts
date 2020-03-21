@@ -1,7 +1,8 @@
-import { IsInt } from 'class-validator';
+import { IsInt, Min } from 'class-validator';
 
 class UpdatePriceRequest {
   @IsInt()
+  @Min(0)
   price: number;
 }
 

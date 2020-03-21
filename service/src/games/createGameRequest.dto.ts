@@ -6,6 +6,8 @@ import {
   IsDate,
   IsInt,
   IsOptional,
+  IsPositive,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -24,10 +26,12 @@ class CreateGameRequest {
 
   @IsOptional()
   @IsInt()
+  @IsPositive()
   length?: number;
 
   @IsOptional()
   @IsInt()
+  @Min(0)
   price?: number;
 
   @IsArray()

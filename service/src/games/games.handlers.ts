@@ -7,6 +7,7 @@ import AddPlayerRequest from './games.addPlayerRequest.dto';
 import Game from './games.entity';
 import GameService from './games.service';
 import OrganizerRequest from './organizerRequest.dto';
+import UpdateDateRequest from './updateDateRequest.dto';
 
 export const getGames: RequestHandler<never, Game[], never> = async (
   req,
@@ -92,6 +93,22 @@ export const updatePrice: RequestHandler<
   const gameService = Container.get(GameService);
 
   const game = await gameService.updatePrice(req.params.gameId, req.body.price);
+
+  return res.json(game);
+};
+
+export const updateDate: RequestHandler<
+  { gameId: string },
+  Game,
+  UpdateDateRequest
+> = async (req, res) => {
+  const gameService = Container.get(GameService);
+
+  const game = await gameService.updateDate(
+    req.params.gameId,
+    req.body.date,
+    req.body.length,
+  );
 
   return res.json(game);
 };

@@ -1,14 +1,14 @@
-import { Service } from 'typedi';
-import UserRepository from '../users/users.repository';
-import GameRepository from './games.repository';
-import CreateGameRequest from './createGameRequest.dto';
-import Game from './games.entity';
-import { plainToClass, classToPlain } from 'class-transformer';
-import Player from '../players/players.entity';
-import NotFound from '../errors/NotFound';
-import AddPlayerRequest from './games.addPlayerRequest.dto';
+import { classToPlain, plainToClass } from 'class-transformer';
 import shortid from 'shortid';
+import { Service } from 'typedi';
 import BadRequest from '../errors/BadRequest';
+import NotFound from '../errors/NotFound';
+import Player from '../players/players.entity';
+import UserRepository from '../users/users.repository';
+import CreateGameRequest from './createGameRequest.dto';
+import AddPlayerRequest from './games.addPlayerRequest.dto';
+import Game from './games.entity';
+import GameRepository from './games.repository';
 
 @Service()
 class GameService {
@@ -135,6 +135,25 @@ class GameService {
     }
 
     game.price = price;
+
+    const savedGame = await this.gameRepository.saveGame(game);
+
+    return classToPlain(savedGame) as Game;
+  };
+
+  updateDate = async (
+    gameId: string,
+    date: Date,
+    length?: number,
+  ): Promise<Game> => {
+    const game = await this.gameRepository.findGameById(gameId);
+
+    if (!game) {
+      throw new NotFound('Game does not exist');
+    }
+
+    game.date = date;
+    game.length = length || 1;
 
     const savedGame = await this.gameRepository.saveGame(game);
 
