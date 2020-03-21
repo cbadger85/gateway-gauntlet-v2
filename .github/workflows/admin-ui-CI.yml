@@ -1,10 +1,10 @@
-name: CI
+name: Admin CI
 
 on: [pull_request]
 
 jobs:
   build:
-    name: Test and lint service
+    name: Test and lint admin ui
     runs-on: ubuntu-latest
 
     strategy:
@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Service CI lint and test
+      - name: Admin UI CI lint and test
         run: |
           echo Installing packages...
           cd admin-ui
