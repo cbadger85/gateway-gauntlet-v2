@@ -23,12 +23,7 @@ jobs:
           echo Installing packages...
           cd service
           npm install
-          cd ../admin-ui
-          npm install
-          cd ..
           echo Running tests on gateway gauntlet service...
-          npm run ci:service
-          echo Running tests on gateway gauntlet admin ui...
-          npm run ci:admin-ui
+          npm run ci
         env:
           CI: true
