@@ -15,6 +15,8 @@ import {
   removeOrganizer,
   updatePrice,
   updateDate,
+  updateMissions,
+  updateGameStatus,
 } from './games.handlers';
 import { authenticateUser } from '../auth/auth.handlers';
 import AddPlayerRequest from './games.addPlayerRequest.dto';
@@ -22,6 +24,8 @@ import { uuidParamValidator } from '../handlers/uuidParamValidator';
 import OrganizerRequest from './organizerRequest.dto';
 import UpdatePriceRequest from './updatePriceRequest.dto';
 import UpdateDateRequest from './updateDateRequest.dto';
+import UpdateMissionsRequest from './updateMissionsRequest.dto';
+import UpdateGameStatusRequest from './updateGameStatusRequest.dto';
 
 const gameRoutes = express.Router();
 
@@ -73,6 +77,24 @@ gameRoutes.put(
   authorizedToUpdateGame,
   uuidParamValidator(),
   asyncHandler(updateDate),
+);
+
+gameRoutes.put(
+  '/:gameId/missions',
+  asyncHandler(authenticateUser),
+  requestValidator(UpdateMissionsRequest),
+  authorizedToUpdateGame,
+  uuidParamValidator(),
+  asyncHandler(updateMissions),
+);
+
+gameRoutes.put(
+  '/:gameId/status',
+  asyncHandler(authenticateUser),
+  requestValidator(UpdateGameStatusRequest),
+  authorizedToUpdateGame,
+  uuidParamValidator(),
+  asyncHandler(updateGameStatus),
 );
 
 gameRoutes.put(

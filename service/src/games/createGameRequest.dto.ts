@@ -8,6 +8,8 @@ import {
   IsOptional,
   IsPositive,
   Min,
+  IsString,
+  ArrayNotEmpty,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -36,6 +38,9 @@ class CreateGameRequest {
 
   @IsArray()
   @IsNotEmpty({ each: true })
+  @IsString({ each: true })
+  @IsString({ each: true })
+  @ArrayNotEmpty()
   missions: string[];
 }
 

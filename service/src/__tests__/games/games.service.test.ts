@@ -6,6 +6,7 @@ import Game from '../../games/games.entity';
 import Organizer from '../../games/organizer.dto';
 import NotFound from '../../errors/NotFound';
 import BadRequest from '../../errors/BadRequest';
+import { GameStatus } from '../../games/gameStatus.model';
 
 class MockGameRepository {
   findAllGames = jest.fn();
@@ -756,6 +757,126 @@ describe('GameService', () => {
 
       const error = await gameService
         .updateDate('111', new Date())
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('updateMissions', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.missions = ['mission 1'];
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      const newMissions = ['mission 1', 'mission 2'];
+
+      await gameService.updateMissions(game.id, newMissions);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.missions = ['mission 1'];
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      const newMissions = ['mission 1', 'mission 2'];
+
+      await gameService.updateMissions(game.id, newMissions);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.missions).toEqual(newMissions);
+    });
+
+    it('should return a game', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user];
+
+      const newMissions = ['mission 1', 'mission 2'];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockGameRepository.saveGame.mockResolvedValue(game);
+
+      const savedGame = await gameService.updateMissions(game.id, newMissions);
+
+      expect(savedGame.missions).toEqual(newMissions);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .updateMissions('111', ['mission 1'])
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('updateDate', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.status = GameStatus.NEW;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateGameStatus(game.id, GameStatus.REGISTRATION_OPEN);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.status = GameStatus.NEW;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateGameStatus(game.id, GameStatus.REGISTRATION_OPEN);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.status).toEqual(GameStatus.REGISTRATION_OPEN);
+    });
+
+    it('should return a game', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.status = GameStatus.NEW;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockGameRepository.saveGame.mockResolvedValue(game);
+
+      const savedGame = await gameService.updateGameStatus(
+        game.id,
+        GameStatus.REGISTRATION_OPEN,
+      );
+
+      expect(savedGame.status).toEqual(GameStatus.REGISTRATION_OPEN);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .updateGameStatus('111', GameStatus.REGISTRATION_OPEN)
         .catch(e => e);
 
       expect(error).toBeInstanceOf(NotFound);

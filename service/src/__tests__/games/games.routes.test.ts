@@ -6,6 +6,7 @@ import { Role } from '../../auth/Role.model';
 import GameService from '../../games/games.service';
 import server from '../../server';
 import NotAuthorized from '../../errors/NotAuthorized';
+import { GameStatus } from '../../games/gameStatus.model';
 
 class MockGameService {
   createGame = jest.fn();
@@ -16,6 +17,8 @@ class MockGameService {
   addPlayer = jest.fn();
   updatePrice = jest.fn();
   updateDate = jest.fn();
+  updateMissions = jest.fn();
+  updateGameStatus = jest.fn();
 }
 
 class MockAuthService {
@@ -624,7 +627,7 @@ describe('games.routes', () => {
       gameService.updateDate.mockResolvedValue(game);
 
       await request(await server())
-        .put(`/games/${gameId}/price`)
+        .put(`/games/${gameId}/date`)
         .send(updateDateRequest)
         .expect(400);
     });
@@ -648,6 +651,188 @@ describe('games.routes', () => {
       await request(await server())
         .put(`/games/${gameId}/date`)
         .send(updateDateRequest)
+        .expect(403);
+    });
+  });
+
+  describe('PUT games/:gameId/missions', () => {
+    it('should update the game missions', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateMissionsRequest = {
+        missions: ['mission1 1', 'mission 2'],
+      };
+
+      gameService.updateMissions.mockResolvedValue(game);
+
+      const response = await request(await server())
+        .put(`/games/${gameId}/missions`)
+        .send(updateMissionsRequest)
+        .expect(200);
+
+      expect(gameService.updateMissions).toBeCalledWith(
+        gameId,
+        updateMissionsRequest.missions,
+      );
+      expect(response.body).toEqual(game);
+    });
+
+    it('should send a 400 if the url has a bad uuid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const updateMissionsRequest = {
+        missions: ['mission1 1', 'mission 2'],
+      };
+
+      gameService.updateMissions.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/111/missions`)
+        .send(updateMissionsRequest)
+        .expect(400);
+    });
+
+    it('should send a 400 request is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateMissionsRequest = {
+        missions: [],
+      };
+
+      gameService.updateMissions.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/missions`)
+        .send(updateMissionsRequest)
+        .expect(400);
+    });
+
+    it('should send a 403 if the user does not have the right role', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateMissionsRequest = {
+        missions: ['mission1 1', 'mission 2'],
+      };
+
+      gameService.updateMissions.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/missions`)
+        .send(updateMissionsRequest)
+        .expect(403);
+    });
+  });
+
+  describe('PUT games/:gameId/status', () => {
+    it('should update the game status', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateStatusRequest = {
+        status: GameStatus.REGISTRATION_OPEN,
+      };
+
+      gameService.updateGameStatus.mockResolvedValue(game);
+
+      const response = await request(await server())
+        .put(`/games/${gameId}/status`)
+        .send(updateStatusRequest)
+        .expect(200);
+
+      expect(gameService.updateGameStatus).toBeCalledWith(
+        gameId,
+        GameStatus.REGISTRATION_OPEN,
+      );
+      expect(response.body).toEqual(game);
+    });
+
+    it('should send a 400 if the url has a bad uuid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const updateStatusRequest = {
+        status: GameStatus.REGISTRATION_OPEN,
+      };
+
+      gameService.updateGameStatus.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/111/status`)
+        .send(updateStatusRequest)
+        .expect(400);
+    });
+
+    it('should send a 400 request is invalid', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.ORGANIZER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateStatusRequest = {
+        status: 'open',
+      };
+
+      gameService.updateGameStatus.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/status`)
+        .send(updateStatusRequest)
+        .expect(400);
+    });
+
+    it('should send a 403 if the user does not have the right role', async () => {
+      authService.refresh.mockResolvedValue({
+        accessToken: 'access token',
+        refreshToken: 'refresh token',
+        user: { id: '1', roles: [Role.USER] },
+      });
+
+      const game = { game: 'game' };
+      const gameId = uuid();
+      const updateStatusRequest = {
+        status: GameStatus.REGISTRATION_OPEN,
+      };
+
+      gameService.updateGameStatus.mockResolvedValue(game);
+
+      await request(await server())
+        .put(`/games/${gameId}/status`)
+        .send(updateStatusRequest)
         .expect(403);
     });
   });

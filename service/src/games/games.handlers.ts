@@ -8,6 +8,8 @@ import Game from './games.entity';
 import GameService from './games.service';
 import OrganizerRequest from './organizerRequest.dto';
 import UpdateDateRequest from './updateDateRequest.dto';
+import UpdateMissionsRequest from './updateMissionsRequest.dto';
+import UpdateGameStatusRequest from './updateGameStatusRequest.dto';
 
 export const getGames: RequestHandler<never, Game[], never> = async (
   req,
@@ -108,6 +110,36 @@ export const updateDate: RequestHandler<
     req.params.gameId,
     req.body.date,
     req.body.length,
+  );
+
+  return res.json(game);
+};
+
+export const updateMissions: RequestHandler<
+  { gameId: string },
+  Game,
+  UpdateMissionsRequest
+> = async (req, res) => {
+  const gameService = Container.get(GameService);
+
+  const game = await gameService.updateMissions(
+    req.params.gameId,
+    req.body.missions,
+  );
+
+  return res.json(game);
+};
+
+export const updateGameStatus: RequestHandler<
+  { gameId: string },
+  Game,
+  UpdateGameStatusRequest
+> = async (req, res) => {
+  const gameService = Container.get(GameService);
+
+  const game = await gameService.updateGameStatus(
+    req.params.gameId,
+    req.body.status,
   );
 
   return res.json(game);

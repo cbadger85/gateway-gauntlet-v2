@@ -9,6 +9,7 @@ import CreateGameRequest from './createGameRequest.dto';
 import AddPlayerRequest from './games.addPlayerRequest.dto';
 import Game from './games.entity';
 import GameRepository from './games.repository';
+import { GameStatus } from './gameStatus.model';
 
 @Service()
 class GameService {
@@ -154,6 +155,40 @@ class GameService {
 
     game.date = date;
     game.length = length || 1;
+
+    const savedGame = await this.gameRepository.saveGame(game);
+
+    return classToPlain(savedGame) as Game;
+  };
+
+  updateMissions = async (
+    gameId: string,
+    missions: string[],
+  ): Promise<Game> => {
+    const game = await this.gameRepository.findGameById(gameId);
+
+    if (!game) {
+      throw new NotFound('Game does not exist');
+    }
+
+    game.missions = missions;
+
+    const savedGame = await this.gameRepository.saveGame(game);
+
+    return classToPlain(savedGame) as Game;
+  };
+
+  updateGameStatus = async (
+    gameId: string,
+    status: GameStatus,
+  ): Promise<Game> => {
+    const game = await this.gameRepository.findGameById(gameId);
+
+    if (!game) {
+      throw new NotFound('Game does not exist');
+    }
+
+    game.status = status;
 
     const savedGame = await this.gameRepository.saveGame(game);
 

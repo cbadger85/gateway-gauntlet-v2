@@ -9,7 +9,10 @@ import {
   removeOrganizer,
   updatePrice,
   updateDate,
+  updateMissions,
+  updateGameStatus,
 } from '../../games/games.handlers';
+import { GameStatus } from '../../games/gameStatus.model';
 
 const mockRes = {
   json: jest.fn().mockReturnThis(),
@@ -25,6 +28,8 @@ class MockGameService {
   addPlayer = jest.fn();
   updatePrice = jest.fn();
   updateDate = jest.fn();
+  updateMissions = jest.fn();
+  updateGameStatus = jest.fn();
 }
 
 const mockGameRequest = {
@@ -50,6 +55,14 @@ const mockUpdatePriceRequest = {
 const mockUpdateDateRequest = {
   date: new Date(2020, 0, 1),
   length: 1,
+};
+
+const mockUpdateMissionsRequest = {
+  missions: ['mission1 1', 'mission 2'],
+};
+
+const mockUpdateGameStatusRequest = {
+  status: GameStatus.REGISTRATION_OPEN,
 };
 
 beforeEach(() => {
@@ -309,6 +322,76 @@ describe('games.handlers', () => {
       gameService.updateDate.mockResolvedValue(game);
 
       await updateDate(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(game);
+    });
+  });
+
+  describe('updateMissions', () => {
+    it('should call gameService.updateMissions', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+        },
+        body: mockUpdateMissionsRequest,
+      };
+
+      await updateMissions(mockReq as any, mockRes as any, jest.fn());
+
+      expect(gameService.updateMissions).toBeCalledWith(
+        mockReq.params.gameId,
+        mockReq.body.missions,
+      );
+    });
+
+    it('should call res.json', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+        },
+        body: mockUpdateMissionsRequest,
+      };
+
+      const game = 'game';
+
+      gameService.updateMissions.mockResolvedValue(game);
+
+      await updateMissions(mockReq as any, mockRes as any, jest.fn());
+
+      expect(mockRes.json).toBeCalledWith(game);
+    });
+  });
+
+  describe('updateGameStatus', () => {
+    it('should call gameService.updateGameStatus', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+        },
+        body: mockUpdateGameStatusRequest,
+      };
+
+      await updateGameStatus(mockReq as any, mockRes as any, jest.fn());
+
+      expect(gameService.updateGameStatus).toBeCalledWith(
+        mockReq.params.gameId,
+        mockReq.body.status,
+      );
+    });
+
+    it('should call res.json', async () => {
+      const mockReq = {
+        params: {
+          gameId: 'asdfg',
+        },
+        body: mockUpdateGameStatusRequest,
+      };
+
+      const game = 'game';
+
+      gameService.updateGameStatus.mockResolvedValue(game);
+
+      await updateGameStatus(mockReq as any, mockRes as any, jest.fn());
 
       expect(mockRes.json).toBeCalledWith(game);
     });
