@@ -88,7 +88,7 @@ gameRoutes.put(
   asyncHandler(updateMissions),
 );
 
-gameRoutes.put(
+gameRoutes.post(
   '/:gameId/status',
   asyncHandler(authenticateUser),
   requestValidator(UpdateGameStatusRequest),

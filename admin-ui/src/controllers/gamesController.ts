@@ -1,5 +1,5 @@
 import axios from './axios';
-import { Game } from '../types/Game';
+import { Game, GameStatus } from '../types/Game';
 import { AddTournamentFieldData } from '../components/AddTournamentForm';
 
 const BASE_URL = `${process.env.REACT_APP_BASE_URL}/games`;
@@ -33,6 +33,22 @@ export const putOrganizer = (
 ): Promise<Game> =>
   axios
     .put<Game>(`${BASE_URL}/${gameId}/organizers`, { organizerId })
+    .then(res => res.data);
+
+export const putMissions = (
+  gameId: string,
+  missions: string[],
+): Promise<Game> =>
+  axios
+    .put<Game>(`${BASE_URL}/${gameId}/missions`, { missions })
+    .then(res => res.data);
+
+export const postGameStatus = (
+  gameId: string,
+  status: GameStatus,
+): Promise<undefined> =>
+  axios
+    .post<undefined>(`${BASE_URL}/${gameId}/status`, { status })
     .then(res => res.data);
 
 export const deleteOrganizer = (

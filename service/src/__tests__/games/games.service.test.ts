@@ -854,24 +854,6 @@ describe('GameService', () => {
       expect(game.status).toEqual(GameStatus.REGISTRATION_OPEN);
     });
 
-    it('should return a game', async () => {
-      const game = new Game();
-      game.name = 'foo game';
-      game.status = GameStatus.NEW;
-      game.id = '34567';
-      game.users = [user];
-
-      mockGameRepository.findGameById.mockResolvedValue(game);
-      mockGameRepository.saveGame.mockResolvedValue(game);
-
-      const savedGame = await gameService.updateGameStatus(
-        game.id,
-        GameStatus.REGISTRATION_OPEN,
-      );
-
-      expect(savedGame.status).toEqual(GameStatus.REGISTRATION_OPEN);
-    });
-
     it('should throw a not found if the game does not exist', async () => {
       mockGameRepository.findGameById.mockResolvedValue(undefined);
 

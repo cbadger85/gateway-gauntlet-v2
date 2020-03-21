@@ -387,13 +387,11 @@ describe('games.handlers', () => {
         body: mockUpdateGameStatusRequest,
       };
 
-      const game = 'game';
-
-      gameService.updateGameStatus.mockResolvedValue(game);
+      gameService.updateGameStatus.mockResolvedValue(void 0);
 
       await updateGameStatus(mockReq as any, mockRes as any, jest.fn());
 
-      expect(mockRes.json).toBeCalledWith(game);
+      expect(mockRes.sendStatus).toBeCalledWith(204);
     });
   });
 });

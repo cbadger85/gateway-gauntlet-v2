@@ -8,7 +8,10 @@ import {
   deleteOrganizer,
   putPrice,
   putDate,
+  putMissions,
+  postGameStatus,
 } from '../../controllers/gamesController';
+import { GameStatus } from '../../types/Game';
 
 jest.mock('../../controllers/axios', () => ({
   get: jest.fn(),
@@ -90,6 +93,36 @@ describe('gamesController', () => {
       const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}/date`;
 
       expect(axios.put).toBeCalledWith(url, { date, length });
+    });
+  });
+
+  describe('putMissions', () => {
+    it('should call axios with the url and organizerId', async () => {
+      (axios.put as jest.Mock).mockResolvedValue({ data: 'game' });
+      const gameId = '1234';
+
+      const missions = ['mission'];
+
+      await putMissions(gameId, missions);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}/missions`;
+
+      expect(axios.put).toBeCalledWith(url, { missions });
+    });
+  });
+
+  describe('postGameStatus', () => {
+    it('should call axios with the url and organizerId', async () => {
+      (axios.put as jest.Mock).mockResolvedValue({ data: 'game' });
+      const gameId = '1234';
+
+      await postGameStatus(gameId, GameStatus.REGISTRATION_OPEN);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}/status`;
+
+      expect(axios.post).toBeCalledWith(url, {
+        status: GameStatus.REGISTRATION_OPEN,
+      });
     });
   });
 

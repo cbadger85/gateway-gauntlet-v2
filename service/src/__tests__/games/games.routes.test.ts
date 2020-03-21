@@ -746,7 +746,7 @@ describe('games.routes', () => {
     });
   });
 
-  describe('PUT games/:gameId/status', () => {
+  describe('POST games/:gameId/status', () => {
     it('should update the game status', async () => {
       authService.refresh.mockResolvedValue({
         accessToken: 'access token',
@@ -754,24 +754,22 @@ describe('games.routes', () => {
         user: { id: '1', roles: [Role.ORGANIZER] },
       });
 
-      const game = { game: 'game' };
       const gameId = uuid();
       const updateStatusRequest = {
         status: GameStatus.REGISTRATION_OPEN,
       };
 
-      gameService.updateGameStatus.mockResolvedValue(game);
+      gameService.updateGameStatus.mockResolvedValue(void 0);
 
-      const response = await request(await server())
-        .put(`/games/${gameId}/status`)
+      await request(await server())
+        .post(`/games/${gameId}/status`)
         .send(updateStatusRequest)
-        .expect(200);
+        .expect(204);
 
       expect(gameService.updateGameStatus).toBeCalledWith(
         gameId,
         GameStatus.REGISTRATION_OPEN,
       );
-      expect(response.body).toEqual(game);
     });
 
     it('should send a 400 if the url has a bad uuid', async () => {
@@ -781,15 +779,14 @@ describe('games.routes', () => {
         user: { id: '1', roles: [Role.ORGANIZER] },
       });
 
-      const game = { game: 'game' };
       const updateStatusRequest = {
         status: GameStatus.REGISTRATION_OPEN,
       };
 
-      gameService.updateGameStatus.mockResolvedValue(game);
+      gameService.updateGameStatus.mockResolvedValue(void 0);
 
       await request(await server())
-        .put(`/games/111/status`)
+        .post(`/games/111/status`)
         .send(updateStatusRequest)
         .expect(400);
     });
@@ -801,16 +798,15 @@ describe('games.routes', () => {
         user: { id: '1', roles: [Role.ORGANIZER] },
       });
 
-      const game = { game: 'game' };
       const gameId = uuid();
       const updateStatusRequest = {
         status: 'open',
       };
 
-      gameService.updateGameStatus.mockResolvedValue(game);
+      gameService.updateGameStatus.mockResolvedValue(void 0);
 
       await request(await server())
-        .put(`/games/${gameId}/status`)
+        .post(`/games/${gameId}/status`)
         .send(updateStatusRequest)
         .expect(400);
     });
@@ -822,16 +818,15 @@ describe('games.routes', () => {
         user: { id: '1', roles: [Role.USER] },
       });
 
-      const game = { game: 'game' };
       const gameId = uuid();
       const updateStatusRequest = {
         status: GameStatus.REGISTRATION_OPEN,
       };
 
-      gameService.updateGameStatus.mockResolvedValue(game);
+      gameService.updateGameStatus.mockResolvedValue(void 0);
 
       await request(await server())
-        .put(`/games/${gameId}/status`)
+        .post(`/games/${gameId}/status`)
         .send(updateStatusRequest)
         .expect(403);
     });

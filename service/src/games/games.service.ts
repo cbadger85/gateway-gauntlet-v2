@@ -181,7 +181,7 @@ class GameService {
   updateGameStatus = async (
     gameId: string,
     status: GameStatus,
-  ): Promise<Game> => {
+  ): Promise<void> => {
     const game = await this.gameRepository.findGameById(gameId);
 
     if (!game) {
@@ -190,9 +190,7 @@ class GameService {
 
     game.status = status;
 
-    const savedGame = await this.gameRepository.saveGame(game);
-
-    return classToPlain(savedGame) as Game;
+    await this.gameRepository.saveGame(game);
   };
 }
 

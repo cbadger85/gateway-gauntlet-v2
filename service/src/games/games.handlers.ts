@@ -137,12 +137,9 @@ export const updateGameStatus: RequestHandler<
 > = async (req, res) => {
   const gameService = Container.get(GameService);
 
-  const game = await gameService.updateGameStatus(
-    req.params.gameId,
-    req.body.status,
-  );
+  await gameService.updateGameStatus(req.params.gameId, req.body.status);
 
-  return res.json(game);
+  return res.sendStatus(204);
 };
 
 export const authorizedToCreateGame = authorizeUser('game::create');
