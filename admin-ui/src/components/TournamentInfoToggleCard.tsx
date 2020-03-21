@@ -5,6 +5,8 @@ import CardHeader from '@material-ui/core/CardHeader';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
 import makeStyles from '@material-ui/core/styles/makeStyles';
+import IconButton from '@material-ui/core/IconButton';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 const useStyles = makeStyles(theme => ({
   marginBottom: {
@@ -25,6 +27,7 @@ const useStyles = makeStyles(theme => ({
 const TournamentInfoToggleCard: React.FC<TournamentInfoToggleCardProps> = ({
   centered,
   title,
+  onEdit,
   children,
 }) => {
   const classes = useStyles();
@@ -41,15 +44,19 @@ const TournamentInfoToggleCard: React.FC<TournamentInfoToggleCardProps> = ({
           <Box
             display="flex"
             justifyContent="space-between"
-            alignItems="center"
+            alignItems="flex-start"
           >
             <span>{title}</span>
-            {!isEditMode && (
+            {isEditMode ? (
+              <IconButton onClick={toggleEditMode} size="small">
+                <CancelIcon />
+              </IconButton>
+            ) : (
               <Button
                 color="primary"
                 variant="outlined"
                 size="small"
-                onClick={toggleEditMode}
+                onClick={onEdit || toggleEditMode}
               >
                 Edit
               </Button>
@@ -70,4 +77,5 @@ interface TournamentInfoToggleCardProps {
   centered?: boolean;
   title: string;
   children: (isEditMode: boolean, toggle: () => void) => React.ReactNode;
+  onEdit?: () => void;
 }

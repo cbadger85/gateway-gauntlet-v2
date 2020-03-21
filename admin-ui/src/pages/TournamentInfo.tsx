@@ -24,7 +24,7 @@ const TournamentInfo: React.FC = () => {
         display="flex"
         justifyContent="space-between"
         alignItems="stretch"
-        minHeight={250}
+        minHeight="255px"
         className={classes.marginBottom}
       >
         <TournamentPriceCard />

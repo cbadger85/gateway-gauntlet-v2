@@ -1,13 +1,18 @@
-import React, { ReactElement } from 'react';
-import { useSelector } from 'react-redux';
 import { shallow } from 'enzyme';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import TournamentDateCard, {
   DateDisplay,
 } from '../../components/TournamentDateCard';
-import TournamentInfoToggleCard from '../../components/TournamentInfoToggleCard';
+import TournamentDateCardEditMode from '../../components/TournamentDateCardEditMode';
 
 jest.mock('react-redux', () => ({
   useSelector: jest.fn(),
+  useDispatch: jest.fn().mockReturnValue(jest.fn()),
+}));
+
+jest.mock('react-router-dom', () => ({
+  useParams: jest.fn().mockReturnValue('1234'),
 }));
 
 describe('TournamentDateCard', () => {
@@ -22,17 +27,36 @@ describe('TournamentDateCard', () => {
 
       const wrapper = shallow(<TournamentDateCard />);
 
-      const infoCard = wrapper.find(TournamentInfoToggleCard);
-
-      const dateWrapper = shallow(
-        infoCard.props().children(false, jest.fn()) as ReactElement,
-      );
+      const dateWrapper = shallow(wrapper.invoke('children')(false, jest.fn()));
 
       const dateDisplay = dateWrapper.find(DateDisplay);
 
       expect(dateDisplay.props().date).toEqual(date);
 
       expect(dateDisplay.props().length).toBe(length);
+    });
+
+    it('should show edit mode if isEditMode is true', () => {
+      const date = new Date();
+      const length = 2;
+      (useSelector as jest.Mock).mockReturnValue({
+        date: date.toISOString(),
+        length,
+      });
+
+      const wrapper = shallow(<TournamentDateCard />);
+
+      const toggleEditMode = jest.fn();
+
+      const dateWrapper = shallow(
+        wrapper.invoke('children')(true, toggleEditMode),
+      );
+
+      const isEditMode = dateWrapper
+        .find('[data-testid="edit-date-form"]')
+        .exists();
+
+      expect(isEditMode).toBeTruthy();
     });
   });
 

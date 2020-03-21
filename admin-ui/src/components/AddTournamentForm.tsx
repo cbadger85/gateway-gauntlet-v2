@@ -135,7 +135,7 @@ const AddTournamentForm: React.FC<AddTournamentFormProps> = ({
         <TextField
           className={classes.bottomMargin}
           fullWidth
-          label="Length of Tournament (in days)"
+          label="Length (in days)"
           name="length"
           autoComplete="off"
           error={!!errors.length}

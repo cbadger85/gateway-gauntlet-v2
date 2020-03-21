@@ -49,7 +49,11 @@ const UserCardEditMode: React.FC<UserCardEditModeProps> = ({
   };
   return (
     <>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="flex-start"
+      >
         <Typography
           variant="h5"
           component="h2"
@@ -57,7 +61,7 @@ const UserCardEditMode: React.FC<UserCardEditModeProps> = ({
         >
           Edit User
         </Typography>
-        <IconButton onClick={handleClearIsEditMode}>
+        <IconButton onClick={handleClearIsEditMode} size="small">
           <CancelIcon />
         </IconButton>
       </Box>

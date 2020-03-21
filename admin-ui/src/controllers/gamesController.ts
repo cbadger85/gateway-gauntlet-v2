@@ -18,6 +18,15 @@ export const putPrice = (gameId: string, price: number): Promise<Game> =>
     .put<Game>(`${BASE_URL}/${gameId}/price`, { price })
     .then(res => res.data);
 
+export const putDate = (
+  gameId: string,
+  date: Date,
+  length?: number,
+): Promise<Game> =>
+  axios
+    .put<Game>(`${BASE_URL}/${gameId}/date`, { date, length })
+    .then(res => res.data);
+
 export const putOrganizer = (
   gameId: string,
   organizerId: string,

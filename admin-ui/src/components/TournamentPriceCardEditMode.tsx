@@ -13,9 +13,15 @@ import { loadTournament } from '../store/tournament/tournamentSlice';
 const useStyles = makeStyles(theme => ({
   form: {
     width: '223px',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
   },
-  cancelButton: {
-    marginRight: theme.spacing(1),
+  inputContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    flex: 1,
   },
   buttonContainer: {
     display: 'flex',
@@ -68,8 +74,9 @@ const TournamentPriceCardEditMode: React.FC<TournamentPriceCardEditModeProps> = 
       onSubmit={handleSubmit(handleSave)}
       className={classes.form}
     >
-      <div>
+      <div className={classes.inputContainer}>
         <TextField
+          autoFocus
           fullWidth
           label="Price in USD"
           name="price"
@@ -81,13 +88,6 @@ const TournamentPriceCardEditMode: React.FC<TournamentPriceCardEditModeProps> = 
         />
       </div>
       <div className={classes.buttonContainer}>
-        <Button
-          className={classes.cancelButton}
-          onClick={toggleEditMode}
-          data-testid="cancel-button"
-        >
-          Cancel
-        </Button>
         <Button
           variant="outlined"
           color="primary"

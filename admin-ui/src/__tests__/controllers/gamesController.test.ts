@@ -7,6 +7,7 @@ import {
   putOrganizer,
   deleteOrganizer,
   putPrice,
+  putDate,
 } from '../../controllers/gamesController';
 
 jest.mock('../../controllers/axios', () => ({
@@ -73,6 +74,22 @@ describe('gamesController', () => {
       const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}/price`;
 
       expect(axios.put).toBeCalledWith(url, { price: 4000 });
+    });
+  });
+
+  describe('putDate', () => {
+    it('should call axios with the url and organizerId', async () => {
+      (axios.put as jest.Mock).mockResolvedValue({ data: 'game' });
+      const gameId = '1234';
+
+      const date = new Date();
+      const length = 2;
+
+      await putDate(gameId, date, length);
+
+      const url = `${process.env.REACT_APP_BASE_URL}/games/${gameId}/date`;
+
+      expect(axios.put).toBeCalledWith(url, { date, length });
     });
   });
 

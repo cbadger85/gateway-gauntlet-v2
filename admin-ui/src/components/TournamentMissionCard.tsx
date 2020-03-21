@@ -26,7 +26,10 @@ const TournamentMissionCard: React.FC = () => {
   const missions = useSelector((state: RootState) => state.tournament.missions);
 
   return (
-    <TournamentInfoToggleCard title="Missions">
+    <TournamentInfoToggleCard
+      title="Missions"
+      onEdit={() => console.log('editMode')}
+    >
       {() => (
         <List disablePadding>
           {missions.map(mission => (

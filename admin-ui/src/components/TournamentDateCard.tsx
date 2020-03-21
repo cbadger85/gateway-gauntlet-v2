@@ -5,6 +5,14 @@ import Box from '@material-ui/core/Box';
 import { addDays, format } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/rootReducer';
+import TournamentDateCardEditMode from './TournamentDateCardEditMode';
+import makeStyles from '@material-ui/core/styles/makeStyles';
+
+const useStyles = makeStyles(theme => ({
+  date: {
+    fontSize: theme.typography.pxToRem(32),
+  },
+}));
 
 export const DateDisplay: React.FC<{ date: Date; length?: number }> = ({
   date,
@@ -32,13 +40,23 @@ const TournamentDateCard: React.FC = () => {
     length: state.tournament.length,
   }));
 
+  const classes = useStyles();
+
   return (
     <TournamentInfoToggleCard title="Date" centered>
-      {() => (
-        <Typography component="span" variant="h4">
-          <DateDisplay date={new Date(date)} length={length} />
-        </Typography>
-      )}
+      {(isEditMode, toggleEditMode) =>
+        isEditMode ? (
+          <TournamentDateCardEditMode
+            toggleEditMode={toggleEditMode}
+            date={date}
+            length={length}
+          />
+        ) : (
+          <Typography component="span" className={classes.date}>
+            <DateDisplay date={new Date(date)} length={length} />
+          </Typography>
+        )
+      }
     </TournamentInfoToggleCard>
   );
 };
