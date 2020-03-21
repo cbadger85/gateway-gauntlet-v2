@@ -5,6 +5,7 @@ import cors from 'cors';
 import users from './users/users.routes';
 import auth from './auth/auth.routes';
 import games from './games/games.routes';
+import organizers from './organizers/organizers.routes';
 import { Express } from 'express-serve-static-core';
 import errorHandlers from './handlers/errorHandlers';
 import { serverTimout } from './handlers/serverTimeout';
@@ -33,6 +34,7 @@ export const server = async (): Promise<Express> => {
   app.use('/users', users);
   app.use('/auth', auth);
   app.use('/games', games);
+  app.use('/organizers', organizers);
 
   app.use(errorHandlers);
 

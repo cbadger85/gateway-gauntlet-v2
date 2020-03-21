@@ -1,4 +1,3 @@
-import Container from 'typedi';
 import GameService from '../../games/games.service';
 import Player from '../../players/players.entity';
 import User from '../../users/users.entity';
@@ -7,9 +6,11 @@ import Game from '../../games/games.entity';
 import Organizer from '../../games/organizer.dto';
 import NotFound from '../../errors/NotFound';
 import BadRequest from '../../errors/BadRequest';
+import { GameStatus } from '../../games/gameStatus.model';
 
 class MockGameRepository {
   findAllGames = jest.fn();
+  findGameByName = jest.fn();
   findGameById = jest.fn();
   saveGame = jest.fn();
 }
@@ -17,10 +18,6 @@ class MockGameRepository {
 class MockUserRepository {
   findUser = jest.fn();
   findUsersByIds = jest.fn();
-}
-
-class MockPlayerRepository {
-  findPlayerByItsPin = jest.fn();
 }
 
 const player1 = new Player();
@@ -61,17 +58,82 @@ beforeEach(jest.clearAllMocks);
 
 describe('GameService', () => {
   const mockGameRepository = new MockGameRepository();
-  const mockPlayerRepository = new MockPlayerRepository();
   const mockUserRepository = new MockUserRepository();
   let gameService = new GameService(
     mockGameRepository as any,
     mockUserRepository as any,
-    mockPlayerRepository as any,
   );
+
+  describe('getGames', () => {
+    it('should call gameRepository.findAllGames', async () => {
+      await gameService.getGames();
+
+      expect(mockGameRepository.findAllGames).toBeCalledWith();
+    });
+
+    it('should return a list of all game', async () => {
+      const game = new Game();
+      game.id = '12345';
+      game.name = 'foo game';
+      game.users = [user];
+      mockGameRepository.findAllGames.mockReturnValue([game]);
+
+      const foundGames = await gameService.getGames();
+
+      expect(foundGames).toEqual([game]);
+    });
+  });
+
+  describe('getGame', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.id = '12345';
+      game.name = 'foo game';
+      game.users = [user];
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.getGame('1234');
+
+      expect(mockGameRepository.findGameById).toBeCalledWith('1234');
+    });
+
+    it('should return a game', async () => {
+      const game = new Game();
+      game.id = '12345';
+      game.name = 'foo game';
+      game.users = [user];
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      const foundGame = await gameService.getGame('1234');
+
+      const expectedGame = {
+        id: game.id,
+        name: game.name,
+        organizers: [{ id: user.id, email: user.email, name: user.name }],
+      };
+
+      expect(foundGame).toEqual(expectedGame);
+    });
+
+    it('should throw a not found if no game is found', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService.getGame('1234').catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
 
   describe('createGame', () => {
     it('should call userRepository.findUsersByIds', async () => {
-      const createGameRequest = { name: 'foo game', organizerIds: ['67890'] };
+      mockGameRepository.findGameByName.mockResolvedValue(undefined);
+
+      const createGameRequest = {
+        name: 'foo game',
+        organizerIds: ['67890'],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
       await gameService.createGame(createGameRequest);
 
       expect(mockUserRepository.findUsersByIds).toBeCalledWith(
@@ -80,23 +142,31 @@ describe('GameService', () => {
     });
 
     it('should call gameRepository.saveGame', async () => {
-      const game = new Game();
-      game.name = 'foo game';
-      game.id = '34567';
-      game.users = [user];
-      game.players = [player1];
+      mockGameRepository.findGameByName.mockResolvedValue(undefined);
 
       mockUserRepository.findUsersByIds.mockResolvedValue([user]);
 
-      const createGameRequest = { name: game.name, organizerIds: [user.id] };
+      const createGameRequest = {
+        name: 'foo game',
+        organizerIds: [user.id],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
       await gameService.createGame(createGameRequest);
 
-      const newGame = { name: game.name, users: [user] };
+      const newGame = {
+        name: createGameRequest.name,
+        users: [user],
+        date: expect.any(Date),
+        missions: createGameRequest.missions,
+      };
 
       expect(mockGameRepository.saveGame).toBeCalledWith(newGame);
     });
 
     it('should return a game', async () => {
+      mockGameRepository.findGameByName.mockResolvedValue(undefined);
+
       mockUserRepository.findUsersByIds.mockResolvedValue([user]);
       const game = new Game();
       game.id = '12345';
@@ -104,7 +174,13 @@ describe('GameService', () => {
       game.users = [user];
       mockGameRepository.saveGame.mockResolvedValue(game);
 
-      const createGameRequest = { name: game.name, organizerIds: [user.id] };
+      const createGameRequest = {
+        name: game.name,
+        organizerIds: [user.id],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
+
       const createdGame = await gameService.createGame(createGameRequest);
 
       const organizer = new Organizer(user);
@@ -114,6 +190,22 @@ describe('GameService', () => {
         name: game.name,
         organizers: [organizer],
       });
+    });
+
+    it('should throw a BadRequest if the game name is already in use', async () => {
+      mockGameRepository.findGameByName.mockResolvedValue(true);
+
+      const createGameRequest = {
+        name: 'foo game',
+        organizerIds: ['67890'],
+        date: new Date(Date.now()),
+        missions: ['mission'],
+      };
+      const error = await gameService
+        .createGame(createGameRequest)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(BadRequest);
     });
   });
 
@@ -245,6 +337,133 @@ describe('GameService', () => {
     });
   });
 
+  describe('removeOrganizer', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+
+      await gameService.removeOrganizer(game.id, user.id);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call userRepository.findUser', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+
+      await gameService.removeOrganizer(game.id, user.id);
+
+      expect(mockUserRepository.findUser).toBeCalledWith(user.id);
+    });
+
+    it('should call gameRepository.saveGame', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user2);
+
+      await gameService.removeOrganizer(game.id, user.id);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.users).toHaveLength(1);
+    });
+
+    it('should call return a game with the organizer removed', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      const game2 = new Game();
+      game2.name = 'foo game';
+      game2.id = '34567';
+      game2.users = [user2];
+      game2.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+      mockGameRepository.saveGame.mockResolvedValue(game2);
+
+      const savedGame = await gameService.removeOrganizer(game.id, user.id);
+
+      const organizer2 = new Organizer(user2);
+
+      expect(savedGame).toEqual({
+        id: game.id,
+        name: game.name,
+        players: game.players,
+        organizers: [organizer2],
+      });
+    });
+
+    it('should throw a NotFound if the game cannot be found', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .removeOrganizer(game.id, user2.id)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+
+    it('should throw a NotFound if the user cannot be found', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user, user2];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .removeOrganizer(game.id, user2.id)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+
+    it('should throw a bad request if removing the last organizer', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user];
+      game.players = [player1];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockUserRepository.findUser.mockResolvedValue(user);
+
+      const error = await gameService
+        .removeOrganizer(game.id, user.id)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(BadRequest);
+    });
+  });
+
   describe('addPlayer', () => {
     it('should call gameRepository.findGameById', async () => {
       const player2 = new Player();
@@ -266,39 +485,10 @@ describe('GameService', () => {
       game.players = [player1];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
 
       await gameService.addPlayer(game.id, player2);
 
       expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
-    });
-
-    it('should call playerRepository.findPlayerByItsPin', async () => {
-      const player2 = new Player();
-      player2.name = 'foo bar';
-      player1.attending = true;
-      player2.paid = true;
-      player2.city = 'fooville';
-      player2.state = 'FL';
-      player2.email = 'foo@example.com';
-      player2.itsName = 'foobar';
-      player2.itsPin = 'qwerty';
-      player2.id = '09876';
-
-      const game = new Game();
-      game.name = 'foo game';
-      game.id = '34567';
-      game.users = [user];
-      game.players = [player1];
-
-      mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
-
-      await gameService.addPlayer(game.id, player2);
-
-      expect(mockPlayerRepository.findPlayerByItsPin).toBeCalledWith(
-        player2.itsPin,
-      );
     });
 
     it('should call repository.save', async () => {
@@ -320,7 +510,6 @@ describe('GameService', () => {
       game.players = [player1];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
 
       await gameService.addPlayer(game.id, player2);
 
@@ -347,7 +536,6 @@ describe('GameService', () => {
       game.players = [];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(undefined);
       mockGameRepository.saveGame.mockResolvedValue(game);
 
       await gameService.addPlayer(game.id, player2);
@@ -378,7 +566,6 @@ describe('GameService', () => {
       game.players = [];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(player2);
       mockGameRepository.saveGame.mockResolvedValue(game);
 
       const player2Updated = { ...player2, name: 'bar baz' };
@@ -409,7 +596,6 @@ describe('GameService', () => {
       player2.shortCode = '12212';
 
       mockGameRepository.findGameById.mockResolvedValue(undefined);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(player2);
       mockGameRepository.saveGame.mockResolvedValue(game);
 
       const error = await gameService.addPlayer(game.id, player2).catch(e => e);
@@ -425,11 +611,257 @@ describe('GameService', () => {
       game.players = [player1];
 
       mockGameRepository.findGameById.mockResolvedValue(game);
-      mockPlayerRepository.findPlayerByItsPin.mockResolvedValue(player1);
 
       const error = await gameService.addPlayer(game.id, player1).catch(e => e);
 
       expect(error).toBeInstanceOf(BadRequest);
+    });
+  });
+
+  describe('updatePrice', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.price = 2000;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updatePrice(game.id, 4000);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.price = 2000;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updatePrice(game.id, 4000);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.price).toBe(4000);
+    });
+
+    it('should return a game', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.price = 2000;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockGameRepository.saveGame.mockResolvedValue(game);
+
+      const savedGame = await gameService.updatePrice(game.id, 4000);
+
+      expect(savedGame.price).toBe(4000);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService.updatePrice('1111', 4000).catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('updateDate', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(0);
+      date.setFullYear(2020);
+
+      const game = new Game();
+      game.name = 'foo game';
+      game.date = date;
+      game.length = 2;
+      game.id = '34567';
+      game.users = [user];
+
+      const newDate = new Date();
+      newDate.setDate(2);
+      newDate.setMonth(0);
+      newDate.setFullYear(2020);
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateDate(game.id, newDate);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(0);
+      date.setFullYear(2020);
+
+      const game = new Game();
+      game.name = 'foo game';
+      game.date = date;
+      game.length = 2;
+      game.id = '34567';
+      game.users = [user];
+
+      const newDate = new Date();
+      newDate.setDate(2);
+      newDate.setMonth(0);
+      newDate.setFullYear(2020);
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateDate(game.id, newDate);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.date).toEqual(newDate);
+      expect(game.length).toBe(1);
+    });
+
+    it('should return a game', async () => {
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(0);
+      date.setFullYear(2020);
+
+      const game = new Game();
+      game.name = 'foo game';
+      game.date = date;
+      game.length = 2;
+      game.id = '34567';
+      game.users = [user];
+
+      const newDate = new Date();
+      newDate.setDate(2);
+      newDate.setMonth(0);
+      newDate.setFullYear(2020);
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockGameRepository.saveGame.mockResolvedValue(game);
+
+      const savedGame = await gameService.updateDate(game.id, newDate);
+
+      expect(savedGame.date).toEqual(newDate);
+      expect(savedGame.length).toBe(1);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .updateDate('111', new Date())
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('updateMissions', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.missions = ['mission 1'];
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      const newMissions = ['mission 1', 'mission 2'];
+
+      await gameService.updateMissions(game.id, newMissions);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.missions = ['mission 1'];
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      const newMissions = ['mission 1', 'mission 2'];
+
+      await gameService.updateMissions(game.id, newMissions);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.missions).toEqual(newMissions);
+    });
+
+    it('should return a game', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.id = '34567';
+      game.users = [user];
+
+      const newMissions = ['mission 1', 'mission 2'];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+      mockGameRepository.saveGame.mockResolvedValue(game);
+
+      const savedGame = await gameService.updateMissions(game.id, newMissions);
+
+      expect(savedGame.missions).toEqual(newMissions);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .updateMissions('111', ['mission 1'])
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
+    });
+  });
+
+  describe('updateDate', () => {
+    it('should call gameRepository.findGameById', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.status = GameStatus.NEW;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateGameStatus(game.id, GameStatus.REGISTRATION_OPEN);
+
+      expect(mockGameRepository.findGameById).toBeCalledWith(game.id);
+    });
+
+    it('should call repository.save', async () => {
+      const game = new Game();
+      game.name = 'foo game';
+      game.status = GameStatus.NEW;
+      game.id = '34567';
+      game.users = [user];
+
+      mockGameRepository.findGameById.mockResolvedValue(game);
+
+      await gameService.updateGameStatus(game.id, GameStatus.REGISTRATION_OPEN);
+
+      expect(mockGameRepository.saveGame).toBeCalledWith(game);
+      expect(game.status).toEqual(GameStatus.REGISTRATION_OPEN);
+    });
+
+    it('should throw a not found if the game does not exist', async () => {
+      mockGameRepository.findGameById.mockResolvedValue(undefined);
+
+      const error = await gameService
+        .updateGameStatus('111', GameStatus.REGISTRATION_OPEN)
+        .catch(e => e);
+
+      expect(error).toBeInstanceOf(NotFound);
     });
   });
 });

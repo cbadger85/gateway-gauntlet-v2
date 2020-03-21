@@ -1,14 +1,15 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import Navigation, { NavLink } from '../../components/Navigation';
+import Navigation from '../../components/Navigation';
 import { logout } from '../../store/auth/authSlice';
 import { useHasRole } from '../../hooks/useHasRole';
 import { Button } from '@material-ui/core';
+import NavLink from '../../components/NavLink';
 
 jest.mock('react-router-dom', () => ({
   useHistory: jest
     .fn()
-    .mockReturnValue({ location: { pathname: '/tournament-manager' } }),
+    .mockReturnValue({ location: { pathname: '/tournaments' } }),
 }));
 
 jest.mock('react-redux', () => ({
@@ -23,87 +24,63 @@ jest.mock('../../hooks/useHasRole.ts', () => ({
   useHasRole: jest.fn(),
 }));
 
-describe('Navigation', () => {
-  describe('NavLink', () => {
-    it('should show the active indicator if the link is active', () => {
-      const wrapper = shallow(
-        <NavLink to="/" isActive>
-          test
-        </NavLink>,
-      );
+describe('<Navigation />', () => {
+  it('should show the active link', () => {
+    (useHasRole as jest.Mock).mockReturnValue(() => true);
 
-      const activeIndicator = wrapper.find('[data-testid="active-indicator"]');
+    const wrapper = shallow(<Navigation />);
 
-      expect(activeIndicator.exists()).toBeTruthy();
-    });
+    const activeLink = wrapper
+      .find(NavLink)
+      .findWhere(component => component.props().to === '/tournaments');
 
-    it('should not show the active indicator if the link is not active', () => {
-      const wrapper = shallow(<NavLink to="/">test</NavLink>);
-
-      const activeIndicator = wrapper.find('[data-testid="active-indicator"]');
-
-      expect(activeIndicator.exists()).toBeFalsy();
-    });
+    expect(activeLink.props().isActive).toBeTruthy();
   });
 
-  describe('<Navigation />', () => {
-    it('should show the active link', () => {
-      (useHasRole as jest.Mock).mockReturnValue(() => true);
+  it('should show all the links if the user is authorized', () => {
+    (useHasRole as jest.Mock).mockReturnValue(() => true);
 
-      const wrapper = shallow(<Navigation />);
+    const wrapper = shallow(<Navigation />);
 
-      const activeLink = wrapper
-        .find(NavLink)
-        .findWhere(component => component.props().to === '/tournament-manager');
+    const links = wrapper.find(NavLink);
+    const userLink = wrapper
+      .find(NavLink)
+      .findWhere(component => component.props().to === '/users');
 
-      expect(activeLink.props().isActive).toBeTruthy();
-    });
+    expect(links).toHaveLength(3);
+    expect(userLink.exists()).toBeTruthy();
+  });
 
-    it('should show all the links if the user is authorized', () => {
-      (useHasRole as jest.Mock).mockReturnValue(() => true);
+  it('should not show the users link if the user is not authorized', () => {
+    (useHasRole as jest.Mock).mockReturnValueOnce(
+      jest
+        .fn()
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(false),
+    );
 
-      const wrapper = shallow(<Navigation />);
+    const wrapper = shallow(<Navigation />);
 
-      const links = wrapper.find(NavLink);
-      const userLink = wrapper
-        .find(NavLink)
-        .findWhere(component => component.props().to === '/users');
+    const links = wrapper.find(NavLink);
+    const userLink = wrapper
+      .find(NavLink)
+      .findWhere(component => component.props().to === '/users');
 
-      expect(links).toHaveLength(3);
-      expect(userLink.exists()).toBeTruthy();
-    });
+    expect(links).toHaveLength(2);
+    expect(userLink.exists()).toBeFalsy();
+  });
 
-    it('should not show the users link if the user is not authorized', () => {
-      (useHasRole as jest.Mock).mockReturnValueOnce(
-        jest
-          .fn()
-          .mockReturnValueOnce(true)
-          .mockReturnValueOnce(false),
-      );
+  it('should log the user out when the logout button is clicked', () => {
+    (useHasRole as jest.Mock).mockReturnValueOnce(
+      jest.fn().mockReturnValueOnce(true),
+    );
 
-      const wrapper = shallow(<Navigation />);
+    const wrapper = shallow(<Navigation />);
 
-      const links = wrapper.find(NavLink);
-      const userLink = wrapper
-        .find(NavLink)
-        .findWhere(component => component.props().to === '/users');
+    const handleLogout = wrapper.find(Button).invoke('onClick');
 
-      expect(links).toHaveLength(2);
-      expect(userLink.exists()).toBeFalsy();
-    });
+    handleLogout?.({} as any);
 
-    it('should log the user out when the logout button is clicked', () => {
-      (useHasRole as jest.Mock).mockReturnValueOnce(
-        jest.fn().mockReturnValueOnce(true),
-      );
-
-      const wrapper = shallow(<Navigation />);
-
-      const handleLogout = wrapper.find(Button).invoke('onClick');
-
-      handleLogout?.({} as any);
-
-      expect(logout).toBeCalled();
-    });
+    expect(logout).toBeCalled();
   });
 });

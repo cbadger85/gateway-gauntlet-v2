@@ -26,6 +26,7 @@ class MockRepository {
   saveUser = jest.fn();
   findUser = jest.fn();
   findAllUsers = jest.fn();
+  findOrganizers = jest.fn();
   findUserByEmail = jest.fn();
   countUsersByUsernameOrEmail = jest.fn();
 }

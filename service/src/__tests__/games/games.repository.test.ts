@@ -31,8 +31,10 @@ const game = new Game();
 game.name = 'foo game';
 game.users = [user];
 game.players = [player1];
+game.date = new Date(Date.now());
+game.missions = ['mission 1', 'mission 2'];
 
-describe('UserRepository', () => {
+describe('GameRepository', () => {
   let gameRepository: GameRepository;
 
   beforeEach(() => {
@@ -51,7 +53,15 @@ describe('UserRepository', () => {
 
     const games = await gameRepository.findAllGames();
 
-    expect(games).toEqual([{ id: expect.any(String), name: 'foo game' }]);
+    expect(games).toEqual([
+      {
+        id: expect.any(String),
+        name: 'foo game',
+        date: expect.any(Date),
+        length: 1,
+        missions: ['mission 1', 'mission 2'],
+      },
+    ]);
   });
 
   it('should find a game by id', async () => {
@@ -59,5 +69,13 @@ describe('UserRepository', () => {
     const foundGame = await gameRepository.findGameById(savedGame.id);
 
     expect(foundGame).toEqual(savedGame);
+  });
+
+  it('should find a game by name', async () => {
+    await gameRepository.saveGame(game);
+
+    const fooGame = await gameRepository.findGameByName(game.name);
+
+    expect(fooGame).toBeTruthy();
   });
 });

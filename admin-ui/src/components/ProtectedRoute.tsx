@@ -41,7 +41,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     );
   }
 
-  return <div>Not Authorized</div>;
+  return (
+    <div>
+      <Navigation />
+      Not Authorized
+    </div>
+  );
 };
 
 interface ProtectedRouteProps extends RouteProps {

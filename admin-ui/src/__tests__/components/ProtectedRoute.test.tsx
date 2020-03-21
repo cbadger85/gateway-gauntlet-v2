@@ -113,7 +113,7 @@ describe('<ProtectedRoute />', () => {
     const route = wrapper.find(Route);
 
     expect(route.exists()).toBeFalsy();
-    expect(wrapper.text()).toBe('Not Authorized');
+    expect(wrapper.text()).toContain('Not Authorized');
   });
 
   it('should show not authorized if login has failed', () => {
@@ -124,6 +124,6 @@ describe('<ProtectedRoute />', () => {
     const route = wrapper.find(Route);
 
     expect(route.exists()).toBeFalsy();
-    expect(wrapper.text()).toBe('Not Authorized');
+    expect(wrapper.text()).toContain('Not Authorized');
   });
 });

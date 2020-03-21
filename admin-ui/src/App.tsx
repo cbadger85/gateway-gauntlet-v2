@@ -77,6 +77,7 @@ const App: React.FC = () => {
                   key={route.path}
                   exact={route.exact}
                   path={route.path}
+                  requiredRoles={route.requiredRoles}
                 >
                   <route.component />
                 </ProtectedRoute>
@@ -87,7 +88,7 @@ const App: React.FC = () => {
               ),
             )}
             <Route>
-              <Redirect to="/tournament-manager" />
+              <Redirect to={routesConfig().tournaments.path} />
             </Route>
           </Switch>
         </Router>

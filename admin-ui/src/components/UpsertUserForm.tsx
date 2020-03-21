@@ -10,7 +10,6 @@ import TextField from '@material-ui/core/TextField';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import colors from '../colors';
 import { useHasRole } from '../hooks/useHasRole';
 import { Role, User } from '../types/User';
 import { enumToCapitalcase } from '../utils/enumToCapitalcase';
@@ -33,7 +32,7 @@ const upsertUserSchema = Yup.object().shape({
   email: Yup.string()
     .trim()
     .required('Please enter an email')
-    .max(24, 'Email must be less than 16 characters')
+    .max(32, 'Email must be less than 32 characters')
     .email('Must be a valid email'),
   roles: Yup.array()
     .required('At least one role is required')
@@ -61,14 +60,6 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     height: 'calc(100% - 56px)',
-  },
-  redButton: {
-    borderColor: colors.red[5],
-    color: colors.red[5],
-    '&:hover': {
-      backgroundColor: `${colors.red[3]}22`,
-      borderColor: colors.red[4],
-    },
   },
   badRequestAlert: {
     margin: theme.spacing(2, 0),
@@ -203,6 +194,7 @@ const UpsertUserForm: React.FC<UpsertUserFormProps> = ({
             multiple
             control={control}
             SelectDisplayProps={{
+              // @ts-nocheck
               'data-testid': 'role-button',
             }}
           >

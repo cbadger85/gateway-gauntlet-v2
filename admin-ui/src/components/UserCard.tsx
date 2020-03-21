@@ -24,7 +24,7 @@ const UserCard: React.FC<UserCardProps> = ({
 
   return (
     <div className={classes.root}>
-      <Card raised>
+      <Card>
         <CardContent>
           {isEditMode ? (
             <UserCardEditMode

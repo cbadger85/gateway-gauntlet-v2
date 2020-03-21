@@ -5,10 +5,12 @@ import {
   JoinTable,
   ManyToMany,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import Player from '../players/players.entity';
 import User from '../users/users.entity';
 import Organizer from './organizer.dto';
+import { GameStatus } from './gameStatus.model';
 
 @Entity()
 class Game {
@@ -17,6 +19,21 @@ class Game {
 
   @Column({ unique: true })
   name!: string;
+
+  @Column('simple-array')
+  missions: string[];
+
+  @Column()
+  date: Date;
+
+  @Column({ default: 1 })
+  length: number;
+
+  @Column({ default: 0 })
+  price: number;
+
+  @Column({ default: GameStatus.NEW })
+  status: GameStatus;
 
   @ManyToMany(
     type => User,
@@ -27,9 +44,9 @@ class Game {
   @Exclude({ toPlainOnly: true })
   users: User[];
 
-  @ManyToMany(
+  @OneToMany(
     type => Player,
-    player => player.email,
+    player => player.game,
     { cascade: true, eager: true },
   )
   @JoinTable()

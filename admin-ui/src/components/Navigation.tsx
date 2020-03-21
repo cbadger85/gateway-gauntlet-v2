@@ -5,11 +5,11 @@ import Divider from '@material-ui/core/Divider';
 import makeStyles from '@material-ui/core/styles/makeStyles';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, useHistory } from 'react-router-dom';
-import colors from '../colors';
+import { useHistory } from 'react-router-dom';
 import { useHasRole } from '../hooks/useHasRole';
 import routesConfig from '../routesConfig';
 import { logout } from '../store/auth/authSlice';
+import NavLink from './NavLink';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -18,37 +18,10 @@ const useStyles = makeStyles(theme => ({
   appBar: {
     backgroundColor: theme.palette.background.default,
   },
-  activeNavLinkContainer: {
-    position: 'relative',
+  navLinkRightMargin: {
     marginRight: theme.spacing(6),
   },
-  activeNavLink: {
-    backgroundColor: colors.pink[5],
-    height: '5px',
-    position: 'absolute',
-    bottom: -8,
-    width: '100%',
-  },
 }));
-
-export const NavLink: React.FC<{ isActive?: boolean; to: string }> = ({
-  to,
-  isActive,
-  children,
-}) => {
-  const classes = useStyles();
-
-  return (
-    <div className={classes.activeNavLinkContainer}>
-      <Button component={Link} to={to}>
-        {children}
-      </Button>
-      {isActive && (
-        <div className={classes.activeNavLink} data-testid="active-indicator" />
-      )}
-    </div>
-  );
-};
 
 const Navigation: React.FC = () => {
   const classes = useStyles();
@@ -81,11 +54,14 @@ const Navigation: React.FC = () => {
             key={route.path}
             to={route.path}
             isActive={pathname.includes(route.path)}
+            horizontal
           >
             {route.name?.toUpperCase()}
           </NavLink>
         ))}
-        <Button onClick={handleLogout}>Logout</Button>
+        <Button onClick={handleLogout} className={classes.navLinkRightMargin}>
+          Logout
+        </Button>
       </Box>
       <Divider />
     </AppBar>

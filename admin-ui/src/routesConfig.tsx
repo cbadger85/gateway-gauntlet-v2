@@ -5,6 +5,9 @@ import Login from './pages/Login';
 import { Redirect } from 'react-router-dom';
 import Users from './pages/Users';
 import Profile from './pages/Profile';
+import Tournaments from './pages/Tournaments';
+import TournamentPage from './pages/TournamentPage';
+import TournamentInfo from './pages/TournamentInfo';
 
 const routesConfig = (
   options?: Partial<RouteConfigOptions>,
@@ -13,7 +16,7 @@ const routesConfig = (
     path: '/',
     protected: true,
     exact: true,
-    component: () => <Redirect to="/tournament-manager" />,
+    component: () => <Redirect to={routesConfig().tournaments.path} />,
   },
   login: {
     path: '/login',
@@ -25,13 +28,14 @@ const routesConfig = (
     exact: true,
     component: ResetPassword,
   },
-  tournamentManager: {
-    path: '/tournament-manager',
-    name: 'tournament manager',
+  tournaments: {
+    path: '/tournaments',
+    name: 'tournaments',
     protected: true,
     requiredRoles: [Role.ORGANIZER],
-    component: () => <div>Tournament Manager</div>,
+    component: Tournaments,
     menuType: 'navbar',
+    exact: true,
   },
   users: {
     path: '/users',
@@ -49,17 +53,49 @@ const routesConfig = (
     component: Profile,
     menuType: 'navbar',
   },
+  tournamentPage: {
+    path: `/tournaments/${options?.tournamentId || ':tournamentId'}`,
+    name: 'tournament',
+    protected: true,
+    requiredRoles: [Role.ORGANIZER],
+    component: TournamentPage,
+  },
+  tournamentInfo: {
+    path: `/tournaments/${options?.tournamentId || ':tournamentId'}`,
+    name: 'tournament info',
+    component: TournamentInfo,
+    menuType: 'leftPanel',
+    exact: true,
+  },
+  players: {
+    path: `/tournaments/${options?.tournamentId || ':tournamentId'}/players`,
+    name: 'players',
+    component: () => <div>Players</div>,
+    menuType: 'leftPanel',
+    exact: true,
+  },
+  tournamentManager: {
+    path: `/tournaments/${options?.tournamentId || ':tournamentId'}/manager`,
+    name: 'tournament manager',
+    component: () => <div>Tournament Manager</div>,
+    menuType: 'leftPanel',
+    exact: true,
+  },
 });
 
 export default routesConfig;
 
 type RouteKeys =
   | 'users'
-  | 'tournamentManager'
+  | 'tournaments'
+  | 'tournamentPage'
   | 'profile'
   | 'login'
   | 'home'
-  | 'resetPassword';
+  | 'resetPassword'
+  | 'tournamentInfo'
+  | 'players'
+  | 'tournamentManager';
 
 interface RouteConfig {
   path: string;
