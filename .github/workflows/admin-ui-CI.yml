@@ -21,7 +21,7 @@ jobs:
       - name: Admin UI CI lint and test
         run: |
           echo Installing yarn...
-          npm yarn
+          npm i -g yarn
           echo Installing packages...
           cd admin-ui
           yarn install

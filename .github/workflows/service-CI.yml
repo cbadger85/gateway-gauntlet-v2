@@ -21,7 +21,7 @@ jobs:
       - name: Service CI lint and test
         run: |
           echo Installing yarn...
-          npm yarn
+          npm i -g yarn
           echo Installing packages...
           cd service
           yarn install
