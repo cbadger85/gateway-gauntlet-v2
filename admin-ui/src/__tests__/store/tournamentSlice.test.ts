@@ -7,11 +7,15 @@ import tournamentReducer, {
   getTournament,
   addOrganizer,
   removeOrganizer,
+  changeTournamentStatus,
+  openRegistration,
+  closeRegistration,
 } from '../../store/tournament/tournamentSlice';
 import {
   getGameById,
   putOrganizer,
   deleteOrganizer,
+  postGameStatus,
 } from '../../controllers/gamesController';
 import { addSnackbar } from '../../store/alert/alertSlice';
 
@@ -21,6 +25,7 @@ jest.mock('../../controllers/gamesController', () => ({
   getGameById: jest.fn(),
   putOrganizer: jest.fn(),
   deleteOrganizer: jest.fn(),
+  postGameStatus: jest.fn(),
 }));
 
 const initialState: Game = {
@@ -82,6 +87,15 @@ describe('tournamentSlice', () => {
 
       expect(tournament).toEqual(initialState);
     });
+
+    it('should load the tournament', () => {
+      const tournament = tournamentReducer(initialState, {
+        type: changeTournamentStatus.type,
+        payload: GameStatus.REGISTRATION_OPEN,
+      });
+
+      expect(tournament.status).toEqual(GameStatus.REGISTRATION_OPEN);
+    });
   });
 
   describe('getTournament', () => {
@@ -108,6 +122,132 @@ describe('tournamentSlice', () => {
       };
 
       expect(store.getActions()).toEqual([loadTournamentAction]);
+    });
+  });
+
+  describe('openRegistration', () => {
+    it('should call postGameStatus', async () => {
+      (postGameStatus as jest.Mock).mockResolvedValue(undefined);
+
+      const store = mockStore({ tournament: mockGame, alert: [] });
+
+      await store.dispatch(openRegistration() as any);
+
+      expect(postGameStatus).toBeCalledWith(
+        mockGame.id,
+        GameStatus.REGISTRATION_OPEN,
+      );
+    });
+
+    it('should change tournament status and show snackbar if successful', async () => {
+      (postGameStatus as jest.Mock).mockResolvedValue(undefined);
+
+      const store = mockStore({ tournament: mockGame, alert: [] });
+
+      await store.dispatch(openRegistration() as any);
+
+      const loadTournamentAction = {
+        type: changeTournamentStatus.type,
+        payload: GameStatus.REGISTRATION_OPEN,
+      };
+
+      const addSnackbarAction = {
+        type: addSnackbar.type,
+        payload: {
+          id: expect.any(String),
+          message: expect.any(String),
+          severity: 'success',
+        },
+      };
+
+      expect(store.getActions()).toEqual([
+        loadTournamentAction,
+        addSnackbarAction,
+      ]);
+    });
+
+    it('should load the snackbar if unsuccessful', async () => {
+      (postGameStatus as jest.Mock).mockRejectedValue(new Error());
+
+      const store = mockStore({ tournament: mockGame, alert: [] });
+
+      await store.dispatch((async (dispatch: any) => {
+        dispatch(openRegistration());
+      }) as any);
+
+      const addSnackbarAction = {
+        type: addSnackbar.type,
+        payload: {
+          id: expect.any(String),
+          message: expect.any(String),
+          severity: 'error',
+        },
+      };
+
+      expect(store.getActions()).toEqual([addSnackbarAction]);
+    });
+  });
+
+  describe('closeRegistration', () => {
+    it('should call postGameStatus', async () => {
+      (postGameStatus as jest.Mock).mockResolvedValue(undefined);
+
+      const store = mockStore({ tournament: mockGame, alert: [] });
+
+      await store.dispatch(closeRegistration() as any);
+
+      expect(postGameStatus).toBeCalledWith(
+        mockGame.id,
+        GameStatus.REGISTRATION_CLOSED,
+      );
+    });
+
+    it('should change tournament status and show snackbar if successful', async () => {
+      (postGameStatus as jest.Mock).mockResolvedValue(undefined);
+
+      const store = mockStore({ tournament: mockGame, alert: [] });
+
+      await store.dispatch(closeRegistration() as any);
+
+      const loadTournamentAction = {
+        type: changeTournamentStatus.type,
+        payload: GameStatus.REGISTRATION_CLOSED,
+      };
+
+      const addSnackbarAction = {
+        type: addSnackbar.type,
+        payload: {
+          id: expect.any(String),
+          message: expect.any(String),
+          severity: 'success',
+        },
+      };
+
+      expect(store.getActions()).toEqual([
+        loadTournamentAction,
+        addSnackbarAction,
+      ]);
+    });
+
+    it('should load the snackbar if unsuccessful', async () => {
+      (postGameStatus as jest.Mock).mockRejectedValue(new Error());
+
+      const store = mockStore({ tournament: mockGame, alert: [] });
+
+      await store.dispatch((async (dispatch: any) => {
+        dispatch(closeRegistration());
+      }) as any);
+
+      const addSnackbarAction = {
+        type: addSnackbar.type,
+        payload: {
+          id: expect.any(String),
+          message: expect.any(String),
+          severity: 'error',
+        },
+      };
+
+      expect(store.getActions()).toEqual([addSnackbarAction]);
     });
   });
 

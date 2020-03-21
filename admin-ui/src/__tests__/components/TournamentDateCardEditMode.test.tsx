@@ -15,6 +15,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('../../store');
+
 jest.mock('../../controllers/gamesController', () => ({
   putDate: jest.fn(),
 }));
