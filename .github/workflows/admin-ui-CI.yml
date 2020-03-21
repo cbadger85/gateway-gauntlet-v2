@@ -20,10 +20,12 @@ jobs:
 
       - name: Admin UI CI lint and test
         run: |
+          echo Installing yarn...
+          npm yarn
           echo Installing packages...
           cd admin-ui
-          npm install
+          yarn install
           echo Running tests on gateway gauntlet admin ui...
-          npm run ci
+          yarn run ci
         env:
           CI: true
