@@ -194,6 +194,7 @@ const UpsertUserForm: React.FC<UpsertUserFormProps> = ({
             multiple
             control={control}
             SelectDisplayProps={{
+              // @ts-nocheck
               'data-testid': 'role-button',
             }}
           >
