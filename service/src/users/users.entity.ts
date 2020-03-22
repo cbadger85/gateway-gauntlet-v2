@@ -4,7 +4,7 @@ import { Exclude, Expose } from 'class-transformer';
 import Game from '../games/games.entity';
 import crypto from 'crypto';
 
-@Entity()
+@Entity({ name: 'users' })
 class User {
   @PrimaryGeneratedColumn('uuid')
   @Expose()
