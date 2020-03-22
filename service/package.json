@@ -10,10 +10,11 @@
     "build": "NODE_ENV=production tsc -b",
     "start": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.test.ts' --exec 'ts-node' src/index.ts",
     "test": "jest --watch",
-    "test:ci": "CI=true jest --env=jsdom --verbose --coverage --silent",
+    "test:ci": "CI=true jest --env=node --verbose --coverage --silent",
+    "migration": "npm run typeorm migration:run",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "ci": "npm run lint && npm run test:ci",
-    "prod": "npm run build && npm run bootstrap && npm run serve",
+    "prod": "npm run build && npm run migration && npm run bootstrap && npm run serve",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js"
   },
   "jest": {
