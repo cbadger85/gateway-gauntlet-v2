@@ -18,7 +18,11 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "ignorePatterns": ["**/__tests__/**/*.ts", "**/node_modules/**/*"],
+  "ignorePatterns": [
+    "**/__tests__/**/*.ts",
+    "**/node_modules/**/*",
+    "*/migration/**/*"
+  ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": [
       "error",
