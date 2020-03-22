@@ -15,7 +15,7 @@
     "migration:prod": "typeorm migration:run",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "ci": "npm run lint && npm run test:ci",
-    "prod": "npm run build && npm run migration &&  npm run bootstrap && npm run serve",
+    "prod": "npm run build && npm run bootstrap && npm run serve",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js"
   },
   "jest": {
