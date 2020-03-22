@@ -1,16 +1,16 @@
  {
   "schemaVersion": 2,
   "dockerfileLines": [
-                        "ARG TYPEORM_HOST=${TYPEORM_HOST}"
-                        "ARG TYPEORM_USERNAME=${TYPEORM_USERNAME}"
-                        "ARG TYPEORM_PASSWORD=${TYPEORM_PASSWORD}"
-                        "ARG TYPEORM_DATABASE=${TYPEORM_DATABASE}"
-                        "ARG TYPEORM_CONNECTION=${TYPEORM_CONNECTION}"
-                        "ARG TYPEORM_ENTITIES=${TYPEORM_ENTITIES}"
-                        "ARG TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}"
-                        "ARG TYPEORM_ENTITIES_DIR=${TYPEORM_ENTITIES_DIR}"
-                        "ARG TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}"
-                        "ARG TYPEORM_SYNCHRONIZE=${TYPEORM_SYNCHRONIZE}"
+                        "ARG TYPEORM_HOST=${TYPEORM_HOST}",
+                        "ARG TYPEORM_USERNAME=${TYPEORM_USERNAME}",
+                        "ARG TYPEORM_PASSWORD=${TYPEORM_PASSWORD}",
+                        "ARG TYPEORM_DATABASE=${TYPEORM_DATABASE}",
+                        "ARG TYPEORM_CONNECTION=${TYPEORM_CONNECTION}",
+                        "ARG TYPEORM_ENTITIES=${TYPEORM_ENTITIES}",
+                        "ARG TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}",
+                        "ARG TYPEORM_ENTITIES_DIR=${TYPEORM_ENTITIES_DIR}",
+                        "ARG TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}",
+                        "ARG TYPEORM_SYNCHRONIZE=${TYPEORM_SYNCHRONIZE}",
                         "FROM node:10-alpine3.11",
                         "RUN mkdir -p /usr/src/app",
                         "WORKDIR /usr/src/app",
