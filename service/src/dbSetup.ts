@@ -18,6 +18,10 @@ export const dbSetup = async (): Promise<Connection> => {
 
   console.log(getEmojiLog('🕺', 'Running migrations...'));
 
+  if (!connection.migrations.length) {
+    console.log(getEmojiLog('😱', 'No migrations to run'));
+  }
+
   connection.migrations.forEach(migration => {
     console.log(getEmojiLog('🤔', `name: ${migration.name}`));
   });
