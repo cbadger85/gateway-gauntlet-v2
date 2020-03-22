@@ -13,6 +13,8 @@ jest.mock('typeorm', () => ({
   getConnectionOptions: jest.fn().mockResolvedValue({ option: true }),
   MigrationExecutor: jest.fn().mockImplementation(() => ({
     executePendingMigrations: jest.fn().mockResolvedValue(null),
+    getAllMigrations: jest.fn().mockResolvedValue([{ name: 'migration 1' }]),
+    executeMigration: jest.fn().mockResolvedValue(null),
   })),
 }));
 

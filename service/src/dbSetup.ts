@@ -21,14 +21,15 @@ export const dbSetup = async (): Promise<Connection> => {
 
   console.log(getEmojiLog('🎉', 'Database connected!'));
 
-  console.log(getEmojiLog('🕺', 'Running migrations...'));
   const migrationExecutor = new MigrationExecutor(connection);
 
-  await migrationExecutor.executePendingMigrations().catch(() => {
-    console.log(getEmojiLog('💥', 'Migrations failed to run'));
-  });
+  const migrations = await migrationExecutor.getAllMigrations();
 
-  console.log(getEmojiLog('🎉', 'Migrations successful'));
+  migrations.forEach(async migration => {
+    console.log(getEmojiLog('🕺', `Running migration ${migration.name}`));
+    await migrationExecutor.executeMigration(migration);
+    console.log(getEmojiLog('🎉', `Migration ${migration.name} successful`));
+  });
 
   return connection;
 };
