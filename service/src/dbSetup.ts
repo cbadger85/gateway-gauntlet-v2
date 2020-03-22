@@ -16,19 +16,20 @@ export const dbSetup = async (): Promise<Connection> => {
 
   console.log(getEmojiLog('🎉', 'Database connected!'));
 
-  console.log(getEmojiLog('🕺', 'Running migrations...'));
+  if (process.env.TYPEORM_SYNCHRONIZE === 'false') {
+    console.log(getEmojiLog('🕺', 'Running migrations...'));
 
-  if (!connection.migrations.length) {
-    console.log(getEmojiLog('😱', 'No migrations to run'));
+    if (!connection.migrations.length) {
+      console.log(getEmojiLog('😱', 'No migrations to run'));
+    }
+
+    connection.migrations.forEach(migration => {
+      console.log(getEmojiLog('🤔', `name: ${migration.name}`));
+    });
+
+    await connection.runMigrations({ transaction: 'none' });
+    console.log(getEmojiLog('🎉', 'Migrations complete!'));
   }
-
-  connection.migrations.forEach(migration => {
-    console.log(getEmojiLog('🤔', `name: ${migration.name}`));
-  });
-
-  console.log(getEmojiLog('🎉', 'Migrations complete!'));
-
-  await connection.runMigrations({ transaction: 'none' });
 
   return connection;
 };
