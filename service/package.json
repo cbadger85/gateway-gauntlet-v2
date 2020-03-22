@@ -12,6 +12,7 @@
     "test": "jest --watch",
     "test:ci": "CI=true jest --env=node --verbose --coverage --silent",
     "migration": "npm run typeorm migration:run",
+    "migration:prod": "typeorm migration:run",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "ci": "npm run lint && npm run test:ci",
     "prod": "npm run build && npm run migration && npm run bootstrap && npm run serve",
