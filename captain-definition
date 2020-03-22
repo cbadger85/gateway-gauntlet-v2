@@ -1,6 +1,10 @@
  {
   "schemaVersion": 2,
   "dockerfileLines": [
+                        "FROM node:10-alpine3.11",
+                        "RUN mkdir -p /usr/src/app",
+                        "WORKDIR /usr/src/app",
+                        "COPY ./service/package.json /usr/src/app/",
                         "ARG TYPEORM_HOST=${TYPEORM_HOST}",
                         "ARG TYPEORM_USERNAME=${TYPEORM_USERNAME}",
                         "ARG TYPEORM_PASSWORD=${TYPEORM_PASSWORD}",
@@ -11,10 +15,6 @@
                         "ARG TYPEORM_ENTITIES_DIR=${TYPEORM_ENTITIES_DIR}",
                         "ARG TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}",
                         "ARG TYPEORM_SYNCHRONIZE=${TYPEORM_SYNCHRONIZE}",
-                        "FROM node:10-alpine3.11",
-                        "RUN mkdir -p /usr/src/app",
-                        "WORKDIR /usr/src/app",
-                        "COPY ./service/package.json /usr/src/app/",
                         "RUN npm install && npm cache clean --force",
                         "RUN npm run migration:prod",
                         "COPY ./service /usr/src/app",
