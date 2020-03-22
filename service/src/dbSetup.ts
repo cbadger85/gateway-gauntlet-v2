@@ -1,10 +1,5 @@
 import { Container } from 'typedi';
-import {
-  Connection,
-  createConnection,
-  useContainer,
-  MigrationExecutor,
-} from 'typeorm';
+import { Connection, createConnection, useContainer } from 'typeorm';
 import { getEmojiLog } from './utils/getEmojiLog';
 
 export const dbSetup = async (): Promise<Connection> => {
@@ -21,15 +16,19 @@ export const dbSetup = async (): Promise<Connection> => {
 
   console.log(getEmojiLog('🎉', 'Database connected!'));
 
-  const migrationExecutor = new MigrationExecutor(connection);
+  console.log(getEmojiLog('🕺', 'Running migrations...'));
 
-  const migrations = await migrationExecutor.getAllMigrations();
+  if (!connection.migrations.length) {
+    console.log(getEmojiLog('😱', 'No migrations to run'));
+  }
 
-  migrations.forEach(async migration => {
-    console.log(getEmojiLog('🕺', `Running migration ${migration.name}`));
-    await migrationExecutor.executeMigration(migration);
-    console.log(getEmojiLog('🎉', `Migration ${migration.name} successful`));
+  connection.migrations.forEach(migration => {
+    console.log(getEmojiLog('🤔', `name: ${migration.name}`));
   });
+
+  console.log(getEmojiLog('🎉', 'Migrations complete!'));
+
+  await connection.runMigrations({ transaction: 'none' });
 
   return connection;
 };
